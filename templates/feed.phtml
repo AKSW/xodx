@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+    <title>Activity Feed for <?= $this->name ?></title>
+    <link><?= $this->uri ?></link>
+    <description>This is the activity feed for the foaf:Person with the following uri: <?= $this->name ?></description>
+    <language>en-us</language>
+    <copyright>Xodx</copyright>
+    <pubDate>Erstellungsdatum("Tue, 8 Jul 2008 2:43:19")</pubDate>
+
+    <?php foreach ($this->activities as $activity) : ?>
+    <item>
+      <title><?= $activity->title ?></title>
+      <description><?= $this->name ?> did <?= $activity->title ?></description>
+      <link><?= $activity->uri ?></link>
+      <author><?= $this->name ?></author>
+      <guid><?= $activity->uri ?></guid>
+      <pubDate><?= $activity->date ?></pubDate>
+    </item>
+    <?php endforeach; ?>
+ 
+  </channel>
+</rss>

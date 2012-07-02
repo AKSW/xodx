@@ -1,0 +1,28 @@
+<h2>Profile of ...</h2>
+<img class="avatar size128" src="<?= $this->profileshowDepiction ?>" />
+<div class="profile">
+    <h3><?= $this->profileshowName ?></h3>
+    <h4><?= $this->profileshowNick ?></h4>
+    <h5>knows ...</h5>
+    <form method="post" action="?c=profile&a=addfriend">
+    <ul>
+<?php
+foreach($this->profileshowKnows as $contact) :
+if ($contact['name'] != null) {
+    $name = $contact['name'];
+} else {
+    $name = $contact['contactUri'];
+}
+?>
+        <li><a href="?c=profile&amp;a=show&amp;person=<?= urlencode($contact['contactUri']) ?>"><?= $name ?></a></li>
+<?php endforeach; ?>
+        <li>
+            <div class="input-append">
+                <input type="hidden" name="person" value="<?= $this->profileshowPersonUri ?>" />
+                <input type="text" name="friend" /><button class="btn btn-primary" type="submit">Add</button>
+            </div>
+        </li>
+    </ul>
+    </form>
+    <a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
+</div>

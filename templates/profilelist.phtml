@@ -1,0 +1,16 @@
+<h2>List of Profiles</h2>
+<ul>
+<?php
+if (!empty($this->profilelistList)) :
+    foreach($this->profilelistList as $entry) :?>
+<li>Profile of <a href="?c=profile&amp;a=show&amp;person=<?= urlencode($entry['person']) ?>"><?php echo $entry['name']; ?></a></li>
+<?php
+    endforeach;
+endif;
+?>
+</ul>
+<pre>
+<?php
+    echo var_export($this->profilelistList, true);
+?>
+</pre>
