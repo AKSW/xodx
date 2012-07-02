@@ -3,8 +3,25 @@
 /**
  * This class implements a pubsubhubbub publisher and subscriber
  */
-class Xodx_PushController
+class Xodx_PushController extends Xodx_Controller
 {
+
+    private $_callbackUrl;
+
+    public function __construct ()
+    {
+        $this->app = Application::getInstance();
+        $this->callbackUrl = $this->app->getBaseUri() . '?c=push&amp;a=callback';
+    }
+
+    public function subscribeAction ()
+    {
+        $this->app = Application::getInstance();
+        $bootstrap = $this->app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+
+        echo $this->subscribe($request->getValue('feeduri', 'post'));
+    }
 
     /**
      * This is the subscribe method, which is called internally if some component wants to
@@ -15,6 +32,84 @@ class Xodx_PushController
         // TODO implement events
         // TODO check if we are already subscribed to this feed
         // else fetch feed, get hub url, subscribe to the hub
+        $curlHandler = curl_init();
+
+        //set the url
+        curl_setopt($curlHandler, CURLOPT_URL, $feedUri);
+        curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($curlHandler);
+        $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
+        $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
+
+        curl_close($curlHandler);
+
+        if ($httpCode-($httpCode%100) == 200) {
+            $xml = simplexml_load_string($result);
+
+            $hubUrl = null;
+
+            if (count($xml) < 1) {
+                // TODO: throw Exception
+                throw new Exception('Feed is empty');
+            } else {
+                foreach ($xml->link as $link) {
+                    $attributes = $link->attributes();
+                    if ($attributes['rel'] == 'hub') {
+                        $hubUrl = $attributes['href'];
+                        echo 'hub found at: ' . $hubUrl;
+                        // TODO: maybe we could use multiple hubs if more than one is specified
+                        break;
+                    }
+                }
+            }
+
+            // TODO: read the rest of the feed and store the actions
+
+            if ($hubUrl !== null) {
+                // TODO: subscribe to hub
+
+                $postData = array(
+                    'hub.mode' => 'subscribe',
+                    'hub.callback' => $this->callbackUrl,
+                    'hub.verify' => 'async',
+                    'hub.verify_token' => '',
+                    'hub.lease_seconds' => '',
+                    'hub.topic' => urlencode($topicUri)
+                );
+
+                $postString = '';
+
+                foreach ($postData as $key => $value) {
+                    $postString .= $key . '=' . $value . '&';
+                }
+                rtrim($postString,'&');
+
+                $curlHandler = curl_init();
+
+                //set the url
+                curl_setopt($curlHandler, CURLOPT_URL, $hubUrl);
+                curl_setopt($curlHandler, CURLOPT_POST, true);
+                curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $postString);
+                curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
+
+                $result = curl_exec($curlHandler);
+                $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
+
+                curl_close($curlHandler);
+
+                if ($httpCode-($httpCode%100) != 200) {
+                    throw new Exception('Subscription to hub failed');
+                }
+            } else {
+                throw new Exception('No hub found in feed');
+            }
+        } else {
+            throw new Exception('Error when requesting feed');
+        }
+        return 'success';
     }
 
     /**
@@ -43,5 +138,13 @@ class Xodx_PushController
      */
     public function callbackAction ()
     {
+        $this->app = Application::getInstance();
+        $bootstrap = $this->app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+        $logger = $bootstrap->getResource('logger');
+
+        $subscriptionKey = $request->getValue('xhub_subscription');
+
+        $logger->info('SubscriptionKey: ' . $subscriptionKey);
     }
 }
