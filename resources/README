@@ -1,0 +1,17 @@
+This Folder should contain following files:
+
+jquery/jquery.js
+
+bootstrap/js:
+bootstrap.min.js
+bootstrap.js
+
+bootstrap/img:
+glyphicons-halflings-white.png
+glyphicons-halflings.png
+
+bootstrap/css:
+bootstrap-responsive.min.css
+bootstrap-responsive.css
+bootstrap.min.css
+bootstrap.css
