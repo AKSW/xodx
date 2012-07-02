@@ -74,5 +74,15 @@ class Application
     {
         return $this->_baseUri;
     }
+
+    public function setBaseDir ($baseDir)
+    {
+        $this->_baseDir = $baseDir;
+    }
+
+    public function getBaseDir ()
+    {
+        return $this->_baseDir;
+    }
 }
 

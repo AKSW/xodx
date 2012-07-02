@@ -26,4 +26,5 @@ $autoloader->registerNamespace('Xodx_');
 
 $app = Application::getInstance();
 $app->setBaseUri($base_uri);
+$app->setBaseDir($main_dir);
 $app->run();

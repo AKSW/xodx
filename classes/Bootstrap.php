@@ -98,4 +98,9 @@ class Bootstrap
         return $request;
     }
 
+    private function initLogger ()
+    {
+        return new Xodx_Logger();
+    }
+
 }
