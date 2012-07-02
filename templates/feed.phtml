@@ -1,23 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0">
-    <channel>
+<feed xmlns="http://www.w3.org/2005/Atom">
     <title>Activity Feed for <?= $this->name ?></title>
-    <link><?= $this->uri ?></link>
+    <id><?= $this->uri ?></id>
     <description>This is the activity feed for the foaf:Person with the following uri: <?= $this->name ?></description>
-    <language>en-us</language>
-    <copyright>Xodx</copyright>
-    <pubDate>Erstellungsdatum("Tue, 8 Jul 2008 2:43:19")</pubDate>
+    <link rel="hub" href="<?= $this->hub ?>"/>
 
     <?php foreach ($this->activities as $activity) : ?>
-    <item>
-      <title><?= $activity->title ?></title>
-      <description><?= $this->name ?> did <?= $activity->title ?></description>
-      <link><?= $activity->uri ?></link>
-      <author><?= $this->name ?></author>
-      <guid><?= $activity->uri ?></guid>
-      <pubDate><?= $activity->date ?></pubDate>
-    </item>
+
+    <entry>
+      <title><?= $activity['title'] ?></title>
+      <id><?= $activity['uri'] ?></id>
+      <link href="<?= $activity['uri'] ?>" />
+      <published><?= $activity['pubDate'] ?></published>
+      <updated><?= $activity['pubDate'] ?></updated>
+      <author>
+        <name><?= $activity['author'] ?></name>
+        <uri><?= $activity['authorUri'] ?></uri>
+      </author>
+      <activity:verb><?= $activity['verb'] ?></activity:verb>
+      <activity:object>
+        <id><?= $activity['object'] ?></id>
+        <content><?= $activity['objectContent'] ?></content>
+        <published><?= $activity['objectPubDate'] ?></published>
+        <activity:object-type><?= $activity['objectType'] ?></activity:object-type>
+      </activity:object>
+    </entry>
+
     <?php endforeach; ?>
- 
-  </channel>
-</rss>
+
+</feed>

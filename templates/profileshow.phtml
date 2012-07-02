@@ -24,5 +24,55 @@ if ($contact['name'] != null) {
         </li>
     </ul>
     </form>
+    <h2>Add Activity ...</h2>
+    <form method="post" action="?c=activity&a=addactivity">
+        <table>
+            <tr>
+                <th>Actor</th>
+                <td>
+                    <?= $this->profileshowName ?>
+                    <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
+                </td>
+            </tr>
+            <tr>
+                <th>Verb</th>
+                <td>
+                    <select name="verb">
+                        <option value="http://xmlns.notu.be/aair#Located">Located</option>
+                        <option value="http://xmlns.notu.be/aair#Join">Join</option>
+                        <option value="http://xmlns.notu.be/aair#MakeFriend">MakeFriend</option>
+                        <option value="http://xmlns.notu.be/aair#MarkAsFavorite">MarkAsFavorite</option>
+                        <option value="http://xmlns.notu.be/aair#Play">Play</option>
+                        <option value="http://xmlns.notu.be/aair#Post" selected="true">Post</option>
+                        <option value="http://xmlns.notu.be/aair#RSVP">RSVP</option>
+                        <option value="http://xmlns.notu.be/aair#Save">Save</option>
+                        <option value="http://xmlns.notu.be/aair#Share">Share</option>
+                        <option value="http://xmlns.notu.be/aair#StartFollowing">StartFollowing</option>
+                        <option value="http://xmlns.notu.be/aair#Tag">Tag</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>Object</th>
+                <td>
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <td>
+                            <select name="type">
+                                <option value="http://xmlns.notu.be/aair#Note">Note</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>content</th>
+                        <td><textarea name="content"></textarea></td>
+                    </tr>
+                </table>
+                </td>
+            </tr>
+        </table>
+        <button class="btn btn-primary" type="submit">Do</button>
+    </form>
     <a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
 </div>
