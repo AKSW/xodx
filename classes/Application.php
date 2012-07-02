@@ -7,6 +7,7 @@ class Application
 {
     private $_classNamespace = 'Xodx_';
     private $_bootstrap = null;
+    private $_baseUri = null;
     private static $_app = null;
 
     public static function getInstance()
@@ -62,6 +63,16 @@ class Application
         $template->addMenu('templates/menu.phtml');
 
         $template->render();
+    }
+
+    public function setBaseUri ($baseUri)
+    {
+        $this->_baseUri = $baseUri;
+    }
+
+    public function getBaseUri ()
+    {
+        return $this->_baseUri;
     }
 }
 
