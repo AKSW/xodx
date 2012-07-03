@@ -66,6 +66,7 @@ class Xodx_ProfileController extends Xodx_Controller
                 );
             }
             //$knows = $modelNew->sparqlQuery($contactsQuery);
+            $knows = array();
         } else {
             $knows = $model->sparqlQuery($contactsQuery);
         }

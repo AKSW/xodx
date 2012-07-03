@@ -15,13 +15,14 @@ class Xodx_FeedController extends Xodx_Controller
         $model = $bootstrap->getResource('model');
         $request = $bootstrap->getResource('request');
 
+        $nsAair = 'http://xmlns.notu.be/aair#';
 
         $uri = $request->getValue('uri');
         $format = $request->getValue('format');
 
         if ($uri !== null) {
             $activitiesResult = $model->sparqlQuery(
-                'PREFIX atom: <http://purl.org/atom/ns#> ' .
+                'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
                 'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
                 'SELECT ?activity ?date ?verb ?object ' .
                 'WHERE { ' .
@@ -37,32 +38,45 @@ class Xodx_FeedController extends Xodx_Controller
 
             foreach ($activitiesResult as $activity) {
                 $activityUri = $activity['activity'];
+                $verbUri = $activity['verb'];
                 $objectUri = $activity['object'];
 
-                $objectResult = $model->sparqlQuery(
-                    'PREFIX atom: <http://purl.org/atom/ns#> ' .
-                    'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
-                    'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
-                    'SELECT ?type ?content ?date ' .
-                    'WHERE { ' .
-                    '   <' . $objectUri . '> a ?type ; ' .
-                    '        sioc:created_at ?date ; ' .
-                    '        aair:content ?content . ' .
-                    '} '
-                );
-
                 $activity = array(
-                    'title' => '"' . $uri . '" did "' . $activity['verb'] . '" a new "' . $objectResult[0]['type'] . '".',
+                    'title' => '"' . $uri . '" did "' . $activity['verb'] . '".',
                     'uri' => $activityUri,
                     'author' => 'Natanael',
                     'authorUri' => $uri,
                     'pubDate' => $activity['date'],
                     'verb' => $activity['verb'],
                     'object' => $activity['object'],
-                    'objectType' => $objectResult[0]['type'],
-                    'objectPubDate' => $objectResult[0]['date'],
-                    'objectContent' => $objectResult[0]['content'],
                 );
+
+                //echo 'verUri: ' . $verbUri . "\n";
+                //echo 'aair: ' . $nsAair . 'Post' . "\n";
+
+                if ($verbUri == $nsAair . 'Post') {
+                    //echo 'betrete' . "\n";
+                    $objectResult = $model->sparqlQuery(
+                        'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
+                        'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
+                        'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
+                        'SELECT ?type ?content ?date ' .
+                        'WHERE { ' .
+                        '   <' . $objectUri . '> a ?type ; ' .
+                        '        sioc:created_at ?date ; ' .
+                        '        aair:content ?content . ' .
+                        '} '
+                    );
+
+                    //var_dump($objectResult);
+
+                    if (count($objectResult) > 0) {
+                        $activity['objectType'] = $objectResult[0]['type'];
+                        $activity['objectPubDate'] = $objectResult[0]['date'];
+                        $activity['objectContent'] = $objectResult[0]['content'];
+                    }
+                } else {
+                }
 
                 $activities[] = $activity;
             }

@@ -2,7 +2,6 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <title>Activity Feed for <?= $this->name ?></title>
     <id><?= $this->uri ?></id>
-    <description>This is the activity feed for the foaf:Person with the following uri: <?= $this->name ?></description>
     <link rel="hub" href="<?= $this->hub ?>"/>
 
     <?php foreach ($this->activities as $activity) : ?>
@@ -20,9 +19,19 @@
       <activity:verb><?= $activity['verb'] ?></activity:verb>
       <activity:object>
         <id><?= $activity['object'] ?></id>
+        <?php if (isset($activity['objectContent'])) : ?>
+
         <content><?= $activity['objectContent'] ?></content>
+        <?php endif; ?>
+        <?php if (isset($activity['objectPubDate'])) : ?>
+
         <published><?= $activity['objectPubDate'] ?></published>
+        <?php endif; ?>
+        <?php if (isset($activity['objectType'])) : ?>
+
         <activity:object-type><?= $activity['objectType'] ?></activity:object-type>
+        <?php endif; ?>
+
       </activity:object>
     </entry>
 

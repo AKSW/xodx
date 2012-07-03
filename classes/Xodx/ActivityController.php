@@ -10,24 +10,44 @@ class Xodx_ActivityController
         $bootstrap = $this->app->getBootstrap();
 
         $request = $bootstrap->getResource('request');
-        $store = $bootstrap->getResource('store');
-        $model = $bootstrap->getResource('model');
-        $graphUri = $model->getModelIri();
 
         $actorUri = $request->getValue('actor', 'post');
         $verbUri = $request->getValue('verb', 'post');
         $actTypeUri = $request->getValue('type', 'post');
         $actContent = $request->getValue('content', 'post');
 
+        $object = array(
+            'type' => $actTypeUri,
+            'content' => $actContent
+        );
+
+        $this->addActivity($actorUri, $verbUri, $object);
+    }
+
+    public function addActivity ($actorUri, $verbUri, $object)
+    {
+
+        $this->app = Application::getInstance();
+        $bootstrap = $this->app->getBootstrap();
+
+        $store = $bootstrap->getResource('store');
+        $model = $bootstrap->getResource('model');
+        $graphUri = $model->getModelIri();
+
         $nsXsd = 'http://www.w3.org/2001/XMLSchema#';
         $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
         $nsSioc = 'http://rdfs.org/sioc/ns#';
-        $nsAtom = 'http://purl.org/atom/ns#';
+        $nsAtom = 'http://www.w3.org/2005/Atom/';
         $nsAair = 'http://xmlns.notu.be/aair#';
 
         $activityUri = 'http://localhost/~natanael/xodx/activity/' . md5(rand()) . '/';
-        $objectUri = 'http://localhost/~natanael/xodx/object/' . md5(rand()) . '/';
-        $now = '2012-01-01T00:00:01';
+        $now = date('c');
+
+        if ($object['type'] == 'uri') {
+            $objectUri = $object['value'];
+        } else {
+            $objectUri = 'http://localhost/~natanael/xodx/object/' . md5(rand()) . '/';
+        }
 
         $activity = array(
             $activityUri => array(
@@ -62,8 +82,14 @@ class Xodx_ActivityController
                         'value' => $objectUri
                     )
                 )
-            ),
-            $objectUri => array(
+            )
+        );
+
+        if ($object['type'] != 'uri') {
+            $actTypeUri = $object['type'];
+            $actContent = $object['content'];
+
+            $activity[$objectUri] = array(
                 $nsRdf . 'type' => array(
                     array(
                         'type' => 'uri',
@@ -89,8 +115,9 @@ class Xodx_ActivityController
                         'value' => $actContent
                     )
                 )
-            )
-        );
+            );
+        }
+
         $store->addMultipleStatements($graphUri, $activity);
 
         $pushController = new Xodx_PushController();
