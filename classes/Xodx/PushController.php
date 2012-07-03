@@ -7,11 +7,13 @@ class Xodx_PushController extends Xodx_Controller
 {
 
     private $_callbackUrl;
+    private $_defaultHubUrl;
 
     public function __construct ()
     {
         $this->app = Application::getInstance();
-        $this->callbackUrl = $this->app->getBaseUri() . '?c=push&amp;a=callback';
+        $this->_callbackUrl = $this->app->getBaseUri() . '?c=push&amp;a=callback';
+        $this->_defaultHubUrl = 'http://pubsubhubbub.appspot.com';
     }
 
     public function subscribeAction ()
@@ -68,11 +70,10 @@ class Xodx_PushController extends Xodx_Controller
             // TODO: read the rest of the feed and store the actions
 
             if ($hubUrl !== null) {
-                // TODO: subscribe to hub
-
+                // subscribe to hub
                 $postData = array(
                     'hub.mode' => 'subscribe',
-                    'hub.callback' => $this->callbackUrl,
+                    'hub.callback' => $this->_callbackUrl,
                     'hub.verify' => 'async',
                     'hub.verify_token' => '',
                     'hub.lease_seconds' => '',
@@ -84,7 +85,7 @@ class Xodx_PushController extends Xodx_Controller
                 foreach ($postData as $key => $value) {
                     $postString .= $key . '=' . $value . '&';
                 }
-                rtrim($postString,'&');
+                rtrim($postString, '&');
 
                 $curlHandler = curl_init();
 
@@ -115,9 +116,38 @@ class Xodx_PushController extends Xodx_Controller
     /**
      * This ist the publish method, which is called internally if a feed has been changed
      */
-    public function publish ($feedUri)
+    public function publish ($topicUri)
     {
         // TODO publish our changes to the hub
+        $postData = array(
+            'hub.mode' => 'publish',
+            'hub.url' => urlencode($topicUri)
+        );
+
+        $postString = '';
+
+        foreach ($postData as $key => $value) {
+            $postString .= $key . '=' . $value . '&';
+        }
+        rtrim($postString, '&');
+
+        $curlHandler = curl_init();
+
+        //set the url
+        curl_setopt($curlHandler, CURLOPT_URL, $this->_defaultHubUrl);
+        curl_setopt($curlHandler, CURLOPT_POST, true);
+        curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $postString);
+        curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($curlHandler);
+        $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
+
+        curl_close($curlHandler);
+
+        if ($httpCode-($httpCode%100) != 200) {
+            throw new Exception('Publishing to hub failed');
+        }
     }
 
     /**
@@ -133,7 +163,8 @@ class Xodx_PushController extends Xodx_Controller
     }
 
     /**
-     * This action is used as callback for the subscriber
+     * This action is used as callback for the subscriber and it will be triggered if the hub
+     * notifies us about updates
      * The hub will call this action and give us the updates for the feed
      */
     public function callbackAction ()
@@ -146,5 +177,12 @@ class Xodx_PushController extends Xodx_Controller
         $subscriptionKey = $request->getValue('xhub_subscription');
 
         $logger->info('SubscriptionKey: ' . $subscriptionKey);
+
+        // TODO: read this response and process it
+    }
+
+    public function getDefaultHubUrl ()
+    {
+        return $this->_defaultHubUrl;
     }
 }

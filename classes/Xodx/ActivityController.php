@@ -4,7 +4,7 @@ require_once 'Template.php';
 
 class Xodx_ActivityController
 {
-    public function AddactivityAction ()
+    public function addactivityAction ()
     {
         $this->app = Application::getInstance();
         $bootstrap = $this->app->getBootstrap();
@@ -93,8 +93,13 @@ class Xodx_ActivityController
         );
         $store->addMultipleStatements($graphUri, $activity);
 
+        $pushController = new Xodx_PushController();
+        $feedUri = $this->app->getBaseUri() . '?c=feed&amp;a=getFeed&amp;uri=' . urlencode($actorUri);
+        $pushController->publish($feedUri);
+
         $template = Template::getInstance();
         $template->activity = $activity;
+        $template->feedUri = $feedUri;
         $template->addContent('templates/newactivity.phtml');
     }
 }

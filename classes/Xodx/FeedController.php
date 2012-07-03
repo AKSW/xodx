@@ -67,10 +67,12 @@ class Xodx_FeedController extends Xodx_Controller
                 $activities[] = $activity;
             }
 
+            $pushController = new Xodx_PushController();
+
             $template = Template::getInstance();
             $template->setLayout('templates/feed.phtml');
             $template->uri = $uri;
-            $template->hub = $this->app->getBaseUri() . '?c=push&amp;a=endpoint&amp;person=' . urlencode($uri);
+            $template->hub = $pushController->getDefaultHubUrl();
             $template->name = $uri;
             $template->activities = $activities;
             //    $template->render();
