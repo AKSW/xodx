@@ -77,4 +77,31 @@ class Xodx_Request
             return null;
         }
     }
+
+    /**
+     * Set the raw body of the current request.
+     * @param $body This should be the result of file_get_contents('php://input')
+     */
+    public function setBody ($body)
+    {
+        $this->_values['body'] = $body;
+    }
+
+    /**
+     * Tells whether there was a body submitted or not.
+     * @return boolean true if there is a body, else false
+     */
+    public function hasBody ()
+    {
+        return isset($this->_values['body']) && ($this->_values['body'] !== null);
+    }
+
+    /**
+     * Gives back the body which was submitted with this request
+     * @return string The raw body of the request
+     */
+    public function getBody ()
+    {
+        return $this->_values['body'];
+    }
 }

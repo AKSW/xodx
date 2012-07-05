@@ -95,6 +95,12 @@ class Bootstrap
 
         $request = new Xodx_Request($_SERVER['REQUEST_METHOD'], $values);
 
+        $body = file_get_contents('php://input');
+
+        if (!empty($body)) {
+            $request->setBody($body);
+        }
+
         return $request;
     }
 
