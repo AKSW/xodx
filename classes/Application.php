@@ -35,9 +35,12 @@ class Application
         $auth = new Xodx_AuthController();
         $auth->authenticate();
 
+        /**
+         * Prepare Template
+         */
         $template = Template::getInstance();
         $template->setLayout('templates/layout.phtml');
-        $template->addContent('templates/debug.phtml');
+        $template->addMenu('templates/menu.phtml');
 
         $request = $bootstrap->getResource('request');
 
@@ -58,9 +61,7 @@ class Application
 
         $actionName = $requestAction . 'Action';
         $controller = new $controllerName;
-        $controller->$actionName();
-
-        $template->addMenu('templates/menu.phtml');
+        $template = $controller->$actionName($template);
 
         $template->render();
     }

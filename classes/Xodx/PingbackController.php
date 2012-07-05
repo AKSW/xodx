@@ -4,7 +4,7 @@ require_once 'Tools.php';
 
 class Xodx_PingbackController
 {
-    public function pingAction()
+    public function pingAction($template)
     {
         $source = $_POST['source'];
         $target = $_POST['target'];
@@ -19,7 +19,7 @@ class Xodx_PingbackController
             $o = array('type' => 'uri', 'value' => $target);
             $spo = $memModel->getSP($o);
 
-            var_dump($spo);
+            $template->addDebug(var_export($spo, true));
 
             if (count($spo) > 0) {
                 $predicates = array_keys($spo[$source]);
@@ -91,6 +91,8 @@ class Xodx_PingbackController
 */
 //            $model->addStatement($pingUri, $nsPingback . 'changeset', array('type' => 'literal', 'value' => $diff));
         }
+
+        return $template;
     }
 
     /**

@@ -8,7 +8,7 @@ class Xodx_FeedController extends Xodx_Controller
     /**
      * Returns a Feed in the spezified format (html, rss, atom)
      */
-    public function getFeedAction($uri = null, $format = null)
+    public function getFeedAction($template, $uri = null, $format = null)
     {
         $this->app = Application::getInstance();
         $bootstrap = $this->app->getBootstrap();
@@ -53,9 +53,6 @@ class Xodx_FeedController extends Xodx_Controller
                     'object' => $activity['object'],
                 );
 
-                //echo 'verUri: ' . $verbUri . "\n";
-                //echo 'aair: ' . $nsAair . 'Post' . "\n";
-
                 if ($verbUri == $nsAair . 'Post') {
                     //echo 'betrete' . "\n";
                     $objectResult = $model->sparqlQuery(
@@ -70,8 +67,6 @@ class Xodx_FeedController extends Xodx_Controller
                         '} '
                     );
 
-                    //var_dump($objectResult);
-
                     if (count($objectResult) > 0) {
                         $activity['objectType'] = $objectResult[0]['type'];
                         $activity['objectPubDate'] = self::_issueE24fix($objectResult[0]['date']);
@@ -85,16 +80,16 @@ class Xodx_FeedController extends Xodx_Controller
 
             $pushController = new Xodx_PushController();
 
-            $template = Template::getInstance();
             $template->setLayout('templates/feed.phtml');
             $template->uri = $uri;
             $template->hub = $pushController->getDefaultHubUrl();
             $template->name = $uri;
             $template->activities = $activities;
-            //    $template->render();
         } else {
             // No URI given
         }
+
+        return $template;
     }
 
     /**

@@ -4,7 +4,7 @@ require_once 'Template.php';
 
 class Xodx_ActivityController
 {
-    public function addactivityAction ()
+    public function addactivityAction ($template)
     {
         $this->app = Application::getInstance();
         $bootstrap = $this->app->getBootstrap();
@@ -21,7 +21,11 @@ class Xodx_ActivityController
             'content' => $actContent
         );
 
-        $this->addActivity($actorUri, $verbUri, $object);
+        $debugStr = $this->addActivity($actorUri, $verbUri, $object);
+
+        $template->addDebug($debugStr);
+
+        return $template;
     }
 
     public function addActivity ($actorUri, $verbUri, $object)
@@ -122,11 +126,9 @@ class Xodx_ActivityController
 
         $pushController = new Xodx_PushController();
         $feedUri = $this->app->getBaseUri() . '?c=feed&amp;a=getFeed&amp;uri=' . urlencode($actorUri);
+
         $pushController->publish($feedUri);
 
-        $template = Template::getInstance();
-        $template->activity = $activity;
-        $template->feedUri = $feedUri;
-        $template->addContent('templates/newactivity.phtml');
+        return $feedUri . "\n" . var_export($activity, true);
     }
 }

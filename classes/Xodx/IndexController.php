@@ -2,6 +2,7 @@
 
 class Xodx_IndexController
 {
-    public function indexAction () {
+    public function indexAction ($template) {
+        return $template;
     }
 }

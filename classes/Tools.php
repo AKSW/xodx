@@ -31,7 +31,6 @@ class Tools
             $newModel = new Erfurt_Rdf_MemoryModel($newStatements);
             $newStatements = array();
             $newStatements[$uri] = $newModel->getPO($uri);
-            //var_dump($newStatements);
         } else {
             // IMPORT_WRAPPER_ERR;
         }

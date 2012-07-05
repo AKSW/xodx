@@ -5,7 +5,7 @@ require_once 'Template.php';
 
 class Xodx_ProfileController extends Xodx_Controller
 {
-    public function listAction()
+    public function listAction($template)
     {
         $this->app = Application::getInstance();
         $model = $this->app->getBootstrap()->getResource('Model');
@@ -20,12 +20,15 @@ class Xodx_ProfileController extends Xodx_Controller
             '}'
         );
 
-        $template = Template::getInstance();
         $template->profilelistList = $profiles;
         $template->addContent('templates/profilelist.phtml');
+
+        $template->addDebug(var_export($profiles, true));
+
+        return $template;
     }
 
-    public function showAction()
+    public function showAction($template)
     {
         $personUri = $_GET['person'];
 
@@ -54,9 +57,12 @@ class Xodx_ProfileController extends Xodx_Controller
         if (count($profile) < 1) {
             $newStatements = Tools::getLinkedDataResource($personUri);
             if ($newStatements !== null) {
+                $template->addDebug('Import Profile with LinkedDate');
+
                 $modelNew = new Erfurt_Rdf_MemoryModel($newStatements);
                 $newStatements = $modelNew->getStatements();
-                var_dump($newStatements);
+
+                $template->addDebug(var_export($newStatements, true));
 
                 $profile = array();
                 $profile[0] = array(
@@ -71,16 +77,17 @@ class Xodx_ProfileController extends Xodx_Controller
             $knows = $model->sparqlQuery($contactsQuery);
         }
 
-        $template = Template::getInstance();
         $template->profileshowPersonUri = $personUri;
         $template->profileshowDepiction = $profile[0]['depiction'];
         $template->profileshowName = $profile[0]['name'];
         $template->profileshowNick = $profile[0]['nick'];
         $template->profileshowKnows = $knows;
         $template->addContent('templates/profileshow.phtml');
+
+        return $template;
     }
 
-    public function addfriendAction()
+    public function addfriendAction($template)
     {
         $personUri = $_POST['person'];
         $friendUri = $_POST['friend'];
@@ -95,9 +102,11 @@ class Xodx_ProfileController extends Xodx_Controller
         } else {
             $person->addFriendRequest($friendUri);
         }
+
+        return $template;
     }
 
-    public function getfriendlistAction()
+    public function getfriendlistAction($template)
     {
         $personUri = $_GET['person'];
 
@@ -113,10 +122,10 @@ class Xodx_ProfileController extends Xodx_Controller
             $friendList = $person->getPublicFriends();
         }
 
-        // TODO render Template
+        return $template;
     }
 
-    public function getprofileAction()
+    public function getprofileAction($template)
     {
         $personUri = $_GET['person'];
 
@@ -133,11 +142,13 @@ class Xodx_ProfileController extends Xodx_Controller
             $profile = $person->getPublicProfile();
         }
 
-        // TODO render Template
+        return $template;
     }
 
-    public function testAction()
+    public function testAction($template)
     {
-        echo 'ProfileController->test()';
+        $template->addDebug('ProfileController->test()');
+
+        return $template;
     }
 }

@@ -16,13 +16,17 @@ class Xodx_PushController extends Xodx_Controller
         $this->_defaultHubUrl = 'http://pubsubhubbub.appspot.com';
     }
 
-    public function subscribeAction ()
+    public function subscribeAction ($template)
     {
         $this->app = Application::getInstance();
         $bootstrap = $this->app->getBootstrap();
         $request = $bootstrap->getResource('request');
 
-        echo $this->subscribe($request->getValue('feeduri', 'post'));
+        $subscribeResult =  $this->subscribe($request->getValue('feeduri', 'post'));
+
+        $template->addDebug(var_export($subscribeResult, true));
+
+        return $template;
     }
 
     /**
@@ -31,6 +35,8 @@ class Xodx_PushController extends Xodx_Controller
      */
     public function subscribe ($feedUri)
     {
+        $debugArray = array();
+
         // TODO implement events
         // TODO check if we are already subscribed to this feed
         // else fetch feed, get hub url, subscribe to the hub
@@ -60,7 +66,7 @@ class Xodx_PushController extends Xodx_Controller
                     $attributes = $link->attributes();
                     if ($attributes['rel'] == 'hub') {
                         $hubUrl = $attributes['href'];
-                        echo 'hub found at: ' . $hubUrl;
+                        $debugArray[] = 'hub found at: ' . $hubUrl;
                         // TODO: maybe we could use multiple hubs if more than one is specified
                         break;
                     }
@@ -110,7 +116,10 @@ class Xodx_PushController extends Xodx_Controller
         } else {
             throw new Exception('Error when requesting feed');
         }
-        return 'success';
+
+        $debugArray[] = 'success';
+
+        return $debugArray;
     }
 
     /**
@@ -152,14 +161,17 @@ class Xodx_PushController extends Xodx_Controller
 
     /**
      * This action is used as endpoint for the publisher
+     * @obsolete
      */
-    public function endpointAction ()
+    public function endpointAction ($template)
     {
         $this->app = Application::getInstance();
         $bootstrap = $this->app->getBootstrap();
         $request = $bootstrap->getResource('request');
 
         $request->getValue();
+
+        return $template;
     }
 
     /**
@@ -167,7 +179,7 @@ class Xodx_PushController extends Xodx_Controller
      * notifies us about updates
      * The hub will call this action and give us the updates for the feed
      */
-    public function callbackAction ()
+    public function callbackAction ($template)
     {
         $this->app = Application::getInstance();
         $bootstrap = $this->app->getBootstrap();
@@ -177,6 +189,13 @@ class Xodx_PushController extends Xodx_Controller
         $subscriptionKey = $request->getValue('xhub_subscription');
 
         $logger->info('SubscriptionKey: ' . $subscriptionKey);
+
+        // TODO: disable the layout
+        $template->disableLayout();
+
+        $result = $request->getResource('hub.challenge', 'post');
+
+        $template->setRawContent($result);
 
         // TODO: read this response and process it
     }

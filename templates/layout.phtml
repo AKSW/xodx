@@ -68,5 +68,16 @@
             </div>
         </div>
     </div>
+
+    <?php if (!empty($this->_debugLog)) : ?>
+
+    <div class="debug" id="debugConsole">
+        <h3>Debuglog:</h3>
+        <pre>
+<?= $this->_debugLog ?>
+        </pre>
+    </div>
+
+    <?php endif; ?>
 </body>
 </html>

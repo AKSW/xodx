@@ -5,12 +5,11 @@ require_once 'Template.php';
 
 class Xodx_SignupController
 {
-    public function newuserAction() {
+    public function newuserAction($template) {
         $nsPingback = 'http://purl.org/net/pingback/';
         $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
 
-        $template = Template::getInstance();
         if (isset($_POST['person'])) {
             // get URI
             $personUri = $_POST['person'];
@@ -22,7 +21,7 @@ class Xodx_SignupController
             $newStatements = Tools::getLinkedDataResource($personUri);
             $store->addMultipleStatements($graphUri, $newStatements);
 
-            var_dump($newStatements);
+            $template->addDebug(var_export($newStatements, true));
 
             $newProfile = array(
                 'http://localhost/~natanael/xodx/' . md5(rand()) . '/' => array(
@@ -45,5 +44,7 @@ class Xodx_SignupController
         } else {
             $template->addContent('templates/newuser.phtml');
         }
+
+        return $template;
     }
 }

@@ -1,8 +1,8 @@
 <h2>Profile of ...</h2>
-<img class="avatar size128" src="<?= $this->profileshowDepiction ?>" />
+<?php if(isset($this->profileshowDepiction)) : ?> <img class="avatar size128" src="<?= $this->profileshowDepiction ?>" /> <?php endif; ?>
 <div class="profile">
     <h3><?= $this->profileshowName ?></h3>
-    <h4><?= $this->profileshowNick ?></h4>
+    <?php if(isset($this->profileshowNick)) : ?> <h4><?= $this->profileshowNick ?></h4> <?php endif; ?>
     <h5>knows ...</h5>
     <form method="post" action="?c=profile&a=addfriend">
     <ul>
@@ -31,6 +31,7 @@ if ($contact['name'] != null) {
                 <th>Actor</th>
                 <td>
                     <?= $this->profileshowName ?>
+
                     <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
                 </td>
             </tr>

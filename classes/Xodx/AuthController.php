@@ -29,7 +29,7 @@ class Xodx_AuthController
         }
     }
 
-    public function loginAction($user = null, $password = null)
+    public function loginAction($template, $user = null, $password = null)
     {
         $app = Application::getInstance();
         $bootstrap = $app->getBootstrap();
@@ -44,6 +44,8 @@ class Xodx_AuthController
             $_SESSION['user'] = $user;
             $_SESSION['logedin'] = true;
         }
+
+        return $template;
     }
 
     public function checkCredentials()
