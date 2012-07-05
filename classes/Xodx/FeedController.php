@@ -21,7 +21,7 @@ class Xodx_FeedController extends Xodx_Controller
         $format = $request->getValue('format');
 
         if ($uri !== null) {
-            $activitiesResult = $model->sparqlQuery(
+            $query = '' .
                 'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
                 'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
                 'SELECT ?activity ?date ?verb ?object ' .
@@ -31,8 +31,8 @@ class Xodx_FeedController extends Xodx_Controller
                 '             atom:published      ?date ; ' .
                 '             aair:activityVerb   ?verb ; ' .
                 '             aair:activityObject ?object . ' .
-                '}'
-            );
+                '}';
+            $activitiesResult = $model->sparqlQuery($query);
 
             $activities = array();
 
@@ -40,6 +40,8 @@ class Xodx_FeedController extends Xodx_Controller
                 $activityUri = $activity['activity'];
                 $verbUri = $activity['verb'];
                 $objectUri = $activity['object'];
+
+                $activity['date'] = self::_issueE24fix($activity['date']);
 
                 $activity = array(
                     'title' => '"' . $uri . '" did "' . $activity['verb'] . '".',
@@ -72,7 +74,7 @@ class Xodx_FeedController extends Xodx_Controller
 
                     if (count($objectResult) > 0) {
                         $activity['objectType'] = $objectResult[0]['type'];
-                        $activity['objectPubDate'] = $objectResult[0]['date'];
+                        $activity['objectPubDate'] = self::_issueE24fix($objectResult[0]['date']);
                         $activity['objectContent'] = $objectResult[0]['content'];
                     }
                 } else {
@@ -92,6 +94,19 @@ class Xodx_FeedController extends Xodx_Controller
             //    $template->render();
         } else {
             // No URI given
+        }
+    }
+
+    /**
+     * Quick fix for Erfurt issue #24 (https://github.com/AKSW/Erfurt/issues/24)
+     */
+    private static function _issueE24fix ($date)
+    {
+        if (strstr($date, 11, 1) != 'T') {
+            $dateObj = date_create($date);
+            return date_format($dateObj, 'c');
+        } else {
+            return $date;
         }
     }
 
