@@ -2,12 +2,11 @@
 
 require_once 'Template.php';
 
-class Xodx_ActivityController
+class Xodx_ActivityController extends Xodx_Controller
 {
     public function addactivityAction ($template)
     {
-        $this->app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
 
         $request = $bootstrap->getResource('request');
 
@@ -31,8 +30,7 @@ class Xodx_ActivityController
     public function addActivity ($actorUri, $verbUri, $object)
     {
 
-        $this->app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
 
         $store = $bootstrap->getResource('store');
         $model = $bootstrap->getResource('model');
@@ -124,8 +122,8 @@ class Xodx_ActivityController
 
         $store->addMultipleStatements($graphUri, $activity);
 
-        $pushController = new Xodx_PushController();
-        $feedUri = $this->app->getBaseUri() . '?c=feed&amp;a=getFeed&amp;uri=' . urlencode($actorUri);
+        $pushController = new Xodx_PushController($this->_app);
+        $feedUri = $this->_app->getBaseUri() . '?c=feed&amp;a=getFeed&amp;uri=' . urlencode($actorUri);
 
         $pushController->publish($feedUri);
 

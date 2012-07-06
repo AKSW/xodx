@@ -10,8 +10,7 @@ class Xodx_FeedController extends Xodx_Controller
      */
     public function getFeedAction($template, $uri = null, $format = null)
     {
-        $this->app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         $request = $bootstrap->getResource('request');
 
@@ -78,7 +77,7 @@ class Xodx_FeedController extends Xodx_Controller
                 $activities[] = $activity;
             }
 
-            $pushController = new Xodx_PushController();
+            $pushController = new Xodx_PushController($this->_app);
 
             $template->setLayout('templates/feed.phtml');
             $template->uri = $uri;

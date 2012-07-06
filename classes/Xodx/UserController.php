@@ -18,8 +18,7 @@ class Xodx_UserController extends Xodx_Controller
 
     public function subscribeAction ($template)
     {
-        $this->app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
 
         $subscribeResult =  $this->subscribe($request->getValue('feeduri', 'post'));
@@ -35,8 +34,7 @@ class Xodx_UserController extends Xodx_Controller
 
     public function subscribeToFeed ($userUri, $feedUri)
     {
-        $this->_app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
         $store = $bootstrap->getResource('store');
         $model = $bootstrap->getResource('model');
 

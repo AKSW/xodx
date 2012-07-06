@@ -9,10 +9,11 @@ class Xodx_PushController extends Xodx_Controller
     private $_callbackUrl;
     private $_defaultHubUrl;
 
-    public function __construct ()
+    public function __construct ($app)
     {
-        $this->app = Application::getInstance();
-        $this->_callbackUrl = $this->app->getBaseUri() . '?c=push&amp;a=callback';
+        parent::__construct($app);
+
+        $this->_callbackUrl = $this->_app->getBaseUri() . '?c=push&amp;a=callback';
         $this->_defaultHubUrl = 'http://pubsubhubbub.appspot.com';
     }
 
@@ -22,8 +23,7 @@ class Xodx_PushController extends Xodx_Controller
      */
     public function subscribe ($feedUri)
     {
-        $this->app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
         $store = $bootstrap->getResource('store');
         $model = $bootstrap->getResource('model');
         $graphUri = $model->getModelIri();
@@ -174,8 +174,7 @@ class Xodx_PushController extends Xodx_Controller
      */
     public function endpointAction ($template)
     {
-        $this->app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
 
         $request->getValue();
@@ -190,8 +189,7 @@ class Xodx_PushController extends Xodx_Controller
      */
     public function callbackAction ($template)
     {
-        $this->app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
         $logger = $bootstrap->getResource('logger');
 
@@ -216,8 +214,7 @@ class Xodx_PushController extends Xodx_Controller
 
     private function _isSubscribed ($feed)
     {
-        $this->app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
 
         // 'PREFIX dssn: <http://purl.org/net/dssn/> ' .

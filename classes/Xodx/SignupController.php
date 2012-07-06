@@ -3,19 +3,22 @@
 require_once 'Tools.php';
 require_once 'Template.php';
 
-class Xodx_SignupController
+class Xodx_SignupController extends Xodx_Controller
 {
     public function newuserAction($template) {
         $nsPingback = 'http://purl.org/net/pingback/';
         $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
 
-        if (isset($_POST['person'])) {
-            // get URI
-            $personUri = $_POST['person'];
-            $app = Application::getInstance();
-            $store = $app->getBootstrap()->getResource('Store');
-            $model = $app->getBootstrap()->getResource('Model');
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        $store = $bootstrap->getResource('store');
+        $request = $bootstrap->getResource('request');
+
+        // get URI
+        $personUri = $request->getValue('person', 'post');
+
+        if ($personUri !== null) {
             $graphUri = $model->getModelIri();
 
             $newStatements = Tools::getLinkedDataResource($personUri);

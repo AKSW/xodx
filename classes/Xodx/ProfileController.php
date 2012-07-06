@@ -7,8 +7,7 @@ class Xodx_ProfileController extends Xodx_Controller
 {
     public function listAction($template)
     {
-        $this->app = Application::getInstance();
-        $model = $this->app->getBootstrap()->getResource('Model');
+        $model = $this->_app->getBootstrap()->getResource('Model');
 
         $profiles = $model->sparqlQuery(
             'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . 
@@ -30,10 +29,12 @@ class Xodx_ProfileController extends Xodx_Controller
 
     public function showAction($template)
     {
-        $personUri = $_GET['person'];
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        $request = $bootstrap->getResource('request');
 
-        $app = Application::getInstance();
-        $model = $app->getBootstrap()->getResource('Model');
+        // get URI
+        $personUri = $request->getValue('person', 'get');
 
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
 
@@ -45,6 +46,8 @@ class Xodx_ProfileController extends Xodx_Controller
             '   OPTIONAL {<' . $personUri . '> foaf:name ?name .} ' .
             '   OPTIONAL {<' . $personUri . '> foaf:nick ?nick .} ' .
             '}';
+
+        // TODO deal with language tags
         $contactsQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' . 
             'SELECT ?contactUri ?name ' . 
             'WHERE { ' .
@@ -72,6 +75,8 @@ class Xodx_ProfileController extends Xodx_Controller
                 );
             }
             //$knows = $modelNew->sparqlQuery($contactsQuery);
+
+
             $knows = array();
         } else {
             $knows = $model->sparqlQuery($contactsQuery);
@@ -89,18 +94,22 @@ class Xodx_ProfileController extends Xodx_Controller
 
     public function addfriendAction($template)
     {
-        $personUri = $_POST['person'];
-        $friendUri = $_POST['friend'];
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
 
-        $person = Xodx_Person::getPerson($personUri);
+        // get URI
+        $personUri = $request->getValue('person', 'post');
+        $friendUri = $request->getValue('friend', 'post');
+
+        $personController = new Xodx_PersonController($this->_app);
 
         // TODO check rights
         $allowed = true;
 
         if ($allowed) {
-            $person->addFriend($friendUri);
+            $personController->addFriend($personUri, $friendUri);
         } else {
-            $person->addFriendRequest($friendUri);
+            $personController->addFriendRequest($personUri, $friendUri);
         }
 
         return $template;
@@ -108,7 +117,11 @@ class Xodx_ProfileController extends Xodx_Controller
 
     public function getfriendlistAction($template)
     {
-        $personUri = $_GET['person'];
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+
+        // get URI
+        $personUri = $request->getValue('person', 'get');
 
         $person = new Person($personUri);
 
@@ -127,7 +140,11 @@ class Xodx_ProfileController extends Xodx_Controller
 
     public function getprofileAction($template)
     {
-        $personUri = $_GET['person'];
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+
+        // get URI
+        $personUri = $request->getValue('person', 'get');
 
         $person = new Person($personUri);
 

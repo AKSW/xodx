@@ -2,7 +2,7 @@
 
 require_once 'Tools.php';
 
-class Xodx_PingbackController
+class Xodx_PingbackController extends Xodx_Controller
 {
     public function pingAction($template)
     {
@@ -28,9 +28,9 @@ class Xodx_PingbackController
             } else {
                 $diff = 'invalide';
             }
-            $app = Application::getInstance();
-            $model = $app->getBootstrap()->getResource('Model');
-            $store = $app->getBootstrap()->getResource('Store');
+            $bootstrap = $this->_app->getBootstrap();
+            $model = $bootstrap->getResource('model');
+            $store = $bootstrap->getResource('store');
 
             $nsPingback = 'http://purl.org/net/pingback/';
             $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';

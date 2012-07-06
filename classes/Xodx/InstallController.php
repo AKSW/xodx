@@ -1,5 +1,5 @@
 <?php
 
-class Xodx_InstallController
+class Xodx_InstallController extends Xodx_Controller
 {
 }

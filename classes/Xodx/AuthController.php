@@ -11,15 +11,14 @@
  * - http://www.w3.org/2005/Incubator/webid/wiki/Implementations
  * - http://www.w3.org/2005/Incubator/webid/wiki/Apache_Configuration
  */
-class Xodx_AuthController
+class Xodx_AuthController extends Xodx_Controller
 {
     private $_user;
     private $_status;
 
     public function authenticate()
     {
-        $app = Application::getInstance();
-        $bootstrap = $app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
 
         if ($request->getValue('logedin', 'session') === true) {
@@ -31,8 +30,7 @@ class Xodx_AuthController
 
     public function loginAction($template, $user = null, $password = null)
     {
-        $app = Application::getInstance();
-        $bootstrap = $app->getBootstrap();
+        $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
 
         if ($user == null && $request->hasValue('user', 'post') && $request->hasValue('password', 'post')) {
