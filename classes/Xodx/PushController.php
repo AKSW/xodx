@@ -16,19 +16,6 @@ class Xodx_PushController extends Xodx_Controller
         $this->_defaultHubUrl = 'http://pubsubhubbub.appspot.com';
     }
 
-    public function subscribeAction ($template)
-    {
-        $this->app = Application::getInstance();
-        $bootstrap = $this->app->getBootstrap();
-        $request = $bootstrap->getResource('request');
-
-        $subscribeResult =  $this->subscribe($request->getValue('feeduri', 'post'));
-
-        $template->addDebug(var_export($subscribeResult, true));
-
-        return $template;
-    }
-
     /**
      * This is the subscribe method, which is called internally if some component wants to
      * be notified on updates of a feed
