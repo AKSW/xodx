@@ -173,20 +173,6 @@ class Xodx_PushController extends Xodx_Controller
     }
 
     /**
-     * This action is used as endpoint for the publisher
-     * @obsolete
-     */
-    public function endpointAction ($template)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $request = $bootstrap->getResource('request');
-
-        $request->getValue();
-
-        return $template;
-    }
-
-    /**
      * This action is used as callback for the subscriber and it will be triggered if the hub
      * notifies us about updates
      * The hub will call this action and give us the updates for the feed
