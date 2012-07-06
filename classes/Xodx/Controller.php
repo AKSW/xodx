@@ -2,5 +2,9 @@
 
 class Xodx_Controller
 {
-    protected $app = null;
+    protected $_app = null;
+
+    public function setApp ($app) {
+        $this->_app = $app;
+    }
 }
