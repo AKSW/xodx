@@ -176,6 +176,8 @@ class Xodx_PushController extends Xodx_Controller
      * This action is used as callback for the subscriber and it will be triggered if the hub
      * notifies us about updates
      * The hub will call this action and give us the updates for the feed
+     * This method implements section 6.2 of the pubsubhubbub spec:
+     *  http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.3.html#verifysub
      */
     public function callbackAction ($template)
     {
@@ -183,16 +185,21 @@ class Xodx_PushController extends Xodx_Controller
         $request = $bootstrap->getResource('request');
         $logger = $bootstrap->getResource('logger');
 
-        $subscriptionKey = $request->getValue('xhub_subscription');
+        $mode = $request->getValue('hub.mode', 'get');
+        $topic = $request->getValue('hub.topic', 'get');
+        $challenge = $request->getValue('hub.challenge', 'get');
+        $leaseSeconds = $request->getValue('hub.lease_seconds', 'get');
+        $verifyToken = $request->getValue('hub.verify_token', 'get');
 
-        $logger->info('SubscriptionKey: ' . $subscriptionKey);
+        $logger->info('push callback: mode: ' . $mode . ', topic: ' . $topic);
 
-        // TODO: disable the layout
+        // disable the layout
         $template->disableLayout();
 
-        $result = $request->getResource('hub.challenge', 'post');
+        // return challenge
+        $template->setRawContent($challenge);
 
-        $template->setRawContent($result);
+        // TODO: make sure the return code is set correctly
 
         // TODO: read this response and process it
     }
