@@ -35,91 +35,113 @@ class Xodx_PushController extends Xodx_Controller
      */
     public function subscribe ($feedUri)
     {
+        $this->app = Application::getInstance();
+        $bootstrap = $this->app->getBootstrap();
+        $store = $bootstrap->getResource('store');
+        $model = $bootstrap->getResource('model');
+        $graphUri = $model->getModelIri();
+
         $debugArray = array();
 
         // TODO implement events
         // TODO check if we are already subscribed to this feed
-        // else fetch feed, get hub url, subscribe to the hub
-        $curlHandler = curl_init();
 
-        //set the url
-        curl_setopt($curlHandler, CURLOPT_URL, $feedUri);
-        curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
+        if ($this->_isSubscribed($feedUri)) {
 
-        $result = curl_exec($curlHandler);
-        $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
-        $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
+            // else fetch feed, get hub url, subscribe to the hub
+            $curlHandler = curl_init();
 
-        curl_close($curlHandler);
+            //set the url
+            curl_setopt($curlHandler, CURLOPT_URL, $feedUri);
+            curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
 
-        if ($httpCode-($httpCode%100) == 200) {
-            $xml = simplexml_load_string($result);
+            $result = curl_exec($curlHandler);
+            $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
+            $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
 
-            $hubUrl = null;
+            curl_close($curlHandler);
 
-            if (count($xml) < 1) {
-                // TODO: throw Exception
-                throw new Exception('Feed is empty');
-            } else {
-                foreach ($xml->link as $link) {
-                    $attributes = $link->attributes();
-                    if ($attributes['rel'] == 'hub') {
-                        $hubUrl = $attributes['href'];
-                        $debugArray[] = 'hub found at: ' . $hubUrl;
-                        // TODO: maybe we could use multiple hubs if more than one is specified
-                        break;
+            if ($httpCode-($httpCode%100) == 200) {
+                $xml = simplexml_load_string($result);
+
+                $hubUrl = null;
+
+                if (count($xml) < 1) {
+                    throw new Exception('Feed is empty');
+                } else {
+                    foreach ($xml->link as $link) {
+                        $attributes = $link->attributes();
+                        if ($attributes['rel'] == 'hub') {
+                            $hubUrl = $attributes['href'];
+                            $debugArray[] = 'hub found at: ' . $hubUrl;
+                            // TODO: maybe we could use multiple hubs if more than one is specified
+                            break;
+                        }
                     }
                 }
-            }
 
-            // TODO: read the rest of the feed and store the actions
+                // TODO: read the rest of the feed and store the actions
 
-            if ($hubUrl !== null) {
-                // subscribe to hub
-                $postData = array(
-                    'hub.mode' => 'subscribe',
-                    'hub.callback' => $this->_callbackUrl,
-                    'hub.verify' => 'async',
-                    'hub.verify_token' => '',
-                    'hub.lease_seconds' => '',
-                    'hub.topic' => urlencode($topicUri)
-                );
+                if ($hubUrl !== null) {
+                    // subscribe to hub
+                    $postData = array(
+                            'hub.mode' => 'subscribe',
+                            'hub.callback' => $this->_callbackUrl,
+                            'hub.verify' => 'async',
+                            'hub.verify_token' => '',
+                            'hub.lease_seconds' => '',
+                            'hub.topic' => urlencode($topicUri)
+                            );
 
-                $postString = '';
+                    $postString = '';
 
-                foreach ($postData as $key => $value) {
-                    $postString .= $key . '=' . $value . '&';
-                }
-                rtrim($postString, '&');
+                    foreach ($postData as $key => $value) {
+                        $postString .= $key . '=' . $value . '&';
+                    }
+                    rtrim($postString, '&');
 
-                $curlHandler = curl_init();
+                    $curlHandler = curl_init();
 
-                //set the url
-                curl_setopt($curlHandler, CURLOPT_URL, $hubUrl);
-                curl_setopt($curlHandler, CURLOPT_POST, true);
-                curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $postString);
-                curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
-                curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
+                    //set the url
+                    curl_setopt($curlHandler, CURLOPT_URL, $hubUrl);
+                    curl_setopt($curlHandler, CURLOPT_POST, true);
+                    curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $postString);
+                    curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
+                    curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
 
-                $result = curl_exec($curlHandler);
-                $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
+                    $result = curl_exec($curlHandler);
+                    $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
 
-                curl_close($curlHandler);
+                    curl_close($curlHandler);
 
-                if ($httpCode-($httpCode%100) != 200) {
-                    throw new Exception('Subscription to hub failed');
+                    if ($httpCode-($httpCode%100) != 200) {
+                        throw new Exception('Subscription to hub failed');
+                    }
+
+                    $subscribeStatement = array(
+                        $feedUri => array(
+                            $nsXodx . 'subscribedAt' => array(
+                                array(
+                                    'type' => 'uri',
+                                    'value' => $hubUrl
+                                )
+                            )
+                        )
+                    );
+
+                    $store->addMultipleStatements($graphUri, $subscribeStatement);
+                } else {
+                    throw new Exception('No hub found in feed');
                 }
             } else {
-                throw new Exception('No hub found in feed');
+                throw new Exception('Error when requesting feed');
             }
-        } else {
-            throw new Exception('Error when requesting feed');
         }
 
         $debugArray[] = 'success';
 
-        return $debugArray;
+        return true;
     }
 
     /**
@@ -203,5 +225,23 @@ class Xodx_PushController extends Xodx_Controller
     public function getDefaultHubUrl ()
     {
         return $this->_defaultHubUrl;
+    }
+
+    private function _isSubscribed ($feed)
+    {
+        $this->app = Application::getInstance();
+        $bootstrap = $this->app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        // 'PREFIX dssn: <http://purl.org/net/dssn/> ' .
+        $query = '' .
+            'PREFIX xodx: <http://example.org/voc/xodx/> ' .
+            'SELECT ?hub ' .
+            'WHERE { ' .
+            '   <' . $feed . '> xodx:subscribedAt ?hub . ' .
+            '}';
+        $subscriptionResult = $model->sparqlQuery($query);
+
+        return (count($subscriptionResult) > 0);
     }
 }
