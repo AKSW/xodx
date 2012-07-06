@@ -24,6 +24,18 @@ if ($contact['name'] != null) {
         </li>
     </ul>
     </form>
+    <h2>Activities</h2>
+    <?php if (isset($this->activities)) : ?>
+    <ul>
+        <?php foreach ($this->activities as $activity) : ?>
+        <li><?= $activity ?></li>
+        <?php endforeach; ?>
+    </ul>
+    <?php else: ?>
+        <div class="well">
+        There are not Activities of this person
+        </div>
+    <?php endif; ?>
     <h2>Add Activity ...</h2>
     <form method="post" action="?c=activity&a=addactivity">
         <table>
@@ -39,17 +51,17 @@ if ($contact['name'] != null) {
                 <th>Verb</th>
                 <td>
                     <select name="verb">
-                        <option value="http://xmlns.notu.be/aair#Located">Located</option>
-                        <option value="http://xmlns.notu.be/aair#Join">Join</option>
-                        <option value="http://xmlns.notu.be/aair#MakeFriend">MakeFriend</option>
-                        <option value="http://xmlns.notu.be/aair#MarkAsFavorite">MarkAsFavorite</option>
-                        <option value="http://xmlns.notu.be/aair#Play">Play</option>
+                        <option value="http://xmlns.notu.be/aair#Located" disabled="true">Located</option>
+                        <option value="http://xmlns.notu.be/aair#Join" disabled="true">Join</option>
+                        <option value="http://xmlns.notu.be/aair#MakeFriend" disabled="true">MakeFriend</option>
+                        <option value="http://xmlns.notu.be/aair#MarkAsFavorite" disabled="true">MarkAsFavorite</option>
+                        <option value="http://xmlns.notu.be/aair#Play" disabled="true">Play</option>
                         <option value="http://xmlns.notu.be/aair#Post" selected="true">Post</option>
-                        <option value="http://xmlns.notu.be/aair#RSVP">RSVP</option>
-                        <option value="http://xmlns.notu.be/aair#Save">Save</option>
-                        <option value="http://xmlns.notu.be/aair#Share">Share</option>
-                        <option value="http://xmlns.notu.be/aair#StartFollowing">StartFollowing</option>
-                        <option value="http://xmlns.notu.be/aair#Tag">Tag</option>
+                        <option value="http://xmlns.notu.be/aair#RSVP" disabled="true">RSVP</option>
+                        <option value="http://xmlns.notu.be/aair#Save" disabled="true">Save</option>
+                        <option value="http://xmlns.notu.be/aair#Share" disabled="true">Share</option>
+                        <option value="http://xmlns.notu.be/aair#StartFollowing" disabled="true">StartFollowing</option>
+                        <option value="http://xmlns.notu.be/aair#Tag" disabled="true">Tag</option>
                     </select>
                 </td>
             </tr>
