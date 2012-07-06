@@ -32,7 +32,7 @@ class Application
 
         $bootstrap = $this->getBootstrap();
 
-        $auth = new Xodx_AuthController();
+        $auth = new Xodx_AuthController($this);
         $auth->authenticate();
 
         /**
@@ -60,7 +60,7 @@ class Application
         $controllerName = $this->_classNamespace . $requestController . 'Controller';
 
         $actionName = $requestAction . 'Action';
-        $controller = new $controllerName;
+        $controller = new $controllerName($this);
         $template = $controller->$actionName($template);
 
         $template->render();
@@ -86,4 +86,3 @@ class Application
         return $this->_baseDir;
     }
 }
-
