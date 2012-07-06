@@ -20,15 +20,16 @@ class Xodx_PushController extends Xodx_Controller
     /**
      * This is the subscribe method, which is called internally if some component wants to
      * be notified on updates of a feed
+     * This method implements section 6.1 of the pubsubhubbub spec:
+     *  http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.3.html#anchor5
      */
     public function subscribe ($feedUri)
     {
         $bootstrap = $this->_app->getBootstrap();
+        $logger = $bootstrap->getResource('logger');
         $store = $bootstrap->getResource('store');
         $model = $bootstrap->getResource('model');
         $graphUri = $model->getModelIri();
-
-        $debugArray = array();
 
         // TODO implement events
         // TODO check if we are already subscribed to this feed
@@ -46,6 +47,8 @@ class Xodx_PushController extends Xodx_Controller
             $result = curl_exec($curlHandler);
             $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
             $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
+
+            $logger->info('push subscribe: return code: ' + $httpCode);
 
             curl_close($curlHandler);
 
@@ -73,13 +76,13 @@ class Xodx_PushController extends Xodx_Controller
                 if ($hubUrl !== null) {
                     // subscribe to hub
                     $postData = array(
-                            'hub.mode' => 'subscribe',
-                            'hub.callback' => $this->_callbackUrl,
-                            'hub.verify' => 'async',
-                            'hub.verify_token' => '',
-                            'hub.lease_seconds' => '',
-                            'hub.topic' => urlencode($topicUri)
-                            );
+                        'hub.callback' => $this->_callbackUrl,
+                        'hub.mode' => 'subscribe',
+                        'hub.topic' => urlencode($topicUri),
+                        'hub.verify' => 'async',
+                        'hub.lease_seconds' => '',
+                        'hub.verify_token' => '',
+                    );
 
                     $postString = '';
 
@@ -122,11 +125,12 @@ class Xodx_PushController extends Xodx_Controller
                     throw new Exception('No hub found in feed');
                 }
             } else {
+                $logger->info('push subscribe: subscription error: ' + $result);
                 throw new Exception('Error when requesting feed');
             }
         }
 
-        $debugArray[] = 'success';
+        $logger->info('push subscribe: subscription successfull);
 
         return true;
     }
