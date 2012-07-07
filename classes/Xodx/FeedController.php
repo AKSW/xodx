@@ -92,6 +92,25 @@ class Xodx_FeedController extends Xodx_Controller
     }
 
     /**
+     * This method reads feed data and extracts the specified activities in order to insert or
+     * update them in the model
+     */
+    public function feedToActivity ($feedData)
+    {
+        $activityController = new Xodx_ActivityController($this->_app);
+
+        $xml = simplexml_load_string($feedData);
+
+        if (count($xml) < 1) {
+            throw new Exception('Feed is empty');
+        } else {
+            foreach ($xml->entry as $entry) {
+                // TODO create new Activity with the data specified in the entry
+            }
+        }
+    }
+
+    /**
      * Quick fix for Erfurt issue #24 (https://github.com/AKSW/Erfurt/issues/24)
      */
     private static function _issueE24fix ($date)
