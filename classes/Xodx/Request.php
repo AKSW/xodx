@@ -43,6 +43,7 @@ class Xodx_Request
      */
     public function hasValue ($key, $method = null)
     {
+        $key = $this->_replaceKey($key);
         if ($method === null) {
             if (isset($this->_values['all'][$key])) {
                 $method = $this->_values['all'][$key];
@@ -63,6 +64,7 @@ class Xodx_Request
      */
     public function getValue ($key, $method = null)
     {
+        $key = $this->_replaceKey($key);
         if ($method === null) {
             if (isset($this->_values['all'][$key])) {
                 $method = $this->_values['all'][$key];
@@ -107,5 +109,21 @@ class Xodx_Request
         } else {
             return null;
         }
+    }
+
+    /**
+     * As described in [1] and [2] PHP replaces dots and other chars with an underscore. To get the
+     * right keys from the array this method replaces them too.
+     * [1] http://ca.php.net/variables.external
+     * [2] http://stackoverflow.com/questions/68651/
+     *     can-i-get-php-to-stop-replacing-characters-in-get-or-post-arrays
+     */
+    private function _replaceKey ($key)
+    {
+        $chars = array(' ', '.', '[');
+        for ($i = 128; $i <= 159; $i++ ) {
+            $chars[] = chr($i);
+        }
+        return str_replace($chars, '_', $key);
     }
 }
