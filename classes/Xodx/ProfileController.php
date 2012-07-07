@@ -86,6 +86,7 @@ class Xodx_ProfileController extends Xodx_Controller
         $template->profileshowDepiction = $profile[0]['depiction'];
         $template->profileshowName = $profile[0]['name'];
         $template->profileshowNick = $profile[0]['nick'];
+        $template->profileshowActivities = null;
         $template->profileshowKnows = $knows;
         $template->addContent('templates/profileshow.phtml');
 

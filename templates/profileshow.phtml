@@ -25,9 +25,9 @@ if ($contact['name'] != null) {
     </ul>
     </form>
     <h2>Activities</h2>
-    <?php if (isset($this->activities)) : ?>
+    <?php if (isset($this->profileshowActivities)) : ?>
     <ul>
-        <?php foreach ($this->activities as $activity) : ?>
+        <?php foreach ($this->profileshowActivities as $activity) : ?>
         <li><?= $activity ?></li>
         <?php endforeach; ?>
     </ul>
