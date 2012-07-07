@@ -76,7 +76,7 @@ class Xodx_PushController extends Xodx_Controller
                 if ($hubUrl !== null) {
                     // subscribe to hub
                     $postData = array(
-                        'hub.callback' => $this->_callbackUrl,
+                        'hub.callback' => urlencode($this->_callbackUrl),
                         'hub.mode' => 'subscribe',
                         'hub.topic' => urlencode($topicUri),
                         'hub.verify' => 'async',
@@ -137,17 +137,20 @@ class Xodx_PushController extends Xodx_Controller
 
     /**
      * This ist the publish method, which is called internally if a feed has been changed
+     * This method implements section 7.1 of the pubsubhubbub spec:
+     *  http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.3.html#anchor9
      */
     public function publish ($topicUri)
     {
-        // TODO publish our changes to the hub
+        $bootstrap = $this->_app->getBootstrap();
+        $logger = $bootstrap->getResource('logger');
+
         $postData = array(
             'hub.mode' => 'publish',
             'hub.url' => urlencode($topicUri)
         );
 
         $postString = '';
-
         foreach ($postData as $key => $value) {
             $postString .= $key . '=' . $value . '&';
         }
@@ -167,6 +170,8 @@ class Xodx_PushController extends Xodx_Controller
 
         curl_close($curlHandler);
 
+        $logger->info('push publish: mode: publish, return code: ' . $httpCode . ', result: ' . $result);
+
         if ($httpCode-($httpCode%100) != 200) {
             throw new Exception('Publishing to hub failed');
         }
@@ -185,23 +190,36 @@ class Xodx_PushController extends Xodx_Controller
         $request = $bootstrap->getResource('request');
         $logger = $bootstrap->getResource('logger');
 
-        $mode = $request->getValue('hub.mode', 'get');
-        $topic = $request->getValue('hub.topic', 'get');
-        $challenge = $request->getValue('hub.challenge', 'get');
-        $leaseSeconds = $request->getValue('hub.lease_seconds', 'get');
-        $verifyToken = $request->getValue('hub.verify_token', 'get');
+        $method = $request->getMethod();
+        if ($method == 'get') {
+            // This is a subscription verification
+            $logger->info('push callback: received get request, subscription verification');
 
-        $logger->info('push callback: mode: ' . $mode . ', topic: ' . $topic);
+            $mode = $request->getValue('hub.mode', 'get');
+            $topic = $request->getValue('hub.topic', 'get');
+            $challenge = $request->getValue('hub.challenge', 'get');
+            $leaseSeconds = $request->getValue('hub.lease_seconds', 'get');
+            $verifyToken = $request->getValue('hub.verify_token', 'get');
 
-        // disable the layout
-        $template->disableLayout();
+            $logger->info('push callback: mode: ' . $mode . ', topic: ' . $topic);
 
-        // return challenge
-        $template->setRawContent($challenge);
+            // disable the layout
+            $template->disableLayout();
 
-        // TODO: make sure the return code is set correctly
+            // return challenge
+            $template->setRawContent($challenge);
 
-        // TODO: read this response and process it
+            // TODO: make sure the return code is set correctly
+        } else if ($method == 'post') {
+            // This is a content distribution
+            $logger->info('push callback: received post request, content distribution');
+
+            // TODO get content type
+            $body = $request->getBody();
+            $logger->info('push callback: body: ' + $body);
+
+            // TODO: process the feed entry in the body
+        }
     }
 
     public function getDefaultHubUrl ()
