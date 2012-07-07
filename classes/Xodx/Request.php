@@ -29,7 +29,7 @@ class Xodx_Request
     /**
      * Returns the method of the request (e.g. GET, POST, ...)
      */
-    public function getType ()
+    public function getMethod ()
     {
         return $this->_method;
     }
@@ -102,6 +102,10 @@ class Xodx_Request
      */
     public function getBody ()
     {
-        return $this->_values['body'];
+        if (isset($this->_values['body'])) {
+            return $this->_values['body'];
+        } else {
+            return null;
+        }
     }
 }
