@@ -13,8 +13,8 @@ class Xodx_PushController extends Xodx_Controller
     {
         parent::__construct($app);
 
-        $this->_callbackUrl = $this->_app->getBaseUri() . '?c=push&amp;a=callback';
-        $this->_defaultHubUrl = 'http://pubsubhubbub.appspot.com';
+        $this->_callbackUrl = $this->_app->getBaseUri() . '?c=push&a=callback';
+        $this->_defaultHubUrl = 'http://localhost:8123/';
     }
 
     /**
@@ -34,7 +34,7 @@ class Xodx_PushController extends Xodx_Controller
         // TODO implement events
         // TODO check if we are already subscribed to this feed
 
-        if ($this->_isSubscribed($feedUri)) {
+        if (!$this->_isSubscribed($feedUri)) {
 
             // else fetch feed, get hub url, subscribe to the hub
             $curlHandler = curl_init();
@@ -48,7 +48,7 @@ class Xodx_PushController extends Xodx_Controller
             $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
             $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
 
-            $logger->info('push subscribe: return code: ' + $httpCode);
+            $logger->info('push subscribe: return code: ' . $httpCode);
 
             curl_close($curlHandler);
 
@@ -63,7 +63,7 @@ class Xodx_PushController extends Xodx_Controller
                     foreach ($xml->link as $link) {
                         $attributes = $link->attributes();
                         if ($attributes['rel'] == 'hub') {
-                            $hubUrl = $attributes['href'];
+                            $hubUrl = (string) $attributes['href'];
                             $debugArray[] = 'hub found at: ' . $hubUrl;
                             // TODO: maybe we could use multiple hubs if more than one is specified
                             break;
@@ -72,6 +72,8 @@ class Xodx_PushController extends Xodx_Controller
                 }
 
                 // TODO: read the rest of the feed and store the actions
+
+                $logger->info('push subscribe: callbackUrl: ' . $this->_callbackUrl);
 
                 if ($hubUrl !== null) {
                     // subscribe to hub
@@ -109,18 +111,14 @@ class Xodx_PushController extends Xodx_Controller
                         throw new Exception('Subscription to hub failed');
                     }
 
-                    $subscribeStatement = array(
-                        $feedUri => array(
-                            $nsXodx . 'subscribedAt' => array(
-                                array(
-                                    'type' => 'uri',
-                                    'value' => $hubUrl
-                                )
-                            )
-                        )
+                    $nsXodx = 'http://example.org/voc/xodx/';
+
+                    $hubObj = array(
+                        'type' => 'uri',
+                        'value' => $hubUrl
                     );
 
-                    $store->addMultipleStatements($graphUri, $subscribeStatement);
+                    $store->addStatement($graphUri, $feedUri, $nsXodx . 'subscribedAt', $hubObj);
                 } else {
                     throw new Exception('No hub found in feed');
                 }
@@ -191,6 +189,8 @@ class Xodx_PushController extends Xodx_Controller
         $logger = $bootstrap->getResource('logger');
 
         $method = $request->getMethod();
+        $logger->info('push callback: received request with method: ' . $method);
+
         if ($method == 'get') {
             // This is a subscription verification
             $logger->info('push callback: received get request, subscription verification');
@@ -201,7 +201,7 @@ class Xodx_PushController extends Xodx_Controller
             $leaseSeconds = $request->getValue('hub.lease_seconds', 'get');
             $verifyToken = $request->getValue('hub.verify_token', 'get');
 
-            $logger->info('push callback: mode: ' . $mode . ', topic: ' . $topic);
+            $logger->info('push callback: mode: ' . $mode . ', topic: ' . $topic . ', challenge: ' . $challenge);
 
             // disable the layout
             $template->disableLayout();
@@ -220,6 +220,8 @@ class Xodx_PushController extends Xodx_Controller
 
             // TODO: process the feed entry in the body
         }
+
+        return $template;
     }
 
     public function getDefaultHubUrl ()
