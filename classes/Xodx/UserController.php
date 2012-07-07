@@ -21,8 +21,11 @@ class Xodx_UserController extends Xodx_Controller
         $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
 
-        $subscribeResult =  $this->subscribe($request->getValue('feeduri', 'post'));
-        $userUri =  $request->getValue('user', 'post');
+        $pushController = new Xodx_PushController($this->_app);
+
+        $userUri = $request->getValue('user', 'post');
+        $feedUri = $request->getValue('feeduri', 'post');
+        $subscribeResult = $pushController->subscribe($feedUri);
 
         $this->subscribeToFeed($userUri, $feedUri);
 
