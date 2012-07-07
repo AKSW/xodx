@@ -130,7 +130,7 @@ class Xodx_PushController extends Xodx_Controller
             }
         }
 
-        $logger->info('push subscribe: subscription successfull);
+        $logger->info('push subscribe: subscription successfull');
 
         return true;
     }
