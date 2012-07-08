@@ -26,11 +26,26 @@ if ($contact['name'] != null) {
     </form>
     <h2>Activities</h2>
     <?php if (isset($this->profileshowActivities)) : ?>
-    <ul>
-        <?php foreach ($this->profileshowActivities as $activity) : ?>
-        <li><?= $activity ?></li>
-        <?php endforeach; ?>
-    </ul>
+    <?php foreach ($this->profileshowActivities as $activity) : ?>
+    <div class="activity">
+      <p>
+        <a href="<?= $activity['uri'] ?>"><strong><?= $activity['title'] ?></strong></a><br />
+        <em><?= $activity['pubDate'] ?></em>
+      </p>
+      <p>
+        <a href="<?= $activity['authorUri'] ?>"><?= $activity['authorUri'] ?></a>
+        did <a href="<?= $activity['verb'] ?>"><?= $activity['verb'] ?></a>
+        <?php if (isset($activity['objectType'])) : ?>
+
+        an <a href="<?= $activity['objectType'] ?>"><?= $activity['objectType'] ?></a>
+        <?php endif; ?>
+        : <a href="<?= $activity['object'] ?>"><?= $activity['object'] ?></a>
+        <?php if (isset($activity['objectContent'])) : ?>
+
+        <?= $activity['objectContent'] ?>
+        <?php endif; ?>
+    </div>
+    <?php endforeach; ?>
     <?php else: ?>
         <div class="well">
         There are not Activities of this person

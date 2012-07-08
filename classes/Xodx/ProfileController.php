@@ -82,11 +82,14 @@ class Xodx_ProfileController extends Xodx_Controller
             $knows = $model->sparqlQuery($contactsQuery);
         }
 
+        $personController = new Xodx_PersonController($this->_app);
+        $activities = $personController->getActivities($personUri);
+
         $template->profileshowPersonUri = $personUri;
         $template->profileshowDepiction = $profile[0]['depiction'];
         $template->profileshowName = $profile[0]['name'];
         $template->profileshowNick = $profile[0]['nick'];
-        $template->profileshowActivities = null;
+        $template->profileshowActivities = $activities;
         $template->profileshowKnows = $knows;
         $template->addContent('templates/profileshow.phtml');
 
