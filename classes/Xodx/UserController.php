@@ -21,19 +21,13 @@ class Xodx_UserController extends Xodx_Controller
         $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
 
-        $pushController = new Xodx_PushController($this->_app);
-
         $userUri = $request->getValue('user', 'post');
         $feedUri = $request->getValue('feeduri', 'post');
-        $subscribeResult = $pushController->subscribe($feedUri);
 
         $this->subscribeToFeed($userUri, $feedUri);
 
-        $template->addDebug(var_export($subscribeResult, true));
-
         return $template;
     }
-
 
     public function subscribeToFeed ($userUri, $feedUri)
     {
@@ -43,14 +37,13 @@ class Xodx_UserController extends Xodx_Controller
 
         $query = '' .
             'PREFIX xodx: <http://example.org/voc/xodx/> ' .
-            'ASK ' .
-            'WHERE { ' .
+            'ASK { ' .
             '   <' . $userUri . '> xodx:subscribedTo <' . $feedUri . '> . ' .
             '}';
         $subscribedResult = $model->sparqlQuery($query);
 
-        if (!$subscribedResult) {
-            $pushController = new Xodx_PushController();
+        if (empty($subscribedResult[0]['__ask_retval'])) {
+            $pushController = new Xodx_PushController($this->_app);
             if ($pushController->subscribe($feedUri)) {
                 $graphUri = $model->getModelIri();
                 $nsXodx = 'http://example.org/voc/xodx/';
