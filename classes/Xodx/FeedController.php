@@ -97,17 +97,43 @@ class Xodx_FeedController extends Xodx_Controller
      */
     public function feedToActivity ($feedData)
     {
-        $activityController = new Xodx_ActivityController($this->_app);
+        $nsAtom = 'http://www.w3.org/2005/Atom';
+        $nsAair = 'http://activitystrea.ms/schema/1.0/';
 
         $xml = simplexml_load_string($feedData);
 
-        if (count($xml) < 1) {
+        $atom = $xml->children($nsAtom);
+        $aair = $xml->children($nsAair);
+
+        if (count($atom) < 1 && count($aair) < 1) {
             throw new Exception('Feed is empty');
         } else {
-            foreach ($xml->entry as $entry) {
+            $activities = array();
+            foreach ($atom->entry as $entry) {
+                // getActivitystrea.ms namespace
+                $entryAtom = $entry->children($nsAtom);
+                $entryAair = $entry->children($nsAair);
+
+                $date = (string) $entryAtom->published;
+
+                $actorNode = $entryAtom->author;
+                $actorAtom = $actorNode->children($nsAtom);
+                $actorUri = (string) $actorAtom->uri;
+
+                $verbUri = (string) $entryAair->verb;
+
+                $objectNode = $entryAair->object;
+                $objectAtom = $objectNode->children($nsAtom);
+                $objectUri = (string) $objectAtom->id;
+
                 // TODO create new Activity with the data specified in the entry
+                $activities[] = new Activity(null, $actorUri, $verbUri, $objectUri, $date);
             }
         }
+
+        $activityController = new Xodx_ActivityController($this->_app);
+
+        $activityController->addActivities($activities);
     }
 
     /**
