@@ -129,4 +129,17 @@ class Xodx_ActivityController extends Xodx_Controller
 
         return $feedUri . "\n" . var_export($activity, true);
     }
+
+    public function addActivities (array $activities)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+
+        $store = $bootstrap->getResource('store');
+        $model = $bootstrap->getResource('model');
+        $graphUri = $model->getModelIri();
+
+        foreach ($activities as $activity) {
+            $store->addMultipleStatements($graphUri, $activity->toGraphArray());
+        }
+    }
 }
