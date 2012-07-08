@@ -27,6 +27,10 @@ class Xodx_ActivityController extends Xodx_Controller
         return $template;
     }
 
+    /**
+     * This method adds a new activity to the store
+     * TODO should be replaced by a method with takes a Xodx_Activity object
+     */
     public function addActivity ($actorUri, $verbUri, $object)
     {
 
@@ -130,6 +134,10 @@ class Xodx_ActivityController extends Xodx_Controller
         return $feedUri . "\n" . var_export($activity, true);
     }
 
+    /**
+     * This method adds multiple activities to the store
+     * @param $activities is an array of Xodx_Activity objects
+     */
     public function addActivities (array $activities)
     {
         $bootstrap = $this->_app->getBootstrap();
