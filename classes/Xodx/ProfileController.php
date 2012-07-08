@@ -162,11 +162,4 @@ class Xodx_ProfileController extends Xodx_Controller
 
         return $template;
     }
-
-    public function testAction($template)
-    {
-        $template->addDebug('ProfileController->test()');
-
-        return $template;
-    }
 }
