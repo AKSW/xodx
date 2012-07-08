@@ -6,12 +6,12 @@
 class Activity
 {
     private $_uri;
-    private $_actor;
-    private $_verb;
-    private $_object;
+    private $_actorUri;
+    private $_verbUri;
+    private $_objectUri;
     private $_date;
 
-    public function __construct ($uri, $actor, $verb, $object, $date = null)
+    public function __construct ($uri, $actorUri, $verbUri, $objectUri, $date = null)
     {
         if ($uri === null) {
             $this->_uri = 'http://localhost/~natanael/xodx/activity/' . md5(rand()) . '/';
@@ -19,9 +19,9 @@ class Activity
             $this->_uri = $uri;
         }
 
-        $this->_actor = $actor;
-        $this->_verb = $verb;
-        $this->_object = $object;
+        $this->_actorUri = $actorUri;
+        $this->_verbUri = $verbUri;
+        $this->_objectUri = $objectUri;
         if ($date === null) {
             $this->_date = date('c');
         } else {
@@ -31,17 +31,17 @@ class Activity
 
     public function getActor ()
     {
-        return $this->_actor;
+        return $this->_actorUri;
     }
 
     public function getVerb ()
     {
-        return $this->_verb;
+        return $this->_verbUri;
     }
 
     public function getObject ()
     {
-        return $this->_object;
+        return $this->_objectUri;
     }
 
     public function getDate ()
@@ -49,18 +49,49 @@ class Activity
         retunr $this->_date;
     }
 
-    public function __toArray ()
+    public function toGraphArray ()
     {
         $nsAair = 'http://ximlns.notu.be/aair#';
         $nsAtom = 'http://www.w3.org/2005/Atom/';
+        $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+        $nsXsd = 'http://www.w3.org/2001/XMLSchema#';
 
-        $return = new array(
+        $return = array(
             $this->_uri => array(
-                $nsAair . 'activityActor' => $this->_actor,
-                $nsAair . 'activityVerb' => $this->_verb,
-                $nsAair . 'activityObject' => $this->_object,
-                $nsAtom . 'published' => $this->_date,
+                $nsRdf . 'type' => array(
+                    array(
+                        'type' => 'uri',
+                        'value' => $nsAair . 'Activity'
+                    )
+                ),
+                $nsAtom . 'published' => array(
+                    array(
+                        'type' => 'literal',
+                        'value' => $this->_date,
+                        'datatype' => $nsXsd . 'dateTime'
+                    )
+                ),
+                $nsAair . 'activityActor' => array(
+                    array(
+                        'type' => 'uri',
+                        'value' => $this->_actorUri
+                    )
+                ),
+                $nsAair . 'activityVerb' => array(
+                    array(
+                        'type' => 'uri',
+                        'value' => $this->_verbUri
+                    )
+                ),
+                $nsAair . 'activityObject' => array(
+                    array(
+                        'type' => 'uri',
+                        'value' => $this->_objectUri
+                    )
+                )
             )
         );
+
+        return $return;
     }
 }
