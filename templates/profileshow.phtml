@@ -24,6 +24,12 @@ if ($contact['name'] != null) {
         </li>
     </ul>
     </form>
+    <h2>Pings</h2>
+    <ul>
+    <?php foreach ($this->profileshowNews as $notification) : ?>
+        <li><?= var_export($notification, true) ?></li>
+    <?php endforeach; ?>
+    </ul>
     <h2>Activities</h2>
     <?php if (isset($this->profileshowActivities)) : ?>
     <?php foreach ($this->profileshowActivities as $activity) : ?>

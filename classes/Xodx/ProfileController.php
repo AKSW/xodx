@@ -76,7 +76,6 @@ class Xodx_ProfileController extends Xodx_Controller
             }
             //$knows = $modelNew->sparqlQuery($contactsQuery);
 
-
             $knows = array();
         } else {
             $knows = $model->sparqlQuery($contactsQuery);
@@ -84,6 +83,7 @@ class Xodx_ProfileController extends Xodx_Controller
 
         $personController = new Xodx_PersonController($this->_app);
         $activities = $personController->getActivities($personUri);
+        $news = $personController->getNotifications($personUri);
 
         $template->profileshowPersonUri = $personUri;
         $template->profileshowDepiction = $profile[0]['depiction'];
@@ -91,6 +91,7 @@ class Xodx_ProfileController extends Xodx_Controller
         $template->profileshowNick = $profile[0]['nick'];
         $template->profileshowActivities = $activities;
         $template->profileshowKnows = $knows;
+        $template->profileshowNews = $news;
         $template->addContent('templates/profileshow.phtml');
 
         return $template;
