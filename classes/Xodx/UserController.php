@@ -32,20 +32,18 @@ class Xodx_UserController extends Xodx_Controller
     public function subscribeToFeed ($userUri, $feedUri)
     {
         $bootstrap = $this->_app->getBootstrap();
-        $store = $bootstrap->getResource('store');
-        $model = $bootstrap->getResource('model');
+        $logger = $bootstrap->getResource('logger');
 
-        $query = '' .
-            'PREFIX xodx: <http://example.org/voc/xodx/> ' .
-            'ASK { ' .
-            '   <' . $userUri . '> xodx:subscribedTo <' . $feedUri . '> . ' .
-            '}';
-        $subscribedResult = $model->sparqlQuery($query);
+        $logger->info('subscribeToFeed: user: ' . $userUri . ', feed: ' . $feedUri);
 
-        if (empty($subscribedResult[0]['__ask_retval'])) {
+        if (!$this->_isSubscribed($userUri, $feedUri)) {
             $pushController = new Xodx_PushController($this->_app);
             if ($pushController->subscribe($feedUri)) {
+
+                $store = $bootstrap->getResource('store');
+                $model = $bootstrap->getResource('model');
                 $graphUri = $model->getModelIri();
+
                 $nsXodx = 'http://example.org/voc/xodx/';
 
                 $subscribeStatement = array(
@@ -62,5 +60,20 @@ class Xodx_UserController extends Xodx_Controller
                 $store->addMultipleStatements($graphUri, $subscribeStatement);
             }
         }
+    }
+
+    private function _isSubscribed ($userUri, $feedUri)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        $query = '' .
+            'PREFIX xodx: <http://example.org/voc/xodx/> ' .
+            'ASK { ' .
+            '   <' . $userUri . '> xodx:subscribedTo <' . $feedUri . '> . ' .
+            '}';
+        $subscribedResult = $model->sparqlQuery($query);
+
+        return empty($subscribedResult[0]['__ask_retval']);
     }
 }
