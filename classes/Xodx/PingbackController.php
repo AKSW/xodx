@@ -6,9 +6,12 @@ class Xodx_PingbackController extends Xodx_Controller
 {
     public function pingAction($template)
     {
-        $source = $_POST['source'];
-        $target = $_POST['target'];
-        $comment = $_POST['comment'];
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+
+        $source = $request->getValue('source', 'post');
+        $target = $request->getValue('target', 'post');
+        $comment = $request->getValue('comment', 'post');
 
         // TODO store and interprete ping
         $sourceStatements = Tools::getLinkedDataResource($source);
@@ -38,8 +41,8 @@ class Xodx_PingbackController extends Xodx_Controller
             // TODO use some other identification
             $pingUri = 'http://localhost/' . md5(rand()) . '/';
 
-            // TODO user better URIs
-            $newProfile = array(
+            // TODO use better URIs
+            $newPing = array(
                 $target => array(
                     $nsPingback . 'ping' => array(
                         array(
@@ -81,7 +84,7 @@ class Xodx_PingbackController extends Xodx_Controller
                     )
                 )
             );
-            $store->addMultipleStatements($model->getModelIri(), $newProfile);
+            $store->addMultipleStatements($model->getModelIri(), $newPing);
 /*
             $model->addStatement($target, $nsPingback . 'ping', array('type' => 'uri', 'value' => $pingUri));
             $model->addStatement($pingUri, $nsRdf . 'type', array('type' => 'uri', 'value' => $nsPingback . 'Item'));
