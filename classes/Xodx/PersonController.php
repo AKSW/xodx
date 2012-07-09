@@ -2,7 +2,7 @@
 
 class Xodx_PersonController extends Xodx_Controller
 {
-    private $_pseronss = array();
+    private $_persons = array();
 
     public function getPerson ($personUri)
     {
