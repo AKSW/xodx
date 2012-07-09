@@ -1,7 +1,5 @@
 <?php
 
-require_once 'Template.php';
-
 class Xodx_ActivityController extends Xodx_Controller
 {
     public function addactivityAction ($template)

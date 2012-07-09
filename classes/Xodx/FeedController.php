@@ -1,7 +1,5 @@
 <?php
 
-require_once 'Template.php';
-
 class Xodx_FeedController extends Xodx_Controller
 {
 

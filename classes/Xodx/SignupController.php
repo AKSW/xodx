@@ -1,7 +1,6 @@
 <?php
 
 require_once 'Tools.php';
-require_once 'Template.php';
 
 class Xodx_SignupController extends Xodx_Controller
 {
