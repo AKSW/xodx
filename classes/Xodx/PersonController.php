@@ -153,6 +153,28 @@ class Xodx_PersonController extends Xodx_Controller
     }
 
     /**
+     * Get an array of new notifications for the person
+     */
+    public function getNotifications ($personUri)
+    {
+        $model = $this->_app->getBootstrap()->getResource('model');
+
+        $pingResult = $model->sparqlQuery(
+            'PREFIX pingback: <http://purl.org/net/pingback/> ' .
+            'SELECT ?ping ?source ?target ?comment ' .
+            'WHERE { ' .
+            '   <' . $personUri . '> pingback:ping ?ping . ' .
+            '   ?ping a                pingback:Item ; ' .
+            '         pingback:source  ?source ; ' .
+            '         pingback:target  ?target ; ' .
+            '         pingback:comment ?comment . ' .
+            '} '
+        );
+
+        return $pingResult;
+    }
+
+    /**
      * Quick fix for Erfurt issue #24 (https://github.com/AKSW/Erfurt/issues/24)
      */
     private static function _issueE24fix ($date)
