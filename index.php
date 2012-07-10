@@ -10,8 +10,7 @@ $includePath  = get_include_path() . PATH_SEPARATOR;
 $includePath .= $main_dir . '/classes/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/classes/Xodx/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/libraries/' . PATH_SEPARATOR;
-$includePath .= $main_dir . '/libraries/Erfurt/' . PATH_SEPARATOR;
-$includePath .= $main_dir . '/libraries/Erfurt/Erfurt/' . PATH_SEPARATOR;
+$includePath .= $main_dir . '/libraries/Erfurt/library' . PATH_SEPARATOR;
 
 set_include_path($includePath);
 
