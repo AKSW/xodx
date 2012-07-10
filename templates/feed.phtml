@@ -3,6 +3,8 @@
     <title>Activity Feed for <?= $this->name ?></title>
     <id><?= $this->uri ?></id>
     <link rel="hub" href="<?= $this->hub ?>"/>
+    <link rel="self" href="<?= $this->feedUri ?>"/>
+    <updated><?= $this->updated ?></updated>
 
     <?php foreach ($this->activities as $activity) : ?>
 

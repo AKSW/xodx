@@ -22,8 +22,20 @@ class Xodx_FeedController extends Xodx_Controller
 
             $pushController = new Xodx_PushController($this->_app);
 
+            $feedUri = $this->_app->getBaseUri() . '?c=feed&amp;a=getFeed&amp;uri=' . urlencode($uri);
+
+            $updated = '0';
+
+            foreach ($activities as $activity) {
+                if (0 > strcmp($updated, $activity['pubDate'])) {
+                    $updated = $activity['pubDate'];
+                }
+            }
+
             $template->setLayout('templates/feed.phtml');
+            $template->updated = $updated;
             $template->uri = $uri;
+            $template->feedUri = $feedUri;
             $template->hub = $pushController->getDefaultHubUrl();
             $template->name = $uri;
             $template->activities = $activities;
