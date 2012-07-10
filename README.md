@@ -14,7 +14,7 @@ You need a webserver (tested with Apache, but I hope it also runs with nginx and
 ### Erfurt
 Run `git submodules init` and `git submodules update` to clone Erfurt.
 
-Take one of the prepared `config.ini-*` files in `xodx/libraries/Erfurt/library/Erfurt` and configure it according to your system setup.
+Take one of the prepared `config.ini-*` files in `xodx/libraries/Erfurt/library/Erfurt`, copy it to `config.ini` and configure it according to your system setup.
 
 ### Zend
 You have to place a copy of the Zend framework library into `libraries/Zend/` you can do this by doing the following things (replace `${ZENDVERSION}` e.g. with `1.11.5`):
