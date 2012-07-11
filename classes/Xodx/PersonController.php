@@ -84,7 +84,9 @@ class Xodx_PersonController extends Xodx_Controller
      */
     public function getActivities ($personUri)
     {
-        $nsAair = 'http://activitystrea.ms/schema/1.0/';
+        // There are two namespaces, one is used in atom files the other one for RDF
+        $nsAairAtom = 'http://activitystrea.ms/schema/1.0/';
+        $nsAair = 'http://xmlns.notu.be/aair#';
 
         $model = $this->_app->getBootstrap()->getResource('model');
 
@@ -125,7 +127,6 @@ class Xodx_PersonController extends Xodx_Controller
             );
 
             if ($verbUri == $nsAair . 'Post') {
-                //echo 'betrete' . "\n";
                 $objectResult = $model->sparqlQuery(
                     'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
                     'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
