@@ -125,7 +125,7 @@ class Xodx_ActivityController extends Xodx_Controller
         $store->addMultipleStatements($graphUri, $activity);
 
         $pushController = new Xodx_PushController($this->_app);
-        $feedUri = $this->_app->getBaseUri() . '?c=feed&amp;a=getFeed&amp;uri=' . urlencode($actorUri);
+        $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' . urlencode($actorUri);
 
         $pushController->publish($feedUri);
 
