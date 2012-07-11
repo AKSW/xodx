@@ -3,7 +3,7 @@
 /**
  * This class represents an aair:Activity
  */
-class Activity
+class Xodx_Activity
 {
     private $_uri;
     private $_actorUri;
