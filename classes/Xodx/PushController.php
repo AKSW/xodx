@@ -15,6 +15,8 @@ class Xodx_PushController extends Xodx_Controller
 
         $this->_callbackUrl = $this->_app->getBaseUri() . '?c=push&a=callback';
         $this->_defaultHubUrl = 'http://localhost:8123/';
+//        $this->_defaultHubUrl = 'http://pubsubhubbub.appspot.com';
+//        $this->_defaultHubUrl = 'http://localhost/~natanael/OntoWiki/pubsub/hubbub';
     }
 
     /**
@@ -48,7 +50,7 @@ class Xodx_PushController extends Xodx_Controller
             $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
             $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
 
-            $logger->info('push subscribe: return code: ' . $httpCode);
+            $logger->info('push subscribe: return code from feed: ' . $httpCode);
 
             curl_close($curlHandler);
 
@@ -73,7 +75,7 @@ class Xodx_PushController extends Xodx_Controller
 
                 // TODO: read the rest of the feed and store the actions
 
-                $logger->info('push subscribe: callbackUrl: ' . $this->_callbackUrl);
+                $logger->info('push subscribe: hub: ' . $hubUrl . ', callbackUrl: ' . $this->_callbackUrl);
 
                 if ($hubUrl !== null) {
                     // subscribe to hub
@@ -107,7 +109,9 @@ class Xodx_PushController extends Xodx_Controller
 
                     curl_close($curlHandler);
 
-                    if ($httpCode-($httpCode%100) != 200) {
+                    $logger->info('push subscribe: return code from hub: ' . $httpCode . ', result: ' . $result);
+
+                    if (($httpCode-($httpCode%100)) != 200) {
                         throw new Exception('Subscription to hub failed');
                     }
 
@@ -168,7 +172,7 @@ class Xodx_PushController extends Xodx_Controller
 
         curl_close($curlHandler);
 
-        $logger->info('push publish: mode: publish, return code: ' . $httpCode . ', result: ' . $result);
+        $logger->info('push publish: hub: ' . $this->_defaultHubUrl . ', topic: ' . $topicUri . ', return code: ' . $httpCode . ', result: ' . $result);
 
         if ($httpCode-($httpCode%100) != 200) {
             throw new Exception('Publishing to hub failed');
