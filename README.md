@@ -26,3 +26,7 @@ You have to place a copy of the Zend framework library into `libraries/Zend/` yo
 
 ### JavaScript
 You have to add [twitter bootstrap](http://twitter.github.com/bootstrap/) and [jquery](http://jquery.com/) to the `resources` directory.
+
+Code Conventions
+----------------
+Currently, this project is developed using [OntoWiki's coding standard](http://code.google.com/p/ontowiki/wiki/CodingStandard).
