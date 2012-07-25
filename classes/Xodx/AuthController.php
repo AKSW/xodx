@@ -1,32 +1,10 @@
 <?php
 
-/**
- * This class implements the WebID Authentication Protocal (a.k.a. FOAF+SSL) and as fallback
- * a simple authentication with username and password.
- * The Fallback is important for users without WebID to first loggin and user which are using
- * a new browser which has not yes a WebID setup
- * WebID:
- * - http://www.w3.org/wiki/WebID
- * - http://www.w3.org/2005/Incubator/webid/wiki/Main_Page
- * - http://www.w3.org/2005/Incubator/webid/wiki/Implementations
- * - http://www.w3.org/2005/Incubator/webid/wiki/Apache_Configuration
- */
 class Xodx_AuthController extends Xodx_Controller
 {
     private $_user;
     private $_status;
 
-    public function authenticate()
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $request = $bootstrap->getResource('request');
-
-        if ($request->getValue('logedin', 'session') === true) {
-            $this->_user = $request->getValue('user');
-        } else {
-            $this->loginAction('guest');
-        }
-    }
 
     public function loginAction($template, $user = null, $password = null)
     {

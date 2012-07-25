@@ -1,6 +1,41 @@
-<h2>Add Person</h2>
-<form action="?c=application&a=newuser" method="post">
-<div class="input-append">
-<input type="text" name="person" /><button class="btn btn-primary" type="submit">Subscribe</button>
+<h2>Signup</h2>
+<form action="?c=application&a=newuser" method="post" class="form-horizontal">
+<fieldset>
+<legend>Create a new Account on this Xodx instance.</legend>
+<div class="control-group">
+    <label class="control-label" for="personUri">Your personal URI</label>
+    <div class="controls">
+        <input type="text" class="input-xlarge" name="personUri" id="personUri" />
+        <?php if (isset($this->formError['personUri'])): ?>
+        <p>Error</p>
+        <?php endif; ?>
+        <p class="help-block">If you already have a FOAF profile enter your URI here if you don't have one, just leave it blank.</p>
+    </div>
 </div>
+<div class="control-group">
+    <label class="control-label" for="username">Username</label>
+    <div class="controls">
+        <input type="text" class="input-xlarge" name="username" id="username" />
+        <?php if (isset($this->formError['username'])): ?>
+        <p>Error</p>
+        <?php endif; ?>
+        <p class="help-block">Choose your favourit username</p>
+    </div>
+</div>
+<div class="control-group">
+    <label class="control-label" for="password">Password</label>
+    <div class="controls">
+        <input type="password" class="input-xlarge" name="password" id="password" />
+        <?php if (isset($this->formError['password'])): ?>
+        <p>Error</p>
+        <?php endif; ?>
+        <p class="help-block">Choose a secure password …</p>
+        <input type="password" class="input-xlarge" name="passwordVerify" id="passwordVerify" />
+        <p class="help-block">… and verify it to make sure you have no typo</p>
+    </div>
+</div>
+<div class="form-actions">
+    <button class="btn btn-primary" type="submit">Subscribe</button>
+</div>
+</fieldset>
 </form>

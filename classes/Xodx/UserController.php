@@ -1,9 +1,17 @@
 <?php
 
+/**
+ * This class manages instances of Xodx_User
+ */
 class Xodx_UserController extends Xodx_Controller
 {
     private $_users = array();
 
+    /**
+     * This method creates a new object of the class Xodx_User
+     * @param $userUri a string which contains the URI of the required user
+     * @return Xodx_User instance with the specified URI
+     */
     public function getUser ($userUri)
     {
         if (!isset($this->_users[$userUri])) {
@@ -14,6 +22,45 @@ class Xodx_UserController extends Xodx_Controller
         }
 
         return $this->_users[$userUri];
+    }
+
+    /**
+     * This function verifies the given credentials for a user
+     * @param $user a string with the URI or Xodx_User object representing the user
+     * @param $password a string containing the password of the given user
+     */
+    public function verifyPasswordCredentials ($user, $password)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        $userUri = null;
+        $passwordHash = md5($password);
+
+        if (!is_string($user) && get_class($user) === 'Xodx_User') {
+            $userUri = $user->getUri();
+        } else {
+            $userUri = $user;
+        }
+
+        $query = '' .
+            'PREFIX xodx: <http://example.org/voc/xodx/> ' .
+            'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
+            'SELECT ?pwd ' .
+            'WHERE { ' .
+            '   <' . $userUri . '> a sioc:UserAccount . ' .
+            '   <' . $userUri . '> sioc:hasPassword ?pwd . ' .
+            '}';
+        $passwordQueryResult = $model->sparqlQuery($query);
+
+        if (
+            !empty($passwordQueryResult[0]['pwd']) &&
+            $passwordHash == $passwordQueryResult[0]['pwd']
+        ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function subscribeAction ($template)

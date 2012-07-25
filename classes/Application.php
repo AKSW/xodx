@@ -32,8 +32,8 @@ class Application
 
         $bootstrap = $this->getBootstrap();
 
-        $auth = new Xodx_AuthController($this);
-        $auth->authenticate();
+        $appController = new Xodx_ApplicationController($this);
+        $appController->authenticate();
 
         /**
          * Prepare Template
@@ -41,6 +41,8 @@ class Application
         $template = Template::getInstance();
         $template->setLayout('templates/layout.phtml');
         $template->addMenu('templates/menu.phtml');
+
+        $template->username = $appController->getUser();
 
         $request = $bootstrap->getResource('request');
 
