@@ -2,7 +2,7 @@
 
 require_once 'Tools.php';
 
-class Xodx_SignupController extends Xodx_Controller
+class Xodx_ApplicationController extends Xodx_Controller
 {
     public function newuserAction($template) {
         $nsPingback = 'http://purl.org/net/pingback/';
@@ -48,5 +48,9 @@ class Xodx_SignupController extends Xodx_Controller
         }
 
         return $template;
+    }
+
+    public function loginAction($template) {
+
     }
 }
