@@ -104,7 +104,8 @@ class Xodx_PersonController extends Xodx_Controller
             '             atom:published      ?date ; ' .
             '             aair:activityVerb   ?verb ; ' .
             '             aair:activityObject ?object . ' .
-            '}';
+            '} ' .
+            'ORDER BY DESC(?date)';
         $activitiesResult = $model->sparqlQuery($query);
 
         $activities = array();
