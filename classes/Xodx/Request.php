@@ -8,6 +8,11 @@ class Xodx_Request
     private $_method;
 
     /**
+     * The request header array
+     */
+    private $_header;
+
+    /**
      * Array keeping the values of the request
      * The types in the first dimension, the keys in the second dimension and the values as values
      * An additional 1st dimension key 'all' holds the key-type mappings
@@ -109,6 +114,20 @@ class Xodx_Request
         } else {
             return null;
         }
+    }
+
+    /**
+     * Returns the header of the request
+     * @return array with the header fields of the request
+     */
+    public function getHeader ()
+    {
+        if (!isset($this->_header)) {
+            // read headers from PHP http://php.net/manual/en/function.getallheaders.php
+            $this->_header = getallheaders();
+        }
+
+        return $this->_header;
     }
 
     /**
