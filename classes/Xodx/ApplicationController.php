@@ -40,92 +40,103 @@ class Xodx_ApplicationController extends Xodx_Controller
         $password = $request->getValue('password', 'post');
         $passwordVerify = $request->getValue('passwordVerify', 'post');
 
-        // verify form data
-        $formError = array();
+        if ($personUri === null && $username === null && $password === null && $passwordVerify === null) {
+            $template->addContent('templates/newuser.phtml');
+        } else {
 
-        // TODO check of personUri is a uri and is available
-        if (false) {
-            $formError['personUri'] = true;
-        }
+            // verify form data
+            $formError = array();
 
-        // TODO check other things, e.g. (un)allowed chars, uri compatible …
-        if (empty($username)) {
-            $formError['username'] = true;
-        }
-
-        if ($password != $passwordVerify) {
-            $formError['password'] = true;
-        }
-
-        if (count($formError) <= 0) {
-            $graphUri = $model->getModelIri();
-
-            if (!empty($personUri)) {
-                $newStatements = Tools::getLinkedDataResource($personUri);
-                $store->addMultipleStatements($graphUri, $newStatements);
-
-                $template->addDebug(var_export($newStatements, true));
+            // TODO check of personUri is a uri and is available
+            if (false) {
+                $formError['personUri'] = true;
             }
 
-            $newPersonUri = $this->_app->getBaseUri() . '?c=person&a=get&username=' . urlencode($username);
-            $newPerson = array(
-                $newPersonUri => array(
-                    $nsRdf . 'type' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $nsFoaf . 'Person'
-                        )
-                    ),
-                )
-            );
-            $store->addMultipleStatements($graphUri, $newPerson);
+            // TODO check other things, e.g. (un)allowed chars, uri compatible …
+            if (empty($username)) {
+                $formError['username'] = true;
+            }
 
-            $newUserUri = $this->_app->getBaseUri() . '?c=user&a=get&username=' . urlencode($username);
-            $newUser = array(
-                 $newUserUri => array(
-                    $nsRdf . 'type' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $nsSioc . 'UserAccount'
-                        )
-                    ),
-                    $nsXodx . 'password' => array(
-                        array(
-                            'type' => 'literal',
-                            'value' => md5($password)
-                        )
-                    ),
-                    $nsSioc . 'account_of' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $newPersonUri
-                        )
-                    ),
-                )
-            );
-            $store->addMultipleStatements($graphUri, $newUser);
+            if ($password != $passwordVerify) {
+                $formError['password'] = true;
+            }
 
-            $newProfile = array(
-                $this->_app->getBaseUri() . '?c=profile&a=get&username=' . urlencode($username) => array(
-                    $nsRdf . 'type' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $nsFoaf . 'PersonalProfileDocument'
-                        )
-                    ),
-                    $nsFoaf . 'primaryTopic' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $newPersonUri
-                        )
-                    ),
-                )
-            );
-            $store->addMultipleStatements($graphUri, $newProfile);
+            if (count($formError) <= 0) {
+                $graphUri = $model->getModelIri();
 
-        } else {
-            $template->formError = $formError;
-            $template->addContent('templates/newuser.phtml');
+                if (!empty($personUri)) {
+                    $newStatements = Tools::getLinkedDataResource($personUri);
+                    $store->addMultipleStatements($graphUri, $newStatements);
+
+                    $template->addDebug(var_export($newStatements, true));
+                }
+
+                $newPersonUri = $this->_app->getBaseUri() . '?c=person&a=get&username=' . urlencode($username);
+                $newPerson = array(
+                    $newPersonUri => array(
+                        $nsRdf . 'type' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $nsFoaf . 'Person'
+                            )
+                        ),
+                    )
+                );
+                $store->addMultipleStatements($graphUri, $newPerson);
+
+                $newUserUri = $this->_app->getBaseUri() . '?c=user&a=get&username=' . urlencode($username);
+                $newUser = array(
+                     $newUserUri => array(
+                        $nsRdf . 'type' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $nsSioc . 'UserAccount'
+                            )
+                        ),
+                        $nsFoaf . 'accountName' => array(
+                            array(
+                                'type' => 'literal',
+                                'value' => $username
+                            )
+                        ),
+                        $nsXodx . 'hasPassword' => array(
+                            array(
+                                'type' => 'literal',
+                                'value' => md5($password)
+                            )
+                        ),
+                        $nsSioc . 'account_of' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $newPersonUri
+                            )
+                        ),
+                    )
+                );
+                $store->addMultipleStatements($graphUri, $newUser);
+
+                $newProfile = array(
+                    $this->_app->getBaseUri() . '?c=profile&a=get&username=' . urlencode($username) => array(
+                        $nsRdf . 'type' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $nsFoaf . 'PersonalProfileDocument'
+                            )
+                        ),
+                        $nsFoaf . 'primaryTopic' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $newPersonUri
+                            )
+                        ),
+                    )
+                );
+                $store->addMultipleStatements($graphUri, $newProfile);
+
+            } else {
+                $template->formError = $formError;
+                $template->addContent('templates/newuser.phtml');
+            }
         }
 
         return $template;
@@ -155,10 +166,14 @@ class Xodx_ApplicationController extends Xodx_Controller
                 $_SESSION['username'] = $username;
                 $_SESSION['logedin'] = false;
 
+                $this->_user = $username;
+
                 return true;
             } else if ($userController->verifyPasswordCredentials($username, $password)) {
                 $_SESSION['username'] = $username;
                 $_SESSION['logedin'] = true;
+
+                $this->_user = $username;
 
                 return true;
             } else {
@@ -176,8 +191,10 @@ class Xodx_ApplicationController extends Xodx_Controller
 
         if (!($request->getValue('logedin', 'session') === true)) {
             $this->login('guest');
+            $this->_user = 'guest';
+        } else {
+            $this->_user = $request->getValue('username');
         }
-        $this->_user = $request->getValue('username');
     }
 
     public function getUser ()

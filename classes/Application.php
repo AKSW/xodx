@@ -54,8 +54,6 @@ class Application
         $template->setLayout('templates/layout.phtml');
         $template->addMenu('templates/menu.phtml');
 
-        $template->username = $appController->getUser();
-
         $request = $bootstrap->getResource('request');
 
         if ($request->hasValue('c')) {
@@ -76,6 +74,8 @@ class Application
         $actionName = $requestAction . 'Action';
         $controller = $this->getController($controllerName);
         $template = $controller->$actionName($template);
+
+        $template->username = $appController->getUser();
 
         $template->render();
     }

@@ -26,7 +26,7 @@ class Xodx_UserController extends Xodx_Controller
 
     /**
      * This function verifies the given credentials for a user
-     * @param $user a string with the URI or Xodx_User object representing the user
+     * @param $user a string with the username of the user
      * @param $password a string containing the password of the given user
      */
     public function verifyPasswordCredentials ($user, $password)
@@ -34,29 +34,24 @@ class Xodx_UserController extends Xodx_Controller
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
 
-        $userUri = null;
+        $userName = $user;
         $passwordHash = md5($password);
 
-        if (!is_string($user) && get_class($user) === 'Xodx_User') {
-            $userUri = $user->getUri();
-        } else {
-            $userUri = $user;
-        }
+        // TODO prevent sparql injection
 
         $query = '' .
             'PREFIX xodx: <http://example.org/voc/xodx/> ' .
             'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
-            'SELECT ?pwd ' .
+            'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
+            'SELECT ?userUri ' .
             'WHERE { ' .
-            '   <' . $userUri . '> a sioc:UserAccount . ' .
-            '   <' . $userUri . '> sioc:hasPassword ?pwd . ' .
+            '   ?userUri a sioc:UserAccount ; ' .
+            '       foaf:accountName "' . $userName . '" ; ' .
+            '       xodx:hasPassword "' . $passwordHash . '" . ' .
             '}';
         $passwordQueryResult = $model->sparqlQuery($query);
 
-        if (
-            !empty($passwordQueryResult[0]['pwd']) &&
-            $passwordHash == $passwordQueryResult[0]['pwd']
-        ) {
+        if (count($passwordQueryResult) > 0) {
             return true;
         } else {
             return false;
