@@ -80,7 +80,7 @@ class Xodx_ProfileController extends Xodx_Controller
             $knows = $model->sparqlQuery($contactsQuery);
         }
 
-        $personController = new Xodx_PersonController($this->_app);
+        $personController = $this->_app->getController('Xodx_PersonController');
         $activities = $personController->getActivities($personUri);
         $news = $personController->getNotifications($personUri);
 
@@ -105,7 +105,7 @@ class Xodx_ProfileController extends Xodx_Controller
         $personUri = $request->getValue('person', 'post');
         $friendUri = $request->getValue('friend', 'post');
 
-        $personController = new Xodx_PersonController($this->_app);
+        $personController = $this->_app->getController('Xodx_PersonController');
 
         // TODO check rights
         $allowed = true;

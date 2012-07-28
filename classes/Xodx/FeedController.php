@@ -17,10 +17,10 @@ class Xodx_FeedController extends Xodx_Controller
 
         if ($uri !== null) {
 
-            $personController = new Xodx_PersonController($this->_app);
+            $personController = $this->_app->getController('Xodx_PersonController');
             $activities = $personController->getActivities($uri);
 
-            $pushController = new Xodx_PushController($this->_app);
+            $pushController = $this->_app->getController('Xodx_PushController');
 
             $feedUri = $this->_app->getBaseUri() . '?c=feed&amp;a=getFeed&amp;uri=' . urlencode($uri);
 
@@ -86,7 +86,7 @@ class Xodx_FeedController extends Xodx_Controller
             }
         }
 
-        $activityController = new Xodx_ActivityController($this->_app);
+        $activityController = $this->_app->getController('Xodx_ActivityController');
 
         $activityController->addActivities($activities);
     }

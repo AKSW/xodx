@@ -149,7 +149,7 @@ class Xodx_ApplicationController extends Xodx_Controller
     public function login ($username = null, $password = null)
     {
         if ($username == 'guest' || ($username !== null && $password !== null)) {
-            $userController = new Xodx_UserController($this->_app);
+            $userController = $this->_app->getController('Xodx_UserController');
 
             if ($username == 'guest') {
                 $_SESSION['username'] = $username;

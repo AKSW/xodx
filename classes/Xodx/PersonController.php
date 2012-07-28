@@ -23,7 +23,7 @@ class Xodx_PersonController extends Xodx_Controller
         $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
 
         $nsAair = 'http://xmlns.notu.be/aair#';
-        $activityController = new Xodx_ActivityController($this->_app);
+        $activityController = $this->_app->getController('Xodx_ActivityController');
 
         // add Activity to activity Stream
         $object = array(
@@ -33,7 +33,7 @@ class Xodx_PersonController extends Xodx_Controller
         $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
 
         // ping the new contact
-        $pingbackController = new Xodx_PingbackController($this->_app);
+        $pingbackController = $this->_app->getController('Xodx_PingbackController');
         $pingbackController->sendPing($personUri, $contactUri);
 
         // TODO subscribe to contacts activity stream

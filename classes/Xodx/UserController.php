@@ -84,7 +84,7 @@ class Xodx_UserController extends Xodx_Controller
         $logger->info('subscribeToFeed: user: ' . $userUri . ', feed: ' . $feedUri);
 
         if (!$this->_isSubscribed($userUri, $feedUri)) {
-            $pushController = new Xodx_PushController($this->_app);
+            $pushController = $this->_app->getController('Xodx_PushController');
             if ($pushController->subscribe($feedUri)) {
 
                 $store = $bootstrap->getResource('store');
