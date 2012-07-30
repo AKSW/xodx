@@ -10,6 +10,7 @@ class Application
     private $_classNamespace = 'Xodx_';
     private $_bootstrap = null;
     private $_baseUri = null;
+    private $_baseDir = null;
 
     private $_controllers = array();
 
