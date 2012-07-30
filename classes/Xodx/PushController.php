@@ -13,10 +13,11 @@ class Xodx_PushController extends Xodx_Controller
     {
         parent::__construct($app);
 
+        $bootstrap = $this->_app->getBootstrap();
+        $config = $bootstrap->getResource('config');
+
         $this->_callbackUrl = $this->_app->getBaseUri() . '?c=push&a=callback';
-        $this->_defaultHubUrl = 'http://localhost:8123/';
-//        $this->_defaultHubUrl = 'http://pubsubhubbub.appspot.com';
-//        $this->_defaultHubUrl = 'http://localhost/~natanael/OntoWiki/pubsub/hubbub';
+        $this->_defaultHubUrl = $config['push.hub'];
     }
 
     /**
