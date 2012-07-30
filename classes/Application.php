@@ -25,7 +25,7 @@ class Application
     public function getBootstrap()
     {
         if (!isset($this->_bootstrap)) {
-            $this->_bootstrap = new Bootstrap();
+            $this->_bootstrap = new Bootstrap($this);
         }
 
         return $this->_bootstrap;

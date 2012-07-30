@@ -2,12 +2,14 @@
 
 class Bootstrap
 {
+    private $_app;
     private $_resources;
     private $_model;
     private $_store;
 
-    public function __construct ()
+    public function __construct ($app)
     {
+        $this->_app = $app;
         $this->_resources = array();
     }
 
