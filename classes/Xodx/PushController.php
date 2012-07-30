@@ -112,7 +112,7 @@ class Xodx_PushController extends Xodx_Controller
 
                     $logger->info('push subscribe: return code from hub: ' . $httpCode . ', result: ' . $result);
 
-                    if (($httpCode-($httpCode%100)) != 200) {
+                    if (($httpCode - ($httpCode % 100)) != 200) {
                         throw new Exception('Subscription to hub failed');
                     }
 
