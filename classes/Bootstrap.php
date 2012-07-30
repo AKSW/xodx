@@ -29,10 +29,34 @@ class Bootstrap
         return $this->_resources[$resourceName];
     }
 
+    private function initConfig ()
+    {
+        $configPath = $this->_app->getBaseDir() . 'config.ini';
+
+        $configArray = parse_ini_file($configPath, true);
+
+        // TODO merge with some default settings
+        // TODO move most settings into the model
+
+        return $configArray['xodx'];
+    }
+
     private function initStore ()
     {
+        $configPath = $this->_app->getBaseDir() . 'config.ini';
+        $erfurtConfig = null;
+
+        if (is_readable($configPath)) {
+            try {
+                $erfurtConfig = new Zend_Config_Ini($configPath, 'erfurt');
+            } catch (Exception $e) {
+            }
+        }
+
         // Creating an instance of Erfurt API
-        $erfurt = Erfurt_App::getInstance( );
+        // don't autostart it to set config
+        $erfurt = Erfurt_App::getInstance(false);
+        $erfurt->start($erfurtConfig);
 
         // TODO: add the stuff from
         // https://github.com/AKSW/Erfurt/wiki/Internals
@@ -40,7 +64,7 @@ class Bootstrap
         // Authentification on Erfurt (needed for model access)
         $dbUser = $erfurt->getStore()->getDbUser();
         $dbPass = $erfurt->getStore()->getDbPassword();
-        $erfurt->authenticate( $dbUser, $dbPass );
+        $erfurt->authenticate($dbUser, $dbPass);
 
         return $erfurt->getStore();
     }
