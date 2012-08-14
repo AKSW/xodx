@@ -10,15 +10,26 @@ class Xodx_ProfileController extends Xodx_Controller
 
         $profiles = $model->sparqlQuery(
             'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . 
-            'SELECT ?profile ?person ?name ' . 
+            'SELECT DISTINCT ?person ' . 
             'WHERE { ' .
             '   ?profile a foaf:PersonalProfileDocument . ' .
             '   ?profile foaf:primaryTopic ?person . ' .
-            '   ?person foaf:name ?name . ' .
+//            '   ?person foaf:name ?name . ' .
             '}'
         );
 
-        $template->profilelistList = $profiles;
+        $persons = array();
+
+        $nameHelper = new Xodx_NameHelper($this->_app);
+
+        foreach ($profiles as $profile) {
+            $persons[] = array(
+                'person' => $profile['person'],
+                'name' => $nameHelper->getName($profile['person'])
+            );
+        }
+
+        $template->profilelistList = $persons;
         $template->addContent('templates/profilelist.phtml');
 
         $template->addDebug(var_export($profiles, true));
