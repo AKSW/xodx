@@ -73,13 +73,17 @@ class Bootstrap
     {
         $model = null;
         $store = $this->getResource('store');
+        $config = $this->getResource('config');
+
+        $modelUri = $config['xodx.model'];
+
         // Get a new model
         try {
             // Create it if it doesn't exist
-            $model = $store->getNewModel('http://localhost/Xodx');
+            $model = $store->getNewModel($modelUri);
         } catch (Erfurt_Store_Exception $e) {
             // Get it if it already exists
-            $model = $store->getModel('http://localhost/Xodx');
+            $model = $store->getModel($modelUri);
         }
 
         return $model;
