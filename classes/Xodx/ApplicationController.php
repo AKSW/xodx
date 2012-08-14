@@ -25,6 +25,7 @@ class Xodx_ApplicationController extends Xodx_Controller
     public function newuserAction ($template) {
         $nsPingback = 'http://purl.org/net/pingback/';
         $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+        $nsRdfs = 'http://www.w3.org/2000/01/rdf-schema#';
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
         $nsSioc = 'http://rdfs.org/sioc/ns#';
         $nsXodx = 'http://example.org/voc/xodx/';
@@ -64,13 +65,19 @@ class Xodx_ApplicationController extends Xodx_Controller
             if (count($formError) <= 0) {
                 $graphUri = $model->getModelIri();
 
+                $memModel = null;
+
                 if (!empty($personUri)) {
                     $newStatements = Tools::getLinkedDataResource($personUri);
-                    $store->addMultipleStatements($graphUri, $newStatements);
+
+                    $memModel = new Erfurt_Rdf_MemoryModel($newStatements);
+
+                    //$store->addMultipleStatements($graphUri, $newStatements);
 
                     $template->addDebug(var_export($newStatements, true));
                 }
 
+                // create new person
                 $newPersonUri = $this->_app->getBaseUri() . '?c=person&a=get&username=' . urlencode($username);
                 $newPerson = array(
                     $newPersonUri => array(
@@ -80,8 +87,37 @@ class Xodx_ApplicationController extends Xodx_Controller
                                 'value' => $nsFoaf . 'Person'
                             )
                         ),
+                        $nsFoaf . 'nick' => array(
+                            array(
+                                'type' => 'literal',
+                                'value' => $username
+                            )
+                        ),
                     )
                 );
+
+                // add seeAlso relation if a former uri was specified
+                if (!empty($personUri)) {
+                    $newPerson[$newPersonUri][$nsRdfs . 'seeAlso'] = array(
+                        array(
+                            'type' => 'uri',
+                            'value' => $personUri
+                        )
+                    );
+                }
+
+                // add all statements about the former person to the new one
+                if ($memModel !== null) {
+                    $memStmt = $memModel->getPO($personUri);
+                    foreach ($memStmt as $p => $o) {
+                        if (isset($newPerson[$newPersonUri][$p])) {
+                            $newPerson[$newPersonUri][$p] = array_merge($o, $newPerson[$newPersonUri][$p]);
+                        } else {
+                            $newPerson[$newPersonUri][$p] = $o;
+                        }
+                    }
+                }
+
                 $store->addMultipleStatements($graphUri, $newPerson);
 
                 $newUserUri = $this->_app->getBaseUri() . '?c=user&a=get&username=' . urlencode($username);
