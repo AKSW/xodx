@@ -117,8 +117,11 @@ class Xodx_PersonController extends Xodx_Controller
 
             $activity['date'] = self::_issueE24fix($activity['date']);
 
+            $nameHelper = new Xodx_NameHelper($this->_app);
+            $personName = $nameHelper->getName($personUri);
+
             $activity = array(
-                'title' => '"' . $personUri . '" did "' . $activity['verb'] . '".',
+                'title' => '"' . $personName . '" did "' . $activity['verb'] . '".',
                 'uri' => $activityUri,
                 'author' => 'Natanael',
                 'authorUri' => $personUri,

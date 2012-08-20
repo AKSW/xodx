@@ -22,7 +22,7 @@ class Xodx_FeedController extends Xodx_Controller
 
             $pushController = $this->_app->getController('Xodx_PushController');
 
-            $feedUri = $this->_app->getBaseUri() . '?c=feed&amp;a=getFeed&amp;uri=' . urlencode($uri);
+            $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' . urlencode($uri);
 
             $updated = '0';
 
@@ -32,12 +32,14 @@ class Xodx_FeedController extends Xodx_Controller
                 }
             }
 
+            $nameHelper = new Xodx_NameHelper($this->_app);
+
             $template->setLayout('templates/feed.phtml');
             $template->updated = $updated;
             $template->uri = $uri;
             $template->feedUri = $feedUri;
             $template->hub = $pushController->getDefaultHubUrl();
-            $template->name = $uri;
+            $template->name = $nameHelper->getName($uri);
             $template->activities = $activities;
         } else {
             // No URI given
