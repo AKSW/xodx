@@ -59,8 +59,8 @@ class Xodx_NameHelper
         $langPriority = array();
 
         foreach ($langcode as $lang) {
-            $lang = explode(";", $lang)[0];
-            $langPriority[] = $lang;
+            $lang = explode(";", $lang);
+            $langPriority[] = $lang[0];
         }
         return $langPriority;
     }
