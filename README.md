@@ -20,8 +20,8 @@ Take one of the prepared `config.ini-*` files in `xodx/libraries/Erfurt/library/
 You have to place a copy of the Zend framework library into `libraries/Zend/` you can do this by doing the following things (replace `${ZENDVERSION}` e.g. with `1.11.5`):
 
     wget http://framework.zend.com/releases/ZendFramework-${ZENDVERSION}/ZendFramework-${ZENDVERSION}-minimal.tar.gz
-    tar xzf ZendFramework-${ZENDVERSION}-minimal.tar.gz¶
-    mv ZendFramework-${ZENDVERSION}-minimal/library/Zend libraries¶
+    tar xzf ZendFramework-${ZENDVERSION}-minimal.tar.gz
+    mv ZendFramework-${ZENDVERSION}-minimal/library/Zend libraries
     rm -rf ZendFramework-${ZENDVERSION}-minimal.tar.gz ZendFramework-${ZENDVERSION}-minimal
 
 ### JavaScript
