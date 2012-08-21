@@ -1,6 +1,8 @@
 [xodx]
 ; In this section you can tune some parameters of XODX
 
+xodx.model = "http://localhost/Xodx"
+
 push.enable = true;
 push.hub = "http://pubsubhubbub.appspot.com"
 ;push.hub = "http://localhost:8123/"
