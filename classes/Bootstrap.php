@@ -77,6 +77,10 @@ class Bootstrap
 
         $modelUri = $config['xodx.model'];
 
+        if (empty($modelUri)) {
+            throw new Exception('No xodx model configured. Please add "xodx.model" entry to "config.ini".');
+        }
+
         // Get a new model
         try {
             // Create it if it doesn't exist
