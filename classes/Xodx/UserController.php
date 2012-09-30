@@ -116,6 +116,16 @@ class Xodx_UserController extends Xodx_Controller
             '}';
         $subscribedResult = $model->sparqlQuery($query);
 
-        return empty($subscribedResult[0]['__ask_retval']);
+        if (is_array($subscribedResult)) {
+            // Erfurt problem
+            return empty($subscribedResult[0]['__ask_retval']);
+        } else if (is_bool($subscribedResult)) {
+            return $subscriptionResult;
+        } else {
+            $logger = $bootstrap->getResource('logger');
+            $logger->info('isSubscribed: user: ' . $userUri . ', feed: ' . $feedUri . '. ASK Query returned unexpectedly: ' . var_export($subscriptionResult));
+
+            throw new Exception('Erfurt returned an unexpected result to the ask query.');
+        }
     }
 }
