@@ -184,7 +184,7 @@ class Xodx_PersonController extends Xodx_Controller
      */
     private static function _issueE24fix ($date)
     {
-        if (strstr($date, 11, 1) != 'T') {
+        if (substr($date, 11, 1) != 'T') {
             $dateObj = date_create($date);
             return date_format($dateObj, 'c');
         } else {
