@@ -17,9 +17,9 @@ Run `git submodules init` and `git submodules update` to clone Erfurt.
 Take one of the prepared `config.ini-*` files in `xodx/libraries/Erfurt/library/Erfurt`, copy it to `config.ini` and configure it according to your system setup.
 
 ### Zend
-You have to place a copy of the Zend framework library into `libraries/Zend/` you can do this by doing the following things (replace `${ZENDVERSION}` e.g. with `1.11.5`):
+You have to place a copy of the Zend framework library into `libraries/Zend/` you can do this by doing the following things (replace `${ZENDVERSION}` e.g. with `1.12.0`):
 
-    wget http://framework.zend.com/releases/ZendFramework-${ZENDVERSION}/ZendFramework-${ZENDVERSION}-minimal.tar.gz
+    wget http://packages.zendframework.com/releases/ZendFramework-${ZENDVERSION}/ZendFramework-${ZENDVERSION}-minimal.tar.gz
     tar xzf ZendFramework-${ZENDVERSION}-minimal.tar.gz
     mv ZendFramework-${ZENDVERSION}-minimal/library/Zend libraries
     rm -rf ZendFramework-${ZENDVERSION}-minimal.tar.gz ZendFramework-${ZENDVERSION}-minimal
