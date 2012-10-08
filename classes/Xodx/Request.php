@@ -20,6 +20,12 @@ class Xodx_Request
     private $_values;
 
     /**
+     * The URL of the current request
+     */
+    private $_requestUri;
+
+
+    /**
      * Constructor for the Request object.
      * Takes the method of the request and an array of the values.
      * @param $method
@@ -128,6 +134,19 @@ class Xodx_Request
         }
 
         return $this->_header;
+    }
+
+    /**
+     * Returns the URL of the current request
+     */
+    public function getRequestUri ()
+    {
+        if (!isset($this->_requestUri)) {
+            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") ? "https" : "http";
+            $this->_requestUri = $protocol . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        }
+
+        return $this->_requestUri;
     }
 
     /**
