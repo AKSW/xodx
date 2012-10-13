@@ -1,20 +1,20 @@
 xodx
 ====
 
-This is an implementation of the basic functionalities of a DSSN Provider:
+This is an implementation of the basic functionalities of a DSSN Provider, as described in Tramp et al. [An Architecture of a Distributed Semantic Social Network](http://www.semantic-web-journal.net/sites/default/files/swj201_4.pdf):
 * [Semantic Pingback](http://aksw.org/Projects/SemanticPingback) for Friending
 * [Pubsubhubbub](http://code.google.com/p/pubsubhubbub/) (PuSH) for notification along the edges
 
-It is written in PHP and utilizes the Zend Framework and the [Erfurt Framework](http://erfurt-framework.org/)
+It is written in PHP and utilizes the Zend Framework, the [Erfurt Framework](http://erfurt-framework.org/) and [lib-dssn](https://github.com/seebi/lib-dssn-php/).
 
 Installation
 ------------
 You need a webserver (tested with Apache, but I hope it also runs with nginx and lighttd) and a database backend which is supported by Erfurt (MySQL and Virtuoso).
 
-### Erfurt
-Run `git submodules init` and `git submodules update` to clone Erfurt.
+Take the prepared `config.ini-dist` file, copy it to `config.ini` and configure it according to your system setup.
 
-Take one of the prepared `config.ini-*` files in `xodx/libraries/Erfurt/library/Erfurt`, copy it to `config.ini` and configure it according to your system setup.
+### Erfurt and lib-dssn
+Run `git submodules init` and `git submodules update` to clone Erfurt and lib-dssn.
 
 ### Zend
 You have to place a copy of the Zend framework library into `libraries/Zend/` you can do this by doing the following things (replace `${ZENDVERSION}` e.g. with `1.12.0`):
