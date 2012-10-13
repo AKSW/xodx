@@ -100,9 +100,9 @@ class Xodx_ApplicationController extends Xodx_Controller
                             array(
                                 'type' => 'uri',
                                 'value' => $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
-                                    urlencode($activityUri)
+                                    urlencode($newPersonUri)
                             )
-                        ),
+                        )
                     )
                 );
 
@@ -130,7 +130,7 @@ class Xodx_ApplicationController extends Xodx_Controller
 
                 $store->addMultipleStatements($graphUri, $newPerson);
 
-                $newUserUri = $this->_app->getBaseUri() . '?c=user&a=id&username=' . urlencode($username);
+                $newUserUri = $this->_app->getBaseUri() . '?c=user&id=' . urlencode($username);
                 $newUser = array(
                      $newUserUri => array(
                         $nsRdf . 'type' => array(
@@ -156,7 +156,7 @@ class Xodx_ApplicationController extends Xodx_Controller
                                 'type' => 'uri',
                                 'value' => $newPersonUri
                             )
-                        ),
+                        )
                     )
                 );
                 $store->addMultipleStatements($graphUri, $newUser);
@@ -174,7 +174,7 @@ class Xodx_ApplicationController extends Xodx_Controller
                                 'type' => 'uri',
                                 'value' => $newPersonUri
                             )
-                        ),
+                        )
                     )
                 );
                 $store->addMultipleStatements($graphUri, $newProfile);

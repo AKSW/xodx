@@ -19,7 +19,7 @@ $includePath  = get_include_path() . PATH_SEPARATOR;
 $includePath .= $main_dir . '/classes/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/classes/Xodx/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/libraries/' . PATH_SEPARATOR;
-$includePath .= $main_dir . '/libraries/Erfurt/library' . PATH_SEPARATOR;
+$includePath .= $main_dir . '/libraries/Erfurt/library/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/libraries/lib-dssn-php/' . PATH_SEPARATOR;
 
 set_include_path($includePath);
@@ -32,6 +32,7 @@ require_once 'Application.php';
 $autoloader = Zend_Loader_Autoloader::getInstance();
 $autoloader->registerNamespace('Erfurt_');
 $autoloader->registerNamespace('Xodx_');
+$autoloader->registerNamespace('DSSN_');
 
 $app = Application::getInstance();
 $app->setBaseUri($base_uri);

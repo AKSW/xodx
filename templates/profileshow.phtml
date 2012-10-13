@@ -34,36 +34,31 @@ if ($contact['name'] != null) {
     <?php if (isset($this->profileshowActivities)) : ?>
     <?php foreach ($this->profileshowActivities as $activity) : ?>
     <div class="activity">
-      <p>
-        <!-- <a href="<?= $activity['uri'] ?>"><strong><?= $activity['title'] ?></strong></a><br /> -->
-      </p>
-      <p>
-      <form method="post" action="?c=activity&amp;a=replyForm">
-        <a href="<?= htmlentities($activity['authorUri']) ?>">
-            <?= htmlentities($activity['author']) ?>
-        </a>
-        <a href="<?= htmlentities($activity['verb']) ?>"><?= Tools::getSpokenWord($activity['verb']) ?></a>
-
-        <?php if (isset($activity['objectType'])) : ?>
-        a <a href="<?= htmlentities($activity['object']) ?>">
-            <?= Tools::getSpokenWord($activity['type']) ?>
-        </a> at <?= $activity['pubDate'] ?>
-        <?php endif; ?>
+        <p>
+            <!-- <a href="<?= $activity['uri'] ?>"><strong><?= $activity['title'] ?></strong></a><br /> -->
+        </p>
+        <div>
+            <form method="post" action="?c=activity&amp;a=replyForm">
+                <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['author']) ?></a>
+                <a href="<?= htmlentities($activity['verb']) ?>"><?= Tools::getSpokenWord($activity['verb']) ?></a>
+                <?php if (isset($activity['objectType'])) : ?>
+                a <a href="<?= htmlentities($activity['object']) ?>"><?= Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
+                <?php endif; ?>
                 <input type="hidden" name="object" value="<?= htmlentities($activity['object'])?>" />
                 <input type="hidden" name="actor" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
                 <button class="btn btn-mini" type="submit">Reply</button>
             </form>
+        </div>
     </div>
     <?php endforeach; ?>
     <?php else: ?>
-        <div class="well">
+    <div class="well">
         There are not Activities of this person
-        </div>
+    </div>
     <?php endif; ?>
     <h2>Add Activity ...</h2>
-        <th>Actor</th>
-            <?= $this->profileshowName ?>
-            <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
+        <strong>Actor:</strong> <?= $this->profileshowName ?>
+        <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
         <ul class="nav nav-pills">
             <li class="active"><a href="#status" data-toggle="tab">Status</a></li>
             <li><a href="#link" data-toggle="tab">Link</a></li>

@@ -1,7 +1,7 @@
 <?php
-// TODO replace this by dssn-lib-php
 /**
  * This class represents an aair:Activity
+ * TODO: replace this by DSSN_Activity from dssn-lib-php
  */
 class Xodx_Activity
 {
@@ -23,11 +23,13 @@ class Xodx_Activity
         $this->_actorUri = $actorUri;
         $this->_verbUri = $verbUri;
         $this->_objectUri = $objectUri;
+
         if ($date === null) {
             $this->_date = date('c');
         } else {
             $this->_date = $date;
         }
+
         if ($context !== null) {
             $this->_contextUri = $contextUri;
         } else {
@@ -102,6 +104,7 @@ class Xodx_Activity
                 )
             )
         );
+
         if (!empty($this->_contextUri)) {
             $return[$this->_uri][$nsAair . 'activityContext'][0]['type'] = 'uri';
             $return[$this->_uri][$nsAair . 'activityContext'][0]['value'] = $this->_contextUri;

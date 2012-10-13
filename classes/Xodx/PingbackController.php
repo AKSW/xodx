@@ -16,12 +16,12 @@ class Xodx_PingbackController extends Xodx_Controller
         // TODO store and interprete ping
         $sourceStatements = Tools::getLinkedDataResource($source);
 
-        if ((strpos($target, $this->_app->getBaseDir)>0)) {
+        if ((strpos($target, $this->_app->getBaseDir) > 0)) {
             // target in our namespace
             $goon = true;
         } else {
+            // target not in our namespace
             $goon = false;
-           // target not in our namespace
         }
 
         if (($sourceStatements !== null) && $goon == true) {

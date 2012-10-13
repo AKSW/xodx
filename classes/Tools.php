@@ -39,13 +39,13 @@ class Tools
     }
 
     /**
-    * Matches an array of mime types against the Accept header in a request.
-    *
-    * @param Xodx_Request $request the request
-    * @param array $supportedMimetypes The mime types to match against
-    * @return string
-    */
-    public static function matchMimetypeFromRequest(
+     * Matches an array of mime types against the Accept header in a request.
+     *
+     * @param Xodx_Request $request the request
+     * @param array $supportedMimetypes The mime types to match against
+     * @return string
+     */
+    public static function matchMimetypeFromRequest (
         Xodx_Request $request,
         array $supportedMimetypes
     )
@@ -56,6 +56,7 @@ class Tools
 
         require_once 'Mimeparse.php';
         try {
+            // suppress warnings because we will catch exceptions
             $match = @Mimeparse::best_match($supportedMimetypes, $acceptHeader);
         } catch (Exception $e) {
             $match = '';
@@ -65,11 +66,13 @@ class Tools
     }
 
     /**
-     *
      * Looks up if a natural word instead of $uri exists and returns this
+     *
+     * TODO: move this function to NameHelper and user predicate labels
      * @param unknown_type $uri a uri
      */
-    public static function getSpokenWord($uri) {
+    public static function getSpokenWord($uri)
+    {
 
         $nsXsd = 'http://www.w3.org/2001/XMLSchema#';
         $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
@@ -87,7 +90,7 @@ class Tools
             $nsAair . 'Post' => 'posted',
             $nsAair . 'Share' => 'shared',
             $nsSioc . 'Comment' => 'comment',
-            $nsFoaf . 'Image' => 'image',
+            $nsFoaf . 'Image' => 'image'
         );
 
         if (isset($words[$uri])) {

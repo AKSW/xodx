@@ -20,7 +20,6 @@ class Xodx_FeedController extends Xodx_Controller
         $format = $request->getValue('format');
 
         if ($uri !== null) {
-            //TODO change to ActivityController, get activities of things != person
             $activityController = $this->_app->getController('Xodx_ActivityController');
             $activities = $activityController->getActivities($uri);
 
@@ -47,13 +46,18 @@ class Xodx_FeedController extends Xodx_Controller
             $template->feedUri = $feedUri;
             $template->hub = $pushController->getDefaultHubUrl();
             $isPerson = false;
-            if (($type == $nsSioc . 'Comment') || ($type == $nsFoaf . 'Document') ||
-            ($type == $nsFoaf . 'Image') || ($type == $nsAair . 'Activity'))
-            {
+
+            if (
+                $type == $nsSioc . 'Comment'
+                || $type == $nsFoaf . 'Document'
+                || $type == $nsFoaf . 'Image'
+                || $type == $nsAair . 'Activity'
+            ) {
                 $name = 'Test';
             } else {
                 $name = $nameHelper->getName($uri);
             }
+
             $template->name = $name;
             $template->activities = $activities;
         } else {
@@ -72,6 +76,7 @@ class Xodx_FeedController extends Xodx_Controller
         // load feedxml and display activities
         $feed = DSSN_Activity_Feed_Factory::newFromXml($feedData);
         $activityController = $this->_app->getController('Xodx_ActivityController');
+
         $nsXodx = 'http://xodx.org/ns#';
         $nsXsd = 'http://www.w3.org/2001/XMLSchema#';
 

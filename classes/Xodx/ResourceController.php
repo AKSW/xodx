@@ -9,7 +9,7 @@ class Xodx_ResourceController extends Xodx_Controller
      * indexAction decides to show a html or a serialized view of a resource if no action is given
      * @param unknown_type $template
      */
-    public function indexAction($template)
+    public function indexAction ($template)
     {
         $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
@@ -19,10 +19,10 @@ class Xodx_ResourceController extends Xodx_Controller
         //$accept = explode(',',$header['Accept']);
         header('HTTP/1.1 302 Found');
 
-                // Array of Accept Header values
+        // Array of Accept Header values
         $otherType = array(
             'text/html' => 'html',
-            'image/jpg' => 'imagejpg',
+            'image/jpg' => 'imagejpg'
         );
 
         // Array of Accept Header values (keys) for serialised view
@@ -43,6 +43,7 @@ class Xodx_ResourceController extends Xodx_Controller
         $match = Tools::matchMimetypeFromRequest($request, array_keys($supportedTypes));
         $template->disableLayout();
         $template->setRawContent('');
+
         if ($match != '') {
             if (array_key_exists($match, $rdfType)) {
                 header('Location: ' . $this->_app->getBaseUri() . '?c=' . $controller .
@@ -59,8 +60,10 @@ class Xodx_ResourceController extends Xodx_Controller
                 return $template;
             }
         }
+
         // default
         //header('Location: ' . $this->_app->getBaseUri() . '?c=resource&a=show&id=' . $objectId);
+
         return $template;
     }
     /**
@@ -68,7 +71,7 @@ class Xodx_ResourceController extends Xodx_Controller
      * Method returns all tuples of a resource to html template
      * @param $template
      */
-    public function showAction($template)
+    public function showAction ($template)
     {
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
@@ -91,11 +94,11 @@ class Xodx_ResourceController extends Xodx_Controller
         $template->addContent('templates/resourceshow.phtml');
         $template->properties = $properties;
         $template->activities = $activities;
+
         // TODO getActivity with objectURI from Xodx_ActivityController
-        /**$personController = new Xodx_PersonController($this->_app);
-        $activities = $personController->getActivities($personUri);
-        $news = $personController->getNotifications($personUri);
-        */
+        //$personController = new Xodx_PersonController($this->_app);
+        //$activities = $personController->getActivities($personUri);
+        //$news = $personController->getNotifications($personUri);
 
         return $template;
     }
@@ -129,7 +132,6 @@ class Xodx_ResourceController extends Xodx_Controller
         $template->setRawContent($rdfData);
 
         return $template;
-
     }
 
     /**
@@ -166,6 +168,7 @@ class Xodx_ResourceController extends Xodx_Controller
 
         $mediaController->getImage($objectId, $mimeType);
         //$template->addContent('templates/resourceshow.phtml');
+
         return $template;
     }
 

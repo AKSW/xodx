@@ -175,10 +175,10 @@ class Xodx_PushController extends Xodx_Controller
 
         $logger->info('push publish: hub: ' . $this->_defaultHubUrl . ', topic: ' . $topicUri . ', return code: ' . $httpCode . ', result: ' . $result);
 
-/**        if ($httpCode-($httpCode%100) != 200) {
+        if ($httpCode - ($httpCode % 100) != 200) {
             throw new Exception('Publishing to hub failed');
         }
-   */ }
+    }
 
     /**
      * This action is used as callback for the subscriber and it will be triggered if the hub
@@ -224,7 +224,6 @@ class Xodx_PushController extends Xodx_Controller
             $logger->info('push callback: body: ' . $body);
             $feedController = $this->_app->getController('Xodx_FeedController');
             $feedController->feedToActivity($body);
-            // TODO: process the feed entry in the body
         }
 
         return $template;
@@ -253,7 +252,8 @@ class Xodx_PushController extends Xodx_Controller
     }
 
     /**
-     * This fucntion gets a Request Body and tries to find a Feed URL
+     * This function gets a Request Body and tries to find a Feed URL
+     *
      * @param Body of a Request
      * @return An URL of a Feed
      */

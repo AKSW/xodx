@@ -183,7 +183,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         return $pingResult;
     }
 
-    public function showAction($template)
+    public function showAction ($template)
     {
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');

@@ -16,35 +16,29 @@ foreach ($this->properties as $property) {
 </table>
 
 <?php if (isset($id)) :?>
-<img
-	src="?c=resource&amp;id=<?= $id ?>" />
+<img src="?c=resource&amp;id=<?= $id ?>" />
 <?php endif;?>
 
 <?php if (isset($this->activities)) : ?>
 <?php foreach ($this->activities as $activity) : ?>
 <div class="activity">
-	<p>
-		<a href="<?= $activity['uri'] ?>"><strong><?= $activity['title'] ?> </strong>
-		</a><br /> <em><?= $activity['pubDate'] ?> </em> <em><a
-			href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['uri']) ?>">
-				Show Activity Feed </a> </em>
-	</p>
-	<p>
-		<a href="<?= htmlentities($activity['authorUri']) ?>"> <?= htmlentities($activity['authorUri']) ?>
-		</a> did <a href="<?= htmlentities($activity['verb']) ?>"><?= htmlentities($activity['verb']) ?>
-		</a>
+    <p>
+        <a href="<?= $activity['uri'] ?>"><strong><?= $activity['title'] ?></strong></a><br />
+        <em><?= $activity['pubDate'] ?> </em>
+        <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['uri']) ?>">Show Activity Feed</a> </em>
+    </p>
+    <p>
+        <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['authorUri']) ?></a>
+        did <a href="<?= htmlentities($activity['verb']) ?>"><?= htmlentities($activity['verb']) ?></a>
 
-		<?php if (isset($activity['objectType'])) : ?>
-		a <a href="<?= htmlentities($activity['object']) ?>"> <?= htmlentities($activity['object']) ?>
-		</a>
-		<?php endif; ?>
-		: <a href="<?= htmlentities($activity['object']) ?>"><?= htmlentities($activity['object']) ?>
-		</a> <em><a
-			href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
-				Show Feed of Object </a> </em>
-
+        <?php if (isset($activity['objectType'])) : ?>
+        a <a href="<?= htmlentities($activity['object']) ?>"><?= htmlentities($activity['object']) ?></a>
+        <?php endif; ?>
+        : <a href="<?= htmlentities($activity['object']) ?>"><?= htmlentities($activity['object']) ?></a>
+        <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">Show Feed of Object</a></em>
+    </p>
 </div>
-		<?php endforeach; ?>
-		<?php else: ?>
+<?php endforeach; ?>
+<?php else: ?>
 <div class="well">There are not Activities of this person</div>
 <?php endif; ?>

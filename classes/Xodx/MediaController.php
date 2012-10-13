@@ -13,40 +13,39 @@ class Xodx_MediaController extends Xodx_Controller
         $actContent = $request->getValue('content', 'post');
 
         switch ($actTypeUri) {
-            case 'http://xmlns.notu.be/aair#Note';
-            $object = array(
+            case 'http://xmlns.notu.be/aair#Note':
+                $object = array(
                     'type' => $actTypeUri,
                     'content' => $actContent,
-            );
-            $debugStr = $this->addActivity($actorUri, $verbUri, $object);
-            break;
-            case 'http://xmlns.notu.be/aair#Link';
-            $object = array(
+                );
+                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
+                break;
+            case 'http://xmlns.notu.be/aair#Link':
+                $object = array(
                     'type' => $actTypeUri,
                     'about' => $request->getValue('about', 'post'),
                     'content' => $actContent,
-            );
-            $debugStr = $this->addActivity($actorUri, $verbUri, $object);
-            break;
-            case 'http://xmlns.notu.be/aair#Photo';
-            $fieldName = 'content';
-            $fileInfo = $this->_uploadImage($fieldName);
-            $object = array(
+                );
+                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
+                break;
+            case 'http://xmlns.notu.be/aair#Photo':
+                $fieldName = 'content';
+                $fileInfo = $this->_uploadImage($fieldName);
+                $object = array(
                     'type' => $actTypeUri,
                     'about' => $request->getValue('about', 'post'),
                     'content' => $actContent,
                     'fileName' => $fileInfo['fileId'],
                     'mimeType' => $fileInfo['mimeType'],
-            );
-            $debugStr = $this->addActivity($actorUri, $verbUri, $object);
-            break;
+                );
+                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
+                break;
         }
+
         $template->addDebug($debugStr);
 
         return $template;
     }
-
-
 
     /**
      * This method uploads an image file after using an upload form
@@ -75,7 +74,7 @@ class Xodx_MediaController extends Xodx_Controller
             'image/tiff',
             'image/x-ms-bmp',
             'image/x-bmp',
-            'image/bmp',
+            'image/bmp'
         );
 
         if (!in_array($checkType, $allowedTypes)) {
@@ -84,7 +83,7 @@ class Xodx_MediaController extends Xodx_Controller
         }
 
         $uploadFile = md5(rand());
-        $uploadPath = $uploadDir . $uploadFile;// . $fileExt;
+        $uploadPath = $uploadDir . $uploadFile; // . $fileExt;
 
         // Upload File
         if (move_uploaded_file($_FILES[$fieldName]['tmp_name'], $uploadPath)) {

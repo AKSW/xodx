@@ -25,24 +25,24 @@ class Xodx_ActivityController extends Xodx_Controller
         }
 
         switch ($actType) {
-            case 'Note';
+            case 'Note':
                 $object = array(
                     'type' => $actType,
                     'content' => $actContent,
-                    'replyObject' => $replyObject,
+                    'replyObject' => $replyObject
                 );
                 $debugStr = $this->addActivity($actorUri, $verbUri, $object);
             break;
-            case 'Bookmark';
+            case 'Bookmark':
                 $object = array(
                     'type' => $actType,
                     'about' => $request->getValue('about', 'post'),
                     'content' => $actContent,
-                    'replyObject' => $replyObject,
+                    'replyObject' => $replyObject
                 );
                 $debugStr = $this->addActivity($actorUri, $verbUri, $object);
             break;
-            case 'Photo';
+            case 'Photo':
                 $fieldName = 'content';
                 $mediaController = new Xodx_MediaController($this->_app);
                 $fileInfo = $mediaController->uploadImage($fieldName);
@@ -52,11 +52,12 @@ class Xodx_ActivityController extends Xodx_Controller
                     'content' => $actContent,
                     'fileName' => $fileInfo['fileId'],
                     'mimeType' => $fileInfo['mimeType'],
-                    'replyObject' => $replyObject,
+                    'replyObject' => $replyObject
                 );
                 $debugStr = $this->addActivity($actorUri, $verbUri, $object);
             break;
         }
+
         $template->addDebug($debugStr);
 
         return $template;
@@ -75,6 +76,7 @@ class Xodx_ActivityController extends Xodx_Controller
         $model = $bootstrap->getResource('model');
         $config = $bootstrap->getResource('config');
         $graphUri = $model->getModelIri();
+
         $nsXsd = 'http://www.w3.org/2001/XMLSchema#';
         $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
         $nsSioc = 'http://rdfs.org/sioc/ns#';
@@ -86,18 +88,20 @@ class Xodx_ActivityController extends Xodx_Controller
         $nsPingback = 'http://purl.org/net/pingback/';
         $nsDssn = 'http://purl.org/net/dssn/';
 
-        $pingbackServer = $this->_app->getBaseUri() . 'index.php?c=pingback&a=ping';
-        $activityUri = $this->_app->getBaseUri() . '?c=resource&id=' . md5(rand());
         $now = date('c');
         $postId = md5(rand());
+        $pingbackServer = $this->_app->getBaseUri() . 'index.php?c=pingback&a=ping';
+        $activityUri = $this->_app->getBaseUri() . '?c=resource&id=' . md5(rand());
         $postUri = $this->_app->getBaseUri() . '?c=resource&id=' . $postId;
         $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' . urlencode($actorUri);
-        // Take photo's filename as objectname
+
         if ($object['type'] == 'Photo') {
             $object['type'] = $nsFoaf . 'Image';
             $type = 'Photo';
+            // Take photo filename as objectname
             $objectId = $object['fileName'];
             $objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
+
             if (!empty($object['about'])) {
                 $commentId = md5(rand());
                 $commentUri = $this->_app->getBaseUri() . '?c=resource&id=' . $commentId;
@@ -110,10 +114,10 @@ class Xodx_ActivityController extends Xodx_Controller
             //$objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
             $objectUri = $object['content'];
             if (!empty($object['about'])) {
-                    $commentId = md5(rand());
-                    $commentUri = $this->_app->getBaseUri() . '?c=resource&id=' . $commentId;
-                    $object['content'] = $object['about'];
-                }
+                $commentId = md5(rand());
+                $commentUri = $this->_app->getBaseUri() . '?c=resource&id=' . $commentId;
+                $object['content'] = $object['about'];
+            }
         } else if ($object['type'] == 'Note') {
             $object['type'] = $nsSioc . 'Comment';
             $type = 'Comment';
@@ -123,7 +127,7 @@ class Xodx_ActivityController extends Xodx_Controller
 
         $pingbackController = $this->_app->getController('Xodx_PingbackController');
 
-// Creating resources
+        // Creating resources
         // I. activity resource
         $activity = array(
             $activityUri => array(
@@ -164,14 +168,13 @@ class Xodx_ActivityController extends Xodx_Controller
                         'value' => $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
                             urlencode($activityUri)
                     )
-                ),
-
-            ),
+                )
+            )
         );
         $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' . urlencode($activityUri) .
-        ';' . $feedUri;
+            ';' . $feedUri;
 
-        //If this activity is a reply, add this statement, too
+        // If this activity is a reply, add this statement, too
         if ($object['replyObject'] !== 'false') {
             $activity[$activityUri][$nsAair . 'activityContext'][0]['type'] = 'uri';
             $activity[$activityUri][$nsAair . 'activityContext'][0]['value'] = $object['replyObject'];
@@ -183,8 +186,7 @@ class Xodx_ActivityController extends Xodx_Controller
         }
 
         //If activity is posting/sharing a thing by commenting it, add this
-        if ((($type == 'Bookmark') || ($type == 'Photo')) &&
-            (!empty($object['about'])))
+        if (($type == 'Bookmark' || $type == 'Photo') && !empty($object['about']))
         {
             $activity[$activityUri][$nsAair . 'activityContext'][0]['type'] = 'uri';
             $activity[$activityUri][$nsAair . 'activityContext'][0]['value'] = $objectUri;
@@ -214,7 +216,7 @@ class Xodx_ActivityController extends Xodx_Controller
             $activity[$objectUri][$nsDssn . 'activityFeed'][0]['value'] = $this->_app->getBaseUri()
                 . '?c=feed&a=getFeed&uri=' . urlencode($objectUri);
 
-            //If this activity contains a reply, add this statement, too
+            // If this activity contains a reply, add this statement, too
             if ($object['replyObject'] !== 'false') {
                 $activity[$objectUri][$nsRdf . 'about'][0]['type'] = 'uri';
                 $activity[$objectUri][$nsRdf . 'about'][0]['value'] = $object['replyObject'];
@@ -263,10 +265,8 @@ class Xodx_ActivityController extends Xodx_Controller
                 urlencode($commentUri) . ';' . $feedUri;
         }
 
-        //proceed and subsribe to feed
+        // proceed and subsribe to feed
         $store->addMultipleStatements($graphUri, $activity);
-
-
 
         if ($config['push.enable'] == true) {
             $pushController = $this->_app->getController('Xodx_PushController');
@@ -308,7 +308,8 @@ class Xodx_ActivityController extends Xodx_Controller
     }
 
     /**
-     *
+     * @param $template the template
+     * @returns the template
      */
     public function replyFormAction ($template)
     {
@@ -319,21 +320,21 @@ class Xodx_ActivityController extends Xodx_Controller
         $template->replyObject = $objectUri;
         $template->replyActor = $actorUri;
         $template->addContent('templates/reply.phtml');
-        return $template;
 
+        return $template;
     }
 
     /**
-     *
-     * Enter description here ...
+     * @param $template the template
+     * @returns the template
      */
     public function replyAction ($template)
     {
 
     }
 
-	/**
-	 * @param $personUri the uri of the person whoes activities should be returned
+    /**
+     * @param $personUri the uri of the person whoes activities should be returned
      * @return an array of activities
      * TODO return an array of Xodx_Activity objects
      * TODO getActivity by objectURI
@@ -406,7 +407,9 @@ class Xodx_ActivityController extends Xodx_Controller
         } else {
             $query = $objectQuery;
         }
+
         $isPerson = false;
+
         if ($type == $nsFoaf . 'PersonalProfileDocument') {
             $isPerson = true;
         }
@@ -421,6 +424,7 @@ class Xodx_ActivityController extends Xodx_Controller
             } else {
                 $activityUri = $activity['activity'];
             }
+
             $verbUri = $activity['verb'];
             $objectUri = $activity['object'];
             $activity['date'] = self::_issueE24fix($activity['date']);
@@ -466,6 +470,7 @@ class Xodx_ActivityController extends Xodx_Controller
 
             $activities[] = $activity;
         }
+
         return $activities;
     }
 
