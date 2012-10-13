@@ -1,6 +1,6 @@
 <?php
 
-class Xodx_PersonController extends Xodx_Controller
+class Xodx_PersonController extends Xodx_ResourceController
 {
     private $_persons = array();
 
@@ -36,7 +36,11 @@ class Xodx_PersonController extends Xodx_Controller
         $pingbackController = $this->_app->getController('Xodx_PingbackController');
         $pingbackController->sendPing($personUri, $contactUri);
 
-        // TODO subscribe to contacts activity stream
+        // Subscribe user to feed of activityObject (photo, post, note)
+        $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' . urlencode($objectUri);
+        $personUri = urlencode($personUri);
+        $userController = $this->_app->getController('Xodx_UserController');
+        $userController->subscribeToFeed($personUri, $feedUri);
     }
 
     public function addFriendRequest ($personUri, $contactUri)
@@ -177,6 +181,78 @@ class Xodx_PersonController extends Xodx_Controller
         );
 
         return $pingResult;
+    }
+
+    public function showAction($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        $request = $bootstrap->getResource('request');
+        $id = $request->getValue('id', 'get');
+        $controller = $request->getValue('c', 'get');
+
+        // get URI
+        $personUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $id;
+
+        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+
+        $profileQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' .
+            'SELECT ?depiction ?name ?nick ' .
+            'WHERE { ' .
+            '   <' . $personUri . '> a foaf:Person . ' .
+            '   OPTIONAL {<' . $personUri . '> foaf:depiction ?depiction .} ' .
+            '   OPTIONAL {<' . $personUri . '> foaf:name ?name .} ' .
+            '   OPTIONAL {<' . $personUri . '> foaf:nick ?nick .} ' .
+            '}';
+
+        // TODO deal with language tags
+        $contactsQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' .
+            'SELECT ?contactUri ?name ' .
+            'WHERE { ' .
+            '   <' . $personUri . '> foaf:knows ?contactUri . ' .
+            '   OPTIONAL {?contactUri foaf:name ?name .} ' .
+            '}';
+
+        $profile = $model->sparqlQuery($profileQuery);
+
+        if (count($profile) < 1) {
+            $newStatements = Tools::getLinkedDataResource($personUri);
+            if ($newStatements !== null) {
+                $template->addDebug('Import Profile with LinkedDate');
+
+                $modelNew = new Erfurt_Rdf_MemoryModel($newStatements);
+                $newStatements = $modelNew->getStatements();
+
+                $template->addDebug(var_export($newStatements, true));
+
+                $profile = array();
+                $profile[0] = array(
+                    'depiction' => $modelNew->getValue($personUri, $nsFoaf . 'depiction'),
+                    'name' => $modelNew->getValue($personUri, $nsFoaf . 'name'),
+                    'nick' => $modelNew->getValue($personUri, $nsFoaf . 'nick')
+                );
+            }
+            //$knows = $modelNew->sparqlQuery($contactsQuery);
+
+            $knows = array();
+        } else {
+            $knows = $model->sparqlQuery($contactsQuery);
+        }
+
+        $activityController = $this->_app->getController('Xodx_ActivityController');
+        $activities = $activityController->getActivities($personUri);
+        $news = $this->getNotifications($personUri);
+
+        $template->profileshowPersonUri = $personUri;
+        $template->profileshowDepiction = $profile[0]['depiction'];
+        $template->profileshowName = $profile[0]['name'];
+        $template->profileshowNick = $profile[0]['nick'];
+        $template->profileshowActivities = $activities;
+        $template->profileshowKnows = $knows;
+        $template->profileshowNews = $news;
+        $template->addContent('templates/profileshow.phtml');
+
+        return $template;
     }
 
     /**

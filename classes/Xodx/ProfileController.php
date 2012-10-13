@@ -2,15 +2,15 @@
 
 require_once 'Tools.php';
 
-class Xodx_ProfileController extends Xodx_Controller
+class Xodx_ProfileController extends Xodx_ResourceController
 {
     public function listAction($template)
     {
         $model = $this->_app->getBootstrap()->getResource('Model');
 
         $profiles = $model->sparqlQuery(
-            'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . 
-            'SELECT DISTINCT ?person ' . 
+            'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
+            'SELECT DISTINCT ?person ' .
             'WHERE { ' .
             '   ?profile a foaf:PersonalProfileDocument . ' .
             '   ?profile foaf:primaryTopic ?person . ' .
@@ -33,76 +33,6 @@ class Xodx_ProfileController extends Xodx_Controller
         $template->addContent('templates/profilelist.phtml');
 
         $template->addDebug(var_export($profiles, true));
-
-        return $template;
-    }
-
-    public function showAction($template)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $model = $bootstrap->getResource('model');
-        $request = $bootstrap->getResource('request');
-
-        // get URI
-        $personUri = $request->getValue('person', 'get');
-
-        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
-
-        $profileQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' . 
-            'SELECT ?depiction ?name ?nick ' . 
-            'WHERE { ' .
-            '   <' . $personUri . '> a foaf:Person . ' .
-            '   OPTIONAL {<' . $personUri . '> foaf:depiction ?depiction .} ' .
-            '   OPTIONAL {<' . $personUri . '> foaf:name ?name .} ' .
-            '   OPTIONAL {<' . $personUri . '> foaf:nick ?nick .} ' .
-            '}';
-
-        // TODO deal with language tags
-        $contactsQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' . 
-            'SELECT ?contactUri ?name ' . 
-            'WHERE { ' .
-            '   <' . $personUri . '> foaf:knows ?contactUri . ' .
-            '   OPTIONAL {?contactUri foaf:name ?name .} ' .
-            '}';
-
-        $profile = $model->sparqlQuery($profileQuery);
-
-        if (count($profile) < 1) {
-            $newStatements = Tools::getLinkedDataResource($personUri);
-            if ($newStatements !== null) {
-                $template->addDebug('Import Profile with LinkedDate');
-
-                $modelNew = new Erfurt_Rdf_MemoryModel($newStatements);
-                $newStatements = $modelNew->getStatements();
-
-                $template->addDebug(var_export($newStatements, true));
-
-                $profile = array();
-                $profile[0] = array(
-                    'depiction' => $modelNew->getValue($personUri, $nsFoaf . 'depiction'),
-                    'name' => $modelNew->getValue($personUri, $nsFoaf . 'name'),
-                    'nick' => $modelNew->getValue($personUri, $nsFoaf . 'nick')
-                );
-            }
-            //$knows = $modelNew->sparqlQuery($contactsQuery);
-
-            $knows = array();
-        } else {
-            $knows = $model->sparqlQuery($contactsQuery);
-        }
-
-        $personController = $this->_app->getController('Xodx_PersonController');
-        $activities = $personController->getActivities($personUri);
-        $news = $personController->getNotifications($personUri);
-
-        $template->profileshowPersonUri = $personUri;
-        $template->profileshowDepiction = $profile[0]['depiction'];
-        $template->profileshowName = $profile[0]['name'];
-        $template->profileshowNick = $profile[0]['nick'];
-        $template->profileshowActivities = $activities;
-        $template->profileshowKnows = $knows;
-        $template->profileshowNews = $news;
-        $template->addContent('templates/profileshow.phtml');
 
         return $template;
     }

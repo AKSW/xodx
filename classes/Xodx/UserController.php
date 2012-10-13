@@ -3,7 +3,7 @@
 /**
  * This class manages instances of Xodx_User
  */
-class Xodx_UserController extends Xodx_Controller
+class Xodx_UserController extends Xodx_ResourceController
 {
     private $_users = array();
 

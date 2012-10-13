@@ -29,6 +29,7 @@ class Xodx_ApplicationController extends Xodx_Controller
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
         $nsSioc = 'http://rdfs.org/sioc/ns#';
         $nsXodx = 'http://example.org/voc/xodx/';
+        $nsDssn = 'http://purl.org/net/dssn/';
 
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
@@ -78,7 +79,9 @@ class Xodx_ApplicationController extends Xodx_Controller
                 }
 
                 // create new person
-                $newPersonUri = $this->_app->getBaseUri() . '?c=person&a=get&username=' . urlencode($username);
+                $newPersonUri = $this->_app->getBaseUri() . '?c=person&id=' . urlencode($username);
+                $newPersonFeed = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri='
+                    . urlencode($newPersonUri);
                 $newPerson = array(
                     $newPersonUri => array(
                         $nsRdf . 'type' => array(
@@ -91,6 +94,13 @@ class Xodx_ApplicationController extends Xodx_Controller
                             array(
                                 'type' => 'literal',
                                 'value' => $username
+                            )
+                        ),
+                        $nsDssn . 'activityFeed' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
+                                    urlencode($activityUri)
                             )
                         ),
                     )
@@ -120,7 +130,7 @@ class Xodx_ApplicationController extends Xodx_Controller
 
                 $store->addMultipleStatements($graphUri, $newPerson);
 
-                $newUserUri = $this->_app->getBaseUri() . '?c=user&a=get&username=' . urlencode($username);
+                $newUserUri = $this->_app->getBaseUri() . '?c=user&a=id&username=' . urlencode($username);
                 $newUser = array(
                      $newUserUri => array(
                         $nsRdf . 'type' => array(
@@ -152,7 +162,7 @@ class Xodx_ApplicationController extends Xodx_Controller
                 $store->addMultipleStatements($graphUri, $newUser);
 
                 $newProfile = array(
-                    $this->_app->getBaseUri() . '?c=profile&a=get&username=' . urlencode($username) => array(
+                    $this->_app->getBaseUri() . '?c=profile&id=' . urlencode($username) => array(
                         $nsRdf . 'type' => array(
                             array(
                                 'type' => 'uri',

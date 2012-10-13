@@ -20,6 +20,7 @@ $includePath .= $main_dir . '/classes/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/classes/Xodx/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/libraries/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/libraries/Erfurt/library' . PATH_SEPARATOR;
+$includePath .= $main_dir . '/libraries/lib-dssn-php/' . PATH_SEPARATOR;
 
 set_include_path($includePath);
 

@@ -1,0 +1,19 @@
+<h2>Add Reply to "<?= $this->replyObject ?>"</h2>
+    <th>Actor</th>
+        <?= $this->replyActor ?>
+        <input type="hidden" name="actor" value="<?= $this->replyActor ?>" />
+    <ul class="nav nav-pills">
+        <li class="active"><a href="#status" data-toggle="tab">Kommentar</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="status">
+            <form method="post" action="?c=activity&a=addactivity">
+                <textarea name="content"></textarea>
+                <input type="hidden" name="verb" value="Post"  >
+                <input type="hidden" name="type" value="Note" />
+                <input type="hidden" name="actor" value="<?= $this->replyActor ?>" />
+                <input type="hidden" name="reply" value="<?= $this->replyObject ?>" />
+                <button class="btn btn-primary" type="submit">Post</button>
+            </form>
+        </div>
+    </div>

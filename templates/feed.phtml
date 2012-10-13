@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?php echo '<?xml version="1.0" encoding="utf-8"?>' ?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:activity="http://activitystrea.ms/schema/1.0/">
     <title>Activity Feed for <?= $this->name ?></title>
     <id><?= htmlentities($this->uri) ?></id>
@@ -9,7 +9,7 @@
     <?php foreach ($this->activities as $activity) : ?>
 
     <entry>
-      <title><?= $activity['title'] ?></title>
+      <title><?= htmlentities($activity['title']) ?></title>
       <id><?= htmlentities($activity['uri']) ?></id>
       <link href="<?= htmlentities($activity['uri']) ?>" />
       <published><?= $activity['pubDate'] ?></published>
@@ -20,7 +20,7 @@
       </author>
       <activity:verb><?= $activity['verb'] ?></activity:verb>
       <activity:object>
-        <id><?= $activity['object'] ?></id>
+        <id><?= htmlentities($activity['object']) ?></id>
         <?php if (isset($activity['objectContent'])) : ?>
 
         <content><?= $activity['objectContent'] ?></content>

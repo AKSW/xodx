@@ -16,7 +16,15 @@ class Xodx_PingbackController extends Xodx_Controller
         // TODO store and interprete ping
         $sourceStatements = Tools::getLinkedDataResource($source);
 
-        if ($sourceStatements !== null) {
+        if ((strpos($target, $this->_app->getBaseDir)>0)) {
+            // target in our namespace
+            $goon = true;
+        } else {
+            $goon = false;
+           // target not in our namespace
+        }
+
+        if (($sourceStatements !== null) && $goon == true) {
             $memModel = new Erfurt_Rdf_MemoryModel($sourceStatements);
 
             $o = array('type' => 'uri', 'value' => $target);
