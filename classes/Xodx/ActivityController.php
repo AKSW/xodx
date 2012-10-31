@@ -65,7 +65,7 @@ class Xodx_ActivityController extends Xodx_Controller
 
     /**
      * This method adds a new activity to the store
-     * TODO should be replaced by a method with takes a Xodx_Activity object
+     * TODO should be replaced by a method with takes a DSSN_Activity object
      */
     public function addActivity ($actorUri, $verbUri, $object)
     {
