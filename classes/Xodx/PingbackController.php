@@ -113,6 +113,10 @@ class Xodx_PingbackController extends Xodx_Controller
     {
         $targetStatements = Tools::getLinkedDataResource($target);
 
+        if ($targetStatements === null) {
+            throw new Exception('Can\'t send pingback because target doesn\'t contain RDF data.');
+        }
+
         // TODO check for X-PINGBACK in header
 
         $memModel = new Erfurt_Rdf_MemoryModel($targetStatements);
