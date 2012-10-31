@@ -1,3 +1,9 @@
+To populate this folder please run
+
+    make resources
+
+in the xodx root directory
+
 This Folder should contain following files:
 
 jquery/jquery.js

@@ -25,7 +25,11 @@ You have to place a copy of the Zend framework library into `libraries/Zend/` yo
     rm -rf ZendFramework-${ZENDVERSION}-minimal.tar.gz ZendFramework-${ZENDVERSION}-minimal
 
 ### JavaScript
-You have to add [twitter bootstrap](http://twitter.github.com/bootstrap/) and [jquery](http://jquery.com/) to the `resources` directory.
+In order to get [twitter bootstrap](http://twitter.github.com/bootstrap/) and [jquery](http://jquery.com/) run:
+
+    make resources
+
+in the xodx root directory (should be the same directory where you found this file).
 
 Code Conventions
 ----------------
