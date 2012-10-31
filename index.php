@@ -34,6 +34,8 @@ $autoloader->registerNamespace('Erfurt_');
 $autoloader->registerNamespace('Xodx_');
 $autoloader->registerNamespace('DSSN_');
 
+DSSN_Utils::setConstants();
+
 $app = Application::getInstance();
 $app->setBaseUri($base_uri);
 $app->setBaseDir($main_dir);
