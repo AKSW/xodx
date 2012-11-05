@@ -33,7 +33,7 @@ dssn-zip:
 	rm -rf libraries/lib-dssn-php
 	curl -# ${DSSN_SRC} -o dssn.tar.gz || wget ${DSSN_SRC} -O dssn.tar.gz
 	tar xzf dssn.tar.gz
-	mv lib-dssn-php libraries/lib-dssn-php
+	mv lib-dssn-php-master libraries/lib-dssn-php
 	rm dssn.tar.gz
 
 libraries: zend resources
