@@ -66,6 +66,30 @@ class Bootstrap
         $dbPass = $erfurt->getStore()->getDbPassword();
         $erfurt->authenticate($dbUser, $dbPass);
 
+        if (!$erfurt->getStore()->isModelAvailable('http://ns.ontowiki.net/SysOnt/', true)) {
+            // It seams the store is new, so we should run some setup stuff
+
+            // Create SysOnt
+            $t = time ();
+            $erfurt->getStore()->getNewModel ( 'http://ns.ontowiki.net/SysOnt/' );
+            $erfurt->getStore()->addStatement (
+                'http://ns.ontowiki.net/SysOnt/', $t, $t,
+                array('value' => $t, 'type' => 'literal')
+            );
+            $erfurt->getStore()->deleteMatchingStatements ( 
+                'http://ns.ontowiki.net/SysOnt/', $t, $t,
+                array('value' => $t, 'type' => 'literal')
+            );
+
+            // Creates cache tables
+            $c = new Erfurt_Cache_Backend_QueryCache_Database ();
+            $c->createCacheStructure ();
+
+            // Creates versioning tables
+            $v = new Erfurt_Versioning ();
+            $v->isVersioningEnabled ();
+        }
+
         return $erfurt->getStore();
     }
 
