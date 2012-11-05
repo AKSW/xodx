@@ -17,4 +17,5 @@ rmtwbootstrap:
 
 jquery:
 	curl -# -o jquery.js ${JQUERY_MIN_SRC} || wget ${JQUERY_MIN_SRC} -O jquery.js
+	mkdir -p resources/jquery
 	mv jquery.js resources/jquery/jquery.js
