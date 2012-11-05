@@ -20,12 +20,16 @@ submodules-developer: # read-write
 	git config submodule.libraries/lib-dssn-php.url "git@github.com:AKSW/lib-dssn-php.git"
 	git submodule update
 
-submodules-zip:
+submodules-zip: erfurt-zip dssn-zip
+
+erfurt-zip:
 	rm -rf libraries/Erfurt
 	curl -# ${ERFURT_SRC} -o erfurt.tar.gz || wget ${ERFURT_SRC} -O erfurt.tar.gz
 	tar xzf erfurt.tar.gz
-	mv erfurt libraries/Erfurt
+	mv Erfurt-develop libraries/Erfurt
 	rm erfurt.tar.gz
+
+dssn-zip:
 	rm -rf libraries/lib-dssn-php
 	curl -# ${DSSN_SRC} -o dssn.tar.gz || wget ${DSSN_SRC} -O dssn.tar.gz
 	tar xzf dssn.tar.gz
