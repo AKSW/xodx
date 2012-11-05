@@ -4,8 +4,6 @@ class Bootstrap
 {
     private $_app;
     private $_resources;
-    private $_model;
-    private $_store;
 
     public function __construct ($app)
     {
