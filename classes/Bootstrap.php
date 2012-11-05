@@ -1,20 +1,45 @@
 <?php
 
+/**
+ * This Class is responsible to initialize resources and returning them on request.
+ * It keeps a registry of the already initialized resources to not have to the work twice.
+ */
 class Bootstrap
 {
+    /**
+     * A reference to the Application instance
+     */
     private $_app;
+
+    /**
+     * The registry of already initialized resources
+     */
     private $_resources;
 
+    /**
+     * The constructor of the Bootstrap class, should be called only once
+     *
+     * @param $app the instance of the Application
+     */
     public function __construct ($app)
     {
         $this->_app = $app;
         $this->_resources = array();
     }
 
+    /**
+     * The descructor can be used to cleanup resources e.g. close file handlers
+     */
     public function __destruct ()
     {
     }
 
+    /**
+     * Gives the requested resource from the registry, or initializes it if this wasn't done before
+     *
+     * @param $resourceName the name of the resource, which is needed
+     * @return the resources object
+     */
     public function getResource ($resourceName)
     {
         $resourceName = ucfirst(strtolower($resourceName));
@@ -27,6 +52,9 @@ class Bootstrap
         return $this->_resources[$resourceName];
     }
 
+    /**
+     * Initializes the configuration by reading the config file
+     */
     private function initConfig ()
     {
         $configPath = $this->_app->getBaseDir() . 'config.ini';
@@ -39,6 +67,9 @@ class Bootstrap
         return $configArray['xodx'];
     }
 
+    /**
+     * Initializes the Erfurt Store
+     */
     private function initStore ()
     {
         $configPath = $this->_app->getBaseDir() . 'config.ini';
@@ -91,6 +122,9 @@ class Bootstrap
         return $erfurt->getStore();
     }
 
+    /**
+     * Initializes the default Erfurt Model as specified in the config
+     */
     private function initModel ()
     {
         $model = null;
@@ -115,6 +149,10 @@ class Bootstrap
         return $model;
     }
 
+    /**
+     * Initializes the session
+     * Note: currently this is done by initializing Erfurt
+     */
     private function initSession ()
     {
         // Session is started by Zend in Erfurt
@@ -126,6 +164,9 @@ class Bootstrap
         return null;
     }
 
+    /**
+     * Initializes the Request object
+     */
     private function initRequest ()
     {
         $store = $this->getResource('session');
@@ -160,6 +201,9 @@ class Bootstrap
         return $request;
     }
 
+    /**
+     * Initializes the Logger Object
+     */
     private function initLogger ()
     {
         return new Xodx_Logger();
