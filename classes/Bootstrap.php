@@ -137,14 +137,8 @@ class Bootstrap
             throw new Exception('No xodx model configured. Please add "xodx.model" entry to "config.ini".');
         }
 
-        // Get a new model
-        try {
-            // Create it if it doesn't exist
-            $model = $store->getNewModel($modelUri);
-        } catch (Erfurt_Store_Exception $e) {
-            // Get it if it already exists
-            $model = $store->getModel($modelUri);
-        }
+        // Get the model or create it if it doesn't exist
+        $model = $store->getModelOrCreate($modelUri);
 
         return $model;
     }
