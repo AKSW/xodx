@@ -8,13 +8,57 @@ DSSN_SRC='https://github.com/AKSW/lib-dssn-php/archive/master.tar.gz'
 
 ZENDVERSION=1.11.5
 
+default:
+	@echo "You might want to run:"
+	@echo ""
+	@echo "	make install        to get all dependencies through github"
+	@echo "	make install-fb     to get all dependencies from ZIP files (faster and good for non developing mashines like a FreedomBox)"
+	@echo "	make install-dev    to get all dependencies (if you have write permission)"
+
+help:
+	@echo "You have following options:"
+	@echo ""
+	@echo "basic:"
+	@echo "	make install        to get all dependencies through github"
+	@echo "	make install-fb     to get all dependencies from ZIP files (faster and good for non developing mashines like a FreedomBox)"
+	@echo "	make install-dev    to get all dependencies (if you have write permission)"
+	@echo ""
+	@echo "advanced:"
+	@echo "	make libraries      to get zend and the JavaScript resources"
+	@echo "	make resources      to get the JavaScript resources"
+	@echo "	make zend           to get the zend (needed for Erfurt)"
+	@echo "	make submodules     to get the git submodules"
+	@echo "	make submodules-dev to get the git submodules (if you have write permission)"
+	@echo "	make submodules-zip to get the git submodules as ZIP (faster)"
+	@echo ""
+	@echo "pro:"
+	@echo "	for all other options you have to read the Makefile ..."
+
+info:
+	less README.md
+
+# Default installation for external users
+install: libraries submodules
+
+# Installation for developers with writer permission
+install-dev: libraries submodules-dev
+
+# Installation without git remotes, just zip files
+install-fb: libraries submodules-zip
+
+# shortcut for the non submodule dependencies
+libraries: zend resources
+
+# shortcut for javascript libraries
+resources: twbootstrap jquery
+
 submodules: # read-only
 	git submodule init
 	git config submodule.libraries/Erfurt.url "git://github.com/AKSW/Erfurt.git"
 	git config submodule.libraries/lib-dssn-php.url "git://github.com/AKSW/lib-dssn-php.git"
 	git submodule update
 
-submodules-developer: # read-write
+submodules-dev: # read-write
 	git submodule init
 	git config submodule.libraries/Erfurt.url "git@github.com:AKSW/Erfurt.git"
 	git config submodule.libraries/lib-dssn-php.url "git@github.com:AKSW/lib-dssn-php.git"
@@ -35,10 +79,6 @@ dssn-zip:
 	tar xzf dssn.tar.gz
 	mv lib-dssn-php-master libraries/lib-dssn-php
 	rm dssn.tar.gz
-
-libraries: zend resources
-
-resources: twbootstrap jquery
 
 twbootstrap:
 	rm -rf resources/bootstrap
