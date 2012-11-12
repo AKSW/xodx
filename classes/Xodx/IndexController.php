@@ -1,6 +1,6 @@
 <?php
 
-class Xodx_IndexController extends Xodx_Controller
+class Xodx_IndexController extends Saft_Controller
 {
     public function indexAction ($template) {
         return $template;

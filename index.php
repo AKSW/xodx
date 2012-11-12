@@ -26,17 +26,18 @@ set_include_path($includePath);
 
 # Include Zend Autoloader
 require_once 'Zend/Loader/Autoloader.php';
-require_once 'Application.php';
 
 # Configure Zend Autoloader
 $autoloader = Zend_Loader_Autoloader::getInstance();
 $autoloader->registerNamespace('Erfurt_');
+$autoloader->registerNamespace('Saft_');
 $autoloader->registerNamespace('Xodx_');
 $autoloader->registerNamespace('DSSN_');
 
 DSSN_Utils::setConstants();
 
-$app = Application::getInstance();
+$app = new Xodx_Application();
+$app->setAppNamespace('Xodx_');
 $app->setBaseUri($base_uri);
 $app->setBaseDir($main_dir);
 $app->run();

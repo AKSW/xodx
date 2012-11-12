@@ -1,8 +1,6 @@
 <?php
 
-require_once 'Tools.php';
-
-class Xodx_ResourceController extends Xodx_Controller
+class Xodx_ResourceController extends Saft_Controller
 {
     /**
      *
@@ -40,7 +38,7 @@ class Xodx_ResourceController extends Xodx_Controller
         );
 
         $supportedTypes = array_merge($rdfType, $otherType);
-        $match = Tools::matchMimetypeFromRequest($request, array_keys($supportedTypes));
+        $match = Saft_Tools::matchMimetypeFromRequest($request, array_keys($supportedTypes));
         $template->disableLayout();
         $template->setRawContent('');
 

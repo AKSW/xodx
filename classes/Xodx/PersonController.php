@@ -216,7 +216,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         $profile = $model->sparqlQuery($profileQuery);
 
         if (count($profile) < 1) {
-            $newStatements = Tools::getLinkedDataResource($personUri);
+            $newStatements = Saft_Tools::getLinkedDataResource($this->_app, $personUri);
             if ($newStatements !== null) {
                 $template->addDebug('Import Profile with LinkedDate');
 

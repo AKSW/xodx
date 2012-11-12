@@ -1,8 +1,6 @@
 <?php
 
-require_once 'Tools.php';
-
-class Xodx_PingbackController extends Xodx_Controller
+class Xodx_PingbackController extends Saft_Controller
 {
     public function pingAction($template)
     {
@@ -14,7 +12,7 @@ class Xodx_PingbackController extends Xodx_Controller
         $comment = $request->getValue('comment', 'post');
 
         // TODO store and interprete ping
-        $sourceStatements = Tools::getLinkedDataResource($source);
+        $sourceStatements = Saft_Tools::getLinkedDataResource($this->_app, $source);
 
         if ((strpos($target, $this->_app->getBaseDir) > 0)) {
             // target in our namespace
@@ -111,7 +109,7 @@ class Xodx_PingbackController extends Xodx_Controller
      */
     public function sendPing($source, $target, $comment = null)
     {
-        $targetStatements = Tools::getLinkedDataResource($target);
+        $targetStatements = Saft_Tools::getLinkedDataResource($this->_app, $target);
 
         if ($targetStatements === null) {
             throw new Exception('Can\'t send pingback because target doesn\'t contain RDF data.');

@@ -3,7 +3,7 @@
 /**
  * This class implements a pubsubhubbub publisher and subscriber
  */
-class Xodx_PushController extends Xodx_Controller
+class Xodx_PushController extends Saft_Controller
 {
 
     private $_callbackUrl;

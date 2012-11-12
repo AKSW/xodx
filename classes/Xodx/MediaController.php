@@ -1,6 +1,6 @@
 <?php
 
-class Xodx_MediaController extends Xodx_Controller
+class Xodx_MediaController extends Saft_Controller
 {
     public function getAction ($template)
     {

@@ -1,6 +1,6 @@
 <?php
 
-class Xodx_ActivityController extends Xodx_Controller
+class Xodx_ActivityController extends Saft_Controller
 {
     public function addactivityAction ($template)
     {
@@ -44,7 +44,7 @@ class Xodx_ActivityController extends Xodx_Controller
             break;
             case 'Photo':
                 $fieldName = 'content';
-                $mediaController = new Xodx_MediaController($this->_app);
+                $mediaController = $this->_app->getController('Xodx_MediaController');
                 $fileInfo = $mediaController->uploadImage($fieldName);
                 $object = array(
                     'type' => $actType,

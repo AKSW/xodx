@@ -1,7 +1,5 @@
 <?php
 
-require_once 'Tools.php';
-
 /**
  * This class implements general action for administration and other business processes
  * and:
@@ -15,7 +13,7 @@ require_once 'Tools.php';
  * - http://www.w3.org/2005/Incubator/webid/wiki/Implementations
  * - http://www.w3.org/2005/Incubator/webid/wiki/Apache_Configuration
  */
-class Xodx_ApplicationController extends Xodx_Controller
+class Xodx_ApplicationController extends Saft_Controller
 {
     /**
      * This is the username of the currently logedin user
@@ -69,7 +67,7 @@ class Xodx_ApplicationController extends Xodx_Controller
                 $memModel = null;
 
                 if (!empty($personUri)) {
-                    $newStatements = Tools::getLinkedDataResource($personUri);
+                    $newStatements = Saft_Tools::getLinkedDataResource($this->_app, $personUri);
 
                     $memModel = new Erfurt_Rdf_MemoryModel($newStatements);
 

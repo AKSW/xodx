@@ -40,9 +40,9 @@ if ($contact['name'] != null) {
         <div>
             <form method="post" action="?c=activity&amp;a=replyForm">
                 <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['author']) ?></a>
-                <a href="<?= htmlentities($activity['verb']) ?>"><?= Tools::getSpokenWord($activity['verb']) ?></a>
+                <a href="<?= htmlentities($activity['verb']) ?>"><?= Saft_Tools::getSpokenWord($activity['verb']) ?></a>
                 <?php if (isset($activity['objectType'])) : ?>
-                a <a href="<?= htmlentities($activity['object']) ?>"><?= Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
+                a <a href="<?= htmlentities($activity['object']) ?>"><?= Saft_Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
                 <?php endif; ?>
                 <input type="hidden" name="object" value="<?= htmlentities($activity['object'])?>" />
                 <input type="hidden" name="actor" value="<?= htmlentities($this->profileshowPersonUri) ?>" />

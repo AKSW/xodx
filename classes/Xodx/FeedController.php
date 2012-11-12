@@ -1,6 +1,6 @@
 <?php
 
-class Xodx_FeedController extends Xodx_Controller
+class Xodx_FeedController extends Saft_Controller
 {
 
     /**
