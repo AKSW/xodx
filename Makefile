@@ -7,7 +7,7 @@ ERFURT_SRC='https://github.com/AKSW/Erfurt/archive/develop.tar.gz'
 DSSN_SRC='https://github.com/AKSW/lib-dssn-php/archive/master.tar.gz'
 SAFT_SRC='https://github.com/white-gecko/Saft/archive/master.tar.gz'
 
-ZENDVERSION=1.11.5
+ZENDVERSION=1.12.0
 
 default:
 	@echo "You might want to run:"
