@@ -5,6 +5,7 @@ JQUERY_MIN_SRC='http://code.jquery.com/jquery.min.js'
 
 ERFURT_SRC='https://github.com/AKSW/Erfurt/archive/develop.tar.gz'
 DSSN_SRC='https://github.com/AKSW/lib-dssn-php/archive/master.tar.gz'
+SAFT_SRC='https://github.com/white-gecko/Saft/archive/master.tar.gz'
 
 ZENDVERSION=1.11.5
 
@@ -56,15 +57,17 @@ submodules: # read-only
 	git submodule init
 	git config submodule.libraries/Erfurt.url "git://github.com/AKSW/Erfurt.git"
 	git config submodule.libraries/lib-dssn-php.url "git://github.com/AKSW/lib-dssn-php.git"
+	git config submodule.libraries/Saft.url "git://github.com/white-gecko/Saft.git"
 	git submodule update
 
 submodules-dev: # read-write
 	git submodule init
 	git config submodule.libraries/Erfurt.url "git@github.com:AKSW/Erfurt.git"
 	git config submodule.libraries/lib-dssn-php.url "git@github.com:AKSW/lib-dssn-php.git"
+	git config submodule.libraries/Saft.url "git@github.com:white-gecko/Saft.git"
 	git submodule update
 
-submodules-zip: erfurt-zip dssn-zip
+submodules-zip: erfurt-zip dssn-zip saft-zip
 
 erfurt-zip:
 	rm -rf libraries/Erfurt
@@ -79,6 +82,13 @@ dssn-zip:
 	tar xzf dssn.tar.gz
 	mv lib-dssn-php-master libraries/lib-dssn-php
 	rm dssn.tar.gz
+
+saft-zip:
+	rm -rf libraries/Saft
+	curl -# ${SAFT_SRC} -o saft.tar.gz || wget ${SAFT_SRC} -O saft.tar.gz
+	tar xzf saft.tar.gz
+	mv Saft-master libraries/Saft
+	rm saft.tar.gz
 
 twbootstrap:
 	rm -rf resources/bootstrap
