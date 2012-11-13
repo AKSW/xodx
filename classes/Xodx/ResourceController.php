@@ -118,6 +118,10 @@ class Xodx_ResourceController extends Saft_Controller
         $controller = $request->getValue('c', 'get');
         $objectUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $objectId;
 
+        if ($mime === null) {
+            throw new Exception('Please specify a mime type');
+        }
+
         //$format = Erfurt_Syntax_RdfSerializer::normalizeFormat($format);
 
         $modelUri = $model->getModelIri();
