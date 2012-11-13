@@ -1,5 +1,8 @@
 <?php
 
+// include password hash functions for 5.3.7 <= PHP < 5.5
+require_once('password_compat/lib/password.php');
+
 /**
  * This class implements general action for administration and other business processes
  * and:
@@ -46,6 +49,8 @@ class Xodx_ApplicationController extends Saft_Controller
 
             // verify form data
             $formError = array();
+
+            // TODO check if username is already taken
 
             // TODO check of personUri is a uri and is available
             if (false) {
@@ -146,7 +151,7 @@ class Xodx_ApplicationController extends Saft_Controller
                         $nsXodx . 'hasPassword' => array(
                             array(
                                 'type' => 'literal',
-                                'value' => md5($password)
+                                'value' => password_hash($password, PASSWORD_DEFAULT)
                             )
                         ),
                         $nsSioc . 'account_of' => array(
