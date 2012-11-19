@@ -1,13 +1,24 @@
 <?php
+/**
+ * This file is part of the {@link http://ontowiki.net OntoWiki} project.
+ *
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
 
 // include password hash functions for 5.3.7 <= PHP < 5.5
 require_once('password_compat/lib/password.php');
 
 /**
- * This class manages instances of Xodx_User
+ * This class manages instances of Xodx_User.
+ * this includes:
+ *  - subscribing to a feed
+ *  - getting notifications
  */
 class Xodx_UserController extends Xodx_ResourceController
 {
+    /**
+     * A registry of already loaded Xodx_User objects
+     */
     private $_users = array();
 
     /**
@@ -59,6 +70,11 @@ class Xodx_UserController extends Xodx_ResourceController
         }
     }
 
+    /**
+     * With this action a user can subscribe to a specified feed
+     * @param user (post) the uri of the user, who wants to subscribe
+     * @param feeduri (post) the uri of the feed where he want so subscribe to
+     */
     public function subscribeAction ($template)
     {
         $bootstrap = $this->_app->getBootstrap();
@@ -72,6 +88,11 @@ class Xodx_UserController extends Xodx_ResourceController
         return $template;
     }
 
+    /**
+     * This method subscribes a user to a feed
+     * @param $userUri the uri of the user who wants to be subscribed
+     * @param $feedUri the uri of the feed where she wants to subscribe
+     */
     public function subscribeToFeed ($userUri, $feedUri)
     {
         $bootstrap = $this->_app->getBootstrap();
@@ -105,6 +126,11 @@ class Xodx_UserController extends Xodx_ResourceController
         }
     }
 
+    /**
+     * Check if a user is already subscribed to a feed
+     * @param $userUri the uri of the user in question
+     * @param $feedUri the uri of the feed in question
+     */
     private function _isSubscribed ($userUri, $feedUri)
     {
         $bootstrap = $this->_app->getBootstrap();
