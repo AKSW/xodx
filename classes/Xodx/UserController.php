@@ -40,6 +40,28 @@ class Xodx_UserController extends Xodx_ResourceController
     }
 
     /**
+     * This action gets the notifications for the specified user
+     * @param user (get) the uri of the user who wants to get its notifications
+     * @return json representation of the Xodx_Notification objects
+     */
+    public function getNotificationsAction ($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+
+        $userUri = $request->getValue('user', 'get');
+
+        $notifications = $this->getNotifications($userUri);
+
+        $template->disableLayout();
+
+        $notificationsJson = json_encode($notifications);
+        $template->setRawContent($notificationsJson);
+
+        return $template;
+    }
+
+    /**
      * This method subscribes a user to a feed
      * @param $userUri the uri of the user who wants to be subscribed
      * @param $feedUri the uri of the feed where she wants to subscribe
@@ -75,6 +97,33 @@ class Xodx_UserController extends Xodx_ResourceController
                 $store->addMultipleStatements($graphUri, $subscribeStatement);
             }
         }
+    }
+
+    /**
+     * Get notifications for a user
+     * @param $userUri the uri of the user whose notifications you want to get
+     * @return an Array of Xodx_Notification objects
+     */
+    public function getNotifications ($userUri)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        $query = 'SELECT ?uri' . PHP_EOL;
+        $query.= 'WHERE {' . PHP_EOL;
+        $query.= '  <' . $userUri . '> xodx:notification ?uri .' . PHP_EOL;
+        $query.= '}' . PHP_EOL;
+
+        $result = $model->sparqlQuery($query);
+
+        $notificationFactory = new Xodx_NotificationFactory($this->app);
+        $notifications = array();
+        foreach ($result as $notification) {
+            $notificationUri = $notification['uri'];
+            $notifications[$notificationUri] = $notificationFactory->fromModel($notificationUri);
+        }
+
+        return $notifications;
     }
 
     /**
