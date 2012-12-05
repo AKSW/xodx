@@ -1,4 +1,4 @@
-xodx
+xdx
 ====
 
 This is an implementation of the basic functionalities of a DSSN Provider, as described in Tramp et al. [An Architecture of a Distributed Semantic Social Network](http://www.semantic-web-journal.net/sites/default/files/swj201_4.pdf):
@@ -14,7 +14,7 @@ You need a webserver (tested with Apache, but I hope it also runs with nginx and
 Take the prepared `config.ini-dist` file, copy it to `config.ini` and configure it according to your system setup.
 
 ### Erfurt and lib-dssn
-Run `git submodules init` and `git submodules update` to clone Erfurt and lib-dssn.
+Run `git submodule init` and `git submodule update` to clone Erfurt and lib-dssn.
 
 ### Zend
 You have to place a copy of the Zend framework library into `libraries/Zend/` you can do this by doing the following things (replace `${ZENDVERSION}` e.g. with `1.12.0`):
