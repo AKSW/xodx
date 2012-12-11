@@ -1,7 +1,13 @@
 <?php
 
 $main_dir = rtrim(dirname(__FILE__), '/\\');
-$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") ? "https" : "http";
+
+if (isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+    $protocol = 'https';
+} else {
+    $protocol = 'http';
+}
+
 $base_uri =  $protocol . "://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']);
 
 // append trailing slash if not present
@@ -36,6 +42,7 @@ $autoloader->registerNamespace('DSSN_');
 
 DSSN_Utils::setConstants();
 
+// Check if Application or Worker should be started
 $app = new Xodx_Application();
 $app->setAppNamespace('Xodx_');
 $app->setBaseUri($base_uri);
