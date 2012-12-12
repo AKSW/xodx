@@ -71,40 +71,40 @@ submodules-zip: erfurt-zip dssn-zip saft-zip
 
 erfurt-zip:
 	rm -rf libraries/Erfurt
-	curl -# ${ERFURT_SRC} -o erfurt.tar.gz || wget ${ERFURT_SRC} -O erfurt.tar.gz
+	curl -L -# ${ERFURT_SRC} -o erfurt.tar.gz || wget ${ERFURT_SRC} -O erfurt.tar.gz
 	tar xzf erfurt.tar.gz
 	mv Erfurt-develop libraries/Erfurt
 	rm erfurt.tar.gz
 
 dssn-zip:
 	rm -rf libraries/lib-dssn-php
-	curl -# ${DSSN_SRC} -o dssn.tar.gz || wget ${DSSN_SRC} -O dssn.tar.gz
+	curl -L -# ${DSSN_SRC} -o dssn.tar.gz || wget ${DSSN_SRC} -O dssn.tar.gz
 	tar xzf dssn.tar.gz
 	mv lib-dssn-php-master libraries/lib-dssn-php
 	rm dssn.tar.gz
 
 saft-zip:
 	rm -rf libraries/Saft
-	curl -# ${SAFT_SRC} -o saft.tar.gz || wget ${SAFT_SRC} -O saft.tar.gz
+	curl -L -# ${SAFT_SRC} -o saft.tar.gz || wget ${SAFT_SRC} -O saft.tar.gz
 	tar xzf saft.tar.gz
 	mv Saft-master libraries/Saft
 	rm saft.tar.gz
 
 twbootstrap:
 	rm -rf resources/bootstrap
-	curl -# ${TW_BOOTSTRAP_SRC} -o bootstrap.zip || wget ${TW_BOOTSTRAP_SRC} -O bootstrap.zip
+	curl -L -# ${TW_BOOTSTRAP_SRC} -o bootstrap.zip || wget ${TW_BOOTSTRAP_SRC} -O bootstrap.zip
 	unzip bootstrap.zip
 	mv bootstrap resources/bootstrap
 	rm bootstrap.zip
 
 jquery:
-	curl -# -o jquery.js ${JQUERY_MIN_SRC} || wget ${JQUERY_MIN_SRC} -O jquery.js
+	curl -L -# -o jquery.js ${JQUERY_MIN_SRC} || wget ${JQUERY_MIN_SRC} -O jquery.js
 	mkdir -p resources/jquery
 	mv jquery.js resources/jquery/jquery.js
 
 zend:
 	rm -rf libraries/Zend
-	curl -# -O https://packages.zendframework.com/releases/ZendFramework-${ZENDVERSION}/ZendFramework-${ZENDVERSION}-minimal.tar.gz || wget https://packages.zendframework.com/releases/ZendFramework-${ZENDVERSION}/ZendFramework-${ZENDVERSION}-minimal.tar.gz
+	curl -L -# -O https://packages.zendframework.com/releases/ZendFramework-${ZENDVERSION}/ZendFramework-${ZENDVERSION}-minimal.tar.gz || wget https://packages.zendframework.com/releases/ZendFramework-${ZENDVERSION}/ZendFramework-${ZENDVERSION}-minimal.tar.gz
 	tar xzf ZendFramework-${ZENDVERSION}-minimal.tar.gz
 	mv ZendFramework-${ZENDVERSION}-minimal/library/Zend libraries
 	rm -rf ZendFramework-${ZENDVERSION}-minimal.tar.gz ZendFramework-${ZENDVERSION}-minimal
