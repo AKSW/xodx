@@ -30,11 +30,11 @@ foreach ($this->properties as $property) {
     <p>
         <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['authorUri']) ?></a>
         <a href="<?= htmlentities($activity['verb']) ?>">
-          <?= htmlentities(Tools::getSpokenWord($activity['verb'])) ?></a>
+          <?= htmlentities(Saft_Tools::getSpokenWord($activity['verb'])) ?></a>
 
         <?php if (isset($activity['objectType'])) : ?>
             a <a href="<?= htmlentities($activity['object']) ?>">
-              <?= Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
+              <?= Saft_Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
             <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
               Show Feed of Object</a></em>
         <?php else : ?>

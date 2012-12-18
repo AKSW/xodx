@@ -101,6 +101,7 @@ class Xodx_ActivityController extends Saft_Controller
         $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' . urlencode($actorUri);
         $objectId = md5(rand());
         $objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
+        // TODO: Notice: Undefined index: replyObject
         $replyUri = $object['replyObject'];
 
         if ($object['type'] == 'Photo') {
@@ -425,7 +426,7 @@ class Xodx_ActivityController extends Saft_Controller
                 $type = $resourceController->getType($objectUri);
             }
             $personName = $nameHelper->getName($act['person']);
-            $title = '"' . $personName . ' ' . Tools::getSpokenWord($act['verb']) . ' ' . $type . '"';
+            $title = '"' . $personName . ' ' . Saft_Tools::getSpokenWord($act['verb']) . ' ' . $type . '"';
 
             $activity = array(
                 'title'     => $title,
