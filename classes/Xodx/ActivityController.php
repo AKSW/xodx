@@ -17,47 +17,52 @@ class Xodx_ActivityController extends Saft_Controller
 
         switch (strtolower($verb)) {
             case 'post':
-                $verbUri = $nsAair . $verb;
+                $verbUri = $nsAair . 'Post';
                 break;
             case 'share':
-                $verbUri = $nsAair . $verb;
+                $verbUri = $nsAair . 'Share';
                 break;
         }
 
         switch ($actType) {
-            case 'Note':
+            case 'Note';
                 $object = array(
                     'type' => $actType,
                     'content' => $actContent,
-                    'replyObject' => $replyObject
+                    'replyObject' => $replyObject,
                 );
                 $debugStr = $this->addActivity($actorUri, $verbUri, $object);
             break;
-            case 'Bookmark':
+            case 'Comment';
                 $object = array(
                     'type' => $actType,
-                    'about' => $request->getValue('about', 'post'),
                     'content' => $actContent,
-                    'replyObject' => $replyObject
+                    'replyObject' => $replyObject,
                 );
                 $debugStr = $this->addActivity($actorUri, $verbUri, $object);
             break;
-            case 'Photo':
+            case 'Bookmark';
+                $object = array(
+                    'type' => $actType,
+                    'content' => $actContent,
+                    'replyObject' => $replyObject,
+                );
+                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
+            break;
+            case 'Photo';
                 $fieldName = 'content';
                 $mediaController = $this->_app->getController('Xodx_MediaController');
                 $fileInfo = $mediaController->uploadImage($fieldName);
                 $object = array(
                     'type' => $actType,
-                    'about' => $request->getValue('about', 'post'),
                     'content' => $actContent,
                     'fileName' => $fileInfo['fileId'],
-                    'mimeType' => $fileInfo['mimeType'],
-                    'replyObject' => $replyObject
+                    'mime' => $fileInfo['mimeType'],
+                    'replyObject' => $replyObject,
                 );
                 $debugStr = $this->addActivity($actorUri, $verbUri, $object);
             break;
         }
-
         $template->addDebug($debugStr);
 
         return $template;
@@ -76,53 +81,57 @@ class Xodx_ActivityController extends Saft_Controller
         $model = $bootstrap->getResource('model');
         $config = $bootstrap->getResource('config');
         $graphUri = $model->getModelIri();
-
-        $nsXsd = 'http://www.w3.org/2001/XMLSchema#';
-        $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
-        $nsSioc = 'http://rdfs.org/sioc/ns#';
-        $nsAtom = 'http://www.w3.org/2005/Atom/';
-        $nsAair = 'http://xmlns.notu.be/aair#';
-        $nsXodx = 'http://xodx.org/ns#';
-        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
-        $nsOv = 'http://open.vocab.org/docs/';
+        $nsXsd =      'http://www.w3.org/2001/XMLSchema#';
+        $nsRdf =      'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+        $nsSioc =     'http://rdfs.org/sioc/ns#';
+        $nsSioct =    'http://rdfs.org/sioc/types#';
+        $nsAtom =     'http://www.w3.org/2005/Atom/';
+        $nsAair =     'http://xmlns.notu.be/aair#';
+        $nsXodx =     'http://xodx.org/ns#';
+        $nsFoaf =     'http://xmlns.com/foaf/0.1/';
+        $nsOv =       'http://open.vocab.org/docs/';
         $nsPingback = 'http://purl.org/net/pingback/';
-        $nsDssn = 'http://purl.org/net/dssn/';
+        $nsDssn =     'http://purl.org/net/dssn/';
 
         $now = date('c');
         $postId = md5(rand());
+        $postUri = $this->_app->getBaseUri() . '?c=resource&id=' . $postId;
         $pingbackServer = $this->_app->getBaseUri() . 'index.php?c=pingback&a=ping';
         $activityUri = $this->_app->getBaseUri() . '?c=resource&id=' . md5(rand());
-        $postUri = $this->_app->getBaseUri() . '?c=resource&id=' . $postId;
         $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' . urlencode($actorUri);
+        $objectId = md5(rand());
+        $objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
+        $replyUri = $object['replyObject'];
 
         if ($object['type'] == 'Photo') {
             $object['type'] = $nsFoaf . 'Image';
+            $object['aairType'] = $nsAair . 'Photo';
             $type = 'Photo';
             // Take photo filename as objectname
-            $objectId = $object['fileName'];
+            $content =   $object['content'];
+            $objectId =  $object['fileName'];
             $objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
+            $imageUri =  $this->_app->getBaseUri() . '?c=resource&a=img&id=' . $objectId;
 
-            if (!empty($object['about'])) {
-                $commentId = md5(rand());
-                $commentUri = $this->_app->getBaseUri() . '?c=resource&id=' . $commentId;
-                $object['content'] = $object['about'];
-            }
         } else if ($object['type'] == 'Bookmark') {
-            $object['type'] = $nsFoaf . 'Document';
-            $type = 'Bookmark';
-            //$objectId = md5(rand());
-            //$objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
+            $type =      'Bookmark';
             $objectUri = $object['content'];
-            if (!empty($object['about'])) {
-                $commentId = md5(rand());
-                $commentUri = $this->_app->getBaseUri() . '?c=resource&id=' . $commentId;
-                $object['content'] = $object['about'];
-            }
+
         } else if ($object['type'] == 'Note') {
-            $object['type'] = $nsSioc . 'Comment';
-            $type = 'Comment';
-            $objectId = md5(rand());
-            $objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
+            $type               = 'Note';
+            $object['type']     = $nsSioc . 'Note';
+            $object['aairType'] = $nsAair . 'Note';
+            $content            = $object['content'];
+
+        } else if ($object['type'] == 'Comment') {
+            $object['type']     = $nsSioct . 'Comment';
+            $object['aairType'] = $nsAair . 'Comment';
+            $type               = 'Comment';
+            $content            = $object['content'];
+
+            if (!($object['replyObject'])) {
+                $replyUri = $object['replyObject'];
+            }
         }
 
         $pingbackController = $this->_app->getController('Xodx_PingbackController');
@@ -133,39 +142,45 @@ class Xodx_ActivityController extends Saft_Controller
             $activityUri => array(
                 $nsRdf . 'type' => array(
                     array(
-                        'type' => 'uri',
+                        'type' =>  'uri',
                         'value' => $nsAair . 'Activity'
                     )
                 ),
                 $nsAtom . 'published' => array(
                     array(
-                        'type' => 'literal',
-                        'value' => $now,
+                        'type' =>     'literal',
+                        'value' =>    $now,
                         'datatype' => $nsXsd . 'dateTime'
                     )
                 ),
                 $nsAair . 'activityActor' => array(
                     array(
-                        'type' => 'uri',
-                        'value' => $actorUri
+                        'type' =>     'uri',
+                        'value' =>    $actorUri
                     )
                 ),
                 $nsAair . 'activityVerb' => array(
                     array(
-                        'type' => 'uri',
-                        'value' => $verbUri
+                        'type' =>     'uri',
+                        'value' =>    $verbUri
+                    )
+                ),
+                $nsAair . 'activityObject' => array(
+                    array(
+                        'type' =>     'uri',
+                        'value' =>    $objectUri
                     )
                 ),
                 $nsPingback . 'to' => array(
                     array(
-                        'type' => 'uri',
-                        'value' => $pingbackServer
+                        'type' =>     'uri',
+                        'value' =>    $pingbackServer
                     )
                 ),
                 $nsDssn . 'activityFeed' => array(
                     array(
-                        'type' => 'uri',
-                        'value' => $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
+                        'type' =>     'uri',
+                        'value' =>    $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
                             urlencode($activityUri)
                     )
                 )
@@ -174,33 +189,26 @@ class Xodx_ActivityController extends Saft_Controller
         $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' . urlencode($activityUri) .
             ';' . $feedUri;
 
-        // If this activity is a reply, add this statement, too
-        if ($object['replyObject'] !== 'false') {
+        // If this activity contains a reply, add this statement, too
+        if ($replyUri !== 'false') {
             $activity[$activityUri][$nsAair . 'activityContext'][0]['type'] = 'uri';
-            $activity[$activityUri][$nsAair . 'activityContext'][0]['value'] = $object['replyObject'];
+            $activity[$activityUri][$nsAair . 'activityContext'][0]['value'] = $replyUri;
+
             $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
-                urlencode($object['replyObject']) . ';' . $feedUri;
+                urlencode($replyUri) . ';' . $feedUri;
+
             // Ping the object we commented
-            $pingbackController->sendPing($activityUri, $object['replyObject'],
+            $pingbackController->sendPing($activityUri, $replyUri,
                 'You were pinged from an Anctivity with verb: ' . $verbUri);
         }
 
-        //If activity is posting/sharing a thing by commenting it, add this
-        if (($type == 'Bookmark' || $type == 'Photo') && !empty($object['about']))
-        {
-            $activity[$activityUri][$nsAair . 'activityContext'][0]['type'] = 'uri';
-            $activity[$activityUri][$nsAair . 'activityContext'][0]['value'] = $objectUri;
-            $activity[$activityUri][$nsAair . 'activityObject'][0]['type'] = 'uri';
-            $activity[$activityUri][$nsAair . 'activityObject'][0]['value'] = $commentUri;
-        } else {
-            $activity[$activityUri][$nsAair . 'activityObject'][0]['type'] = 'uri';
-            $activity[$activityUri][$nsAair . 'activityObject'][0]['value'] = $objectUri;
-        }
-
+           // II. general statements of object resource
         if ($type != 'Bookmark') {
-            // II. general statements of object resource
             $activity[$objectUri][$nsRdf . 'type'][0]['type'] = 'uri';
             $activity[$objectUri][$nsRdf . 'type'][0]['value'] = $object['type'];
+
+            $activity[$objectUri][$nsRdf . 'type'][1]['type'] = 'uri';
+            $activity[$objectUri][$nsRdf . 'type'][1]['value'] = $object['aairType'];
 
             $activity[$objectUri][$nsSioc . 'created_at'][0]['type'] = 'literal';
             $activity[$objectUri][$nsSioc . 'created_at'][0]['value'] = $now;
@@ -216,53 +224,41 @@ class Xodx_ActivityController extends Saft_Controller
             $activity[$objectUri][$nsDssn . 'activityFeed'][0]['value'] = $this->_app->getBaseUri()
                 . '?c=feed&a=getFeed&uri=' . urlencode($objectUri);
 
-            // If this activity contains a reply, add this statement, too
-            if ($object['replyObject'] !== 'false') {
-                $activity[$objectUri][$nsRdf . 'about'][0]['type'] = 'uri';
-                $activity[$objectUri][$nsRdf . 'about'][0]['value'] = $object['replyObject'];
-            }
-            // Triples of Comment resource
-            if ($type == 'Comment') {
-                $activity[$objectUri][$nsSioc . 'content'][0]['type'] = 'literal';
+                // If this activity contains a reply, add this statement, too
+            /*if ($object['replyObject'] !== 'false') {
+                $activity[$objectUri][$nsAair . 'activityContext'][0]['type'] = 'uri';
+                $activity[$objectUri][$nsAair . 'activityContext'][0]['value'] = $object['replyObject'];
+            }**/
+
+            // Triples of note resource
+            if ($type == 'Note') {
+                $activity[$objectUri][$nsSioc . 'content'][0]['type']  = 'literal';
                 $activity[$objectUri][$nsSioc . 'content'][0]['value'] = $object['content'];
+                $activity[$objectUri][$nsAair . 'content'][0]['type']  = 'literal';
+                $activity[$objectUri][$nsAair . 'content'][0]['value'] = $object['content'];
             }
-            // Triples of photo object
+
+            // Triples of comment resource
+            if ($type == 'Comment') {
+                $activity[$objectUri][$nsSioc . 'content'][0]['type']    = 'literal';
+                $activity[$objectUri][$nsSioc . 'content'][0]['value']   = $object['content'];
+                $activity[$objectUri][$nsAair . 'content'][0]['type']    = 'literal';
+                $activity[$objectUri][$nsAair . 'content'][0]['value']   = $object['content'];
+                $activity[$objectUri][$nsAair . 'commenter'][0]['type']  = 'uri';
+                $activity[$objectUri][$nsAair . 'commenter'][0]['value'] = $actorUri;
+
+            }
+
+            // Triples of photo resource
             if ($type == 'Photo') {
-                $activity[$objectUri][$nsOv . 'hasContentType'][0]['type'] = 'literal';
-                $activity[$objectUri][$nsOv . 'hasContentType'][0]['value'] = $object['mimeType'];
+                $activity[$objectUri][$nsOv .   'hasContentType'][0]['type']  = 'literal';
+                $activity[$objectUri][$nsOv .   'hasContentType'][0]['value'] = $object['mime'];
+                $activity[$objectUri][$nsAair . 'largerImage'][0]['type']     = 'uri';
+                $activity[$objectUri][$nsAair . 'largerImage'][0]['value']    = $imageUri;
             }
+
             $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
                 urlencode($objectUri) . ';' . $feedUri;
-        }
-
-
-        // III Create comment resource
-        // actually only for posting Images
-        if (!empty($object['about'])) {
-            $now = date('c');
-            $activity[$commentUri][$nsRdf . 'type'][0]['type'] = 'uri';
-            $activity[$commentUri][$nsRdf . 'type'][0]['value'] = $nsSioc . 'Comment';
-
-            $activity[$commentUri][$nsSioc . 'created_at'][0]['type'] = 'literal';
-            $activity[$commentUri][$nsSioc . 'created_at'][0]['value'] = $now;
-            $activity[$commentUri][$nsSioc . 'created_at'][0]['datatype'] = $nsXsd . 'dateTime';
-
-            $activity[$commentUri][$nsSioc . 'has_creator'][0]['type'] = 'uri';
-            $activity[$commentUri][$nsSioc . 'has_creator'][0]['value'] = $actorUri;
-
-            $activity[$commentUri][$nsSioc . 'content'][0]['type'] = 'literal';
-            $activity[$commentUri][$nsSioc . 'content'][0]['value'] = $object['content'];
-
-            $activity[$commentUri][$nsPingback . 'to'][0]['type'] = 'uri';
-            $activity[$commentUri][$nsPingback . 'to'][0]['value'] = $pingbackServer;
-
-            $activity[$commentUri][$nsDssn . 'activityFeed'][0]['type'] = 'uri';
-            $activity[$commentUri][$nsDssn . 'activityFeed'][0]['value'] =
-                $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' . urlencode($commentUri) .
-                ';' . $feedUri;
-
-            $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
-                urlencode($commentUri) . ';' . $feedUri;
         }
 
         // proceed and subsribe to feed
@@ -360,7 +356,7 @@ class Xodx_ActivityController extends Saft_Controller
             'SELECT ?activity ?date ?verb ?object ?person ' .
             'WHERE { ' .
             '   ?activity a                   aair:Activity ; ' .
-            '             ?p <' . $resourceUri . '> ; ' .
+            '             ?p             <' . $resourceUri . '> ; ' .
             '             aair:activityActor  ?person ; ' .
             '             atom:published      ?date ; ' .
             '             aair:activityVerb   ?verb ; ' .
@@ -374,23 +370,16 @@ class Xodx_ActivityController extends Saft_Controller
             'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
             'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
             'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
-            'SELECT DISTINCT ?activity ?date ?verb ?object ?person ' .
+            'SELECT DISTINCT ?date ?verb ?object ?person ?context ' .
             'WHERE { ' .
-            '    <' . $resourceUri . '>       a aair:Activity ; ' .
-            '             aair:activityActor  ?person ; ' .
-            '             atom:published      ?date ; ' .
-            '             aair:activityVerb   ?verb ; ' .
-            '             aair:activityObject ?object . ' .
-            /**' OPTIONAL { ' .
-            '    ?activity a aair:Activity ; ' .
-            '              ?p <' . $resourceUri . '> ; ' .
-            '              aair:activityObject ?object ; ' .
-            '              aair:activityActor  ?person ; ' .
-            '              atom:published      ?date ; ' .
-            '              aair:activityVerb   ?verb ; ' .
-            '} ' . **/
-            '} ' .
-            'ORDER BY DESC(?date)';
+            '    <' . $resourceUri . '> a                    aair:Activity ; ' .
+            '                           aair:activityActor   ?person ; ' .
+            '                           atom:published       ?date ; ' .
+            '                           aair:activityVerb    ?verb ; ' .
+            '                           aair:activityObject  ?object . ' .
+            'OPTIONAL { ' .
+            '    <' . $resourceUri . '> aair:activityContext ?context . } ' .
+            '} ';
 
         $model = $this->_app->getBootstrap()->getResource('model');
 
@@ -410,7 +399,7 @@ class Xodx_ActivityController extends Saft_Controller
 
         $isPerson = false;
 
-        if ($type == $nsFoaf . 'PersonalProfileDocument') {
+        if ($type == $nsFoaf . 'Person') {
             $isPerson = true;
         }
 
@@ -418,32 +407,40 @@ class Xodx_ActivityController extends Saft_Controller
 
         $activities = array();
 
-        foreach ($activitiesResult as $activity) {
-            if ($activity['activity'] === null) {
+        foreach ($activitiesResult as $act) {
+            if (!isset($act['activity'])) {
                 $activityUri = $resourceUri;
             } else {
-                $activityUri = $activity['activity'];
+                $activityUri = $act['activity'];
             }
 
-            $verbUri = $activity['verb'];
-            $objectUri = $activity['object'];
-            $activity['date'] = self::_issueE24fix($activity['date']);
+            //$verbUri = $act['verb'];
+            $objectUri = $act['object'];
+            $act['date'] = self::_issueE24fix($act['date']);
 
             $nameHelper = new Xodx_NameHelper($this->_app);
-            $type = $resourceController->getType($objectUri);
-            $personName = $nameHelper->getName($activity['person']);
-            $title = '"' . $personName . '" did "' . $activity['verb'] . '" a "' . $type . '"';
+            if (!($resourceController->getType($objectUri))) {
+                $type = $objectUri;
+            } else {
+                $type = $resourceController->getType($objectUri);
+            }
+            $personName = $nameHelper->getName($act['person']);
+            $title = '"' . $personName . ' ' . Tools::getSpokenWord($act['verb']) . ' ' . $type . '"';
 
             $activity = array(
-                'title' => $title,
-                'uri' => $activityUri,
-                'author' => $personName,
-                'authorUri' => $activity['person'],
-                'pubDate' => $activity['date'],
-                'verb' => $activity['verb'],
-                'object' => $activity['object'],
-                'type' => $type,
+                'title'     => $title,
+                'uri'       => $activityUri,
+                'author'    => $personName,
+                'authorUri' => $act['person'],
+                'pubDate'   => $act['date'],
+                'verb'      => $act['verb'],
+                'object'    => $objectUri,
+                'type'      => $type,
             );
+
+            if (isset($act['context'])) {
+                $activity['context'] = $act['context'];
+            }
 
             $objectResult = $model->sparqlQuery(
                 'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
@@ -459,15 +456,18 @@ class Xodx_ActivityController extends Saft_Controller
                 );
 
             if (count($objectResult) > 0) {
-                $activity['objectType'] = $objectResult[0]['type'];
+                $activity['objectType']    = $objectResult[0]['type'];
                 $activity['objectPubDate'] = self::_issueE24fix($objectResult[0]['date']);
-                $activity['objectFeed'] = htmlentities($this->_app->getBaseUri() . '
-                	?c=feed&a=getFeed&uri=') . urlencode($objectUri);
                 if (!empty($objectResult[0]['content'])) {
                     $activity['objectContent'] = $objectResult[0]['content'];
                 }
+            // set data from activity to get valid feed
+            } else {
+                $activity['objectPubDate'] = $activity['pubDate'];
             }
 
+            $activity['objectFeed'] = htmlentities($this->_app->getBaseUri() .
+                '?c=feed&a=getFeed&uri=') . urlencode($objectUri);
             $activities[] = $activity;
         }
 

@@ -35,14 +35,23 @@ if ($contact['name'] != null) {
     <?php foreach ($this->profileshowActivities as $activity) : ?>
     <div class="activity">
         <p>
-            <!-- <a href="<?= $activity['uri'] ?>"><strong><?= $activity['title'] ?></strong></a><br /> -->
+            <a href="<?= $activity['uri'] ?>"><strong><?= $activity['title'] ?></strong></a><br />
         </p>
         <div>
             <form method="post" action="?c=activity&amp;a=replyForm">
                 <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['author']) ?></a>
                 <a href="<?= htmlentities($activity['verb']) ?>"><?= Saft_Tools::getSpokenWord($activity['verb']) ?></a>
                 <?php if (isset($activity['objectType'])) : ?>
-                a <a href="<?= htmlentities($activity['object']) ?>"><?= Saft_Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
+                    a <a href="<?= htmlentities($activity['object']) ?>">
+                      <?= Saft_Tools::getSpokenWord($activity['type']) ?></a>
+                        at <?= $activity['pubDate'] ?>
+                    <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
+                    Show Feed of Object</a></em>
+                <?php else : ?>
+                    <a href="<?= htmlentities($activity['object']) ?>">
+                      <?= ($activity['object']) ?></a> at <?= $activity['pubDate'] ?>
+                    <em><a href="?c=feed&amp;a=getFeed&amp;uri=
+                      <?= urlencode($activity['object']) ?>"></em>
                 <?php endif; ?>
                 <input type="hidden" name="object" value="<?= htmlentities($activity['object'])?>" />
                 <input type="hidden" name="actor" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
@@ -78,8 +87,7 @@ if ($contact['name'] != null) {
             <div class="tab-pane" id="link">
                 <form method="post" action="?c=activity&amp;a=addactivity">
                     <input type="text" name="content" />
-                    <textarea name="about"></textarea>
-                    <input type="hidden" name="verb" value="Post" />
+                    <input type="hidden" name="verb" value="Share" />
                     <input type="hidden" name="type" value="Bookmark" />
                     <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
                     <input type="hidden" name="reply" value="false" />
@@ -89,7 +97,6 @@ if ($contact['name'] != null) {
             <div class="tab-pane" id="photo">
                 <form enctype="multipart/form-data" method="post" action="?c=activity&amp;a=addactivity">
                     <input type="file" name="content"/>
-                    <textarea name="about"></textarea>
                     <input type="hidden" name="verb" value="Post" />
                     <input type="hidden" name="type" value="Photo" />
                     <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />

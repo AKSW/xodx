@@ -27,6 +27,7 @@ $includePath .= $main_dir . '/classes/Xodx/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/libraries/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/libraries/Erfurt/library/' . PATH_SEPARATOR;
 $includePath .= $main_dir . '/libraries/lib-dssn-php/' . PATH_SEPARATOR;
+$includePath .= $main_dir . '/libraries/ARC2/' . PATH_SEPARATOR;
 
 set_include_path($includePath);
 
@@ -39,6 +40,9 @@ $autoloader->registerNamespace('Erfurt_');
 $autoloader->registerNamespace('Saft_');
 $autoloader->registerNamespace('Xodx_');
 $autoloader->registerNamespace('DSSN_');
+$autoloader->registerNamespace('ARC2_');
+
+DSSN_Utils::setConstants();
 
 DSSN_Utils::setConstants();
 

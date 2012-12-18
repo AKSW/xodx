@@ -83,6 +83,7 @@ class Xodx_ApplicationController extends Saft_Controller
 
                 // create new person
                 $newPersonUri = $this->_app->getBaseUri() . '?c=person&id=' . urlencode($username);
+                $newUserUri = $this->_app->getBaseUri() . '?c=user&id=' . urlencode($username);
                 $newPersonFeed = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri='
                     . urlencode($newPersonUri);
                 $newPerson = array(
@@ -91,6 +92,12 @@ class Xodx_ApplicationController extends Saft_Controller
                             array(
                                 'type' => 'uri',
                                 'value' => $nsFoaf . 'Person'
+                            )
+                        ),
+                        $nsFoaf . 'account' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $newUserUri
                             )
                         ),
                         $nsFoaf . 'nick' => array(
@@ -133,7 +140,6 @@ class Xodx_ApplicationController extends Saft_Controller
 
                 $store->addMultipleStatements($graphUri, $newPerson);
 
-                $newUserUri = $this->_app->getBaseUri() . '?c=user&id=' . urlencode($username);
                 $newUser = array(
                      $newUserUri => array(
                         $nsRdf . 'type' => array(

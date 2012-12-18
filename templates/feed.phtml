@@ -1,7 +1,7 @@
 <?php echo '<?xml version="1.0" encoding="utf-8"?>' ?>
 
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:activity="http://activitystrea.ms/schema/1.0/">
-    <title>Activity Feed for <?= $this->name ?></title>
+    <title>Activity Feed for <?= htmlentities($this->name) ?></title>
     <id><?= htmlentities($this->uri) ?></id>
     <link rel="hub" href="<?= htmlentities($this->hub) ?>"/>
     <link rel="self" type="application/atom+xml" href="<?= htmlentities($this->feedUri) ?>"/>
@@ -34,8 +34,19 @@
 
         <activity:object-type><?= $activity['objectType'] ?></activity:object-type>
         <?php endif; ?>
-
       </activity:object>
+
+      <?php if (isset($activity['context'])) : ?>
+      <activity:target>
+        <id><?= htmlentities($activity['context']) ?></id>
+
+        <?php if (isset($activity['contextType'])) : ?>
+
+        <activity:object-type><?= $activity['contextType'] ?></activity:object-type>
+        <?php endif; ?>
+
+      </activity:target>
+      <?php endif; ?>
     </entry>
 
     <?php endforeach; ?>

@@ -12,10 +12,14 @@ class Xodx_Activity
     private $_contextUri;
     private $_date;
 
-    public function __construct ($uri, $actorUri, $verbUri, $objectUri, $contextUri = null, $date = null)
+    public function __construct ($uri, $actorUri, $verbUri, $objectUri, $date = null,
+        $contextUri = null)
     {
+
+        $app = Application::getInstance();
+        $baseUri = $app->getBaseUri();
         if ($uri === null) {
-            $this->_uri = 'http://localhost/~natanael/xodx/activity/' . md5(rand()) . '/';
+            $this->_uri = $baseUri . '?c=resource&id=' . md5(rand());
         } else {
             $this->_uri = $uri;
         }
@@ -30,11 +34,11 @@ class Xodx_Activity
             $this->_date = $date;
         }
 
-        if ($context !== null) {
+        /*if ($context !== null) {
             $this->_contextUri = $contextUri;
         } else {
             $this->_contextUri = '';
-        }
+        }*/
     }
 
     public function getActor ()
@@ -64,7 +68,7 @@ class Xodx_Activity
 
     public function toGraphArray ()
     {
-        $nsAair = 'http://ximlns.notu.be/aair#';
+        $nsAair = 'http://xmlns.notu.be/aair#';
         $nsAtom = 'http://www.w3.org/2005/Atom/';
         $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
         $nsXsd = 'http://www.w3.org/2001/XMLSchema#';
@@ -80,7 +84,7 @@ class Xodx_Activity
                 $nsAtom . 'published' => array(
                     array(
                         'type' => 'literal',
-                        'value' => $this->_date,
+                        'value' => $this->getDate(),
                         'datatype' => $nsXsd . 'dateTime'
                     )
                 ),
@@ -104,7 +108,6 @@ class Xodx_Activity
                 )
             )
         );
-
         if (!empty($this->_contextUri)) {
             $return[$this->_uri][$nsAair . 'activityContext'][0]['type'] = 'uri';
             $return[$this->_uri][$nsAair . 'activityContext'][0]['value'] = $this->_contextUri;

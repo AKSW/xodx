@@ -29,13 +29,21 @@ foreach ($this->properties as $property) {
     </p>
     <p>
         <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['authorUri']) ?></a>
-        did <a href="<?= htmlentities($activity['verb']) ?>"><?= htmlentities($activity['verb']) ?></a>
+        <a href="<?= htmlentities($activity['verb']) ?>">
+          <?= htmlentities(Tools::getSpokenWord($activity['verb'])) ?></a>
 
         <?php if (isset($activity['objectType'])) : ?>
-        a <a href="<?= htmlentities($activity['object']) ?>"><?= htmlentities($activity['object']) ?></a>
+            a <a href="<?= htmlentities($activity['object']) ?>">
+              <?= Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
+            <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
+              Show Feed of Object</a></em>
+        <?php else : ?>
+            <a href="<?= htmlentities($activity['object']) ?>"><?= ($activity['object']) ?></a>
+              at <?= $activity['pubDate'] ?>
+            <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
+              Show Feed of Object</a></em>
         <?php endif; ?>
-        : <a href="<?= htmlentities($activity['object']) ?>"><?= htmlentities($activity['object']) ?></a>
-        <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">Show Feed of Object</a></em>
+
     </p>
 </div>
 <?php endforeach; ?>

@@ -50,7 +50,11 @@ class Xodx_NameHelper
 
         $names = $model->sparqlQuery($query);
 
-        return $names[0]['name'];
+        if (isset($names[0]['name'])) {
+            return $names[0]['name'];
+        } else {
+            return false;
+        }
     }
 
     private function _parseLanguageString ($langString)

@@ -62,6 +62,30 @@ class Xodx_UserController extends Xodx_ResourceController
     }
 
     /**
+     *
+     * Method returns the Uri of the sioc:UserAccount
+     * @param unknown_type $personUri
+     */
+    private function _getVerifiedUserAccount ($personUri)
+    {
+        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+        $nsSioc = 'http://rdfs.org/sioc/ns#';
+
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+        $resourceController = $this->_app->getController('Xodx_ResourceController');
+
+        $type = $resourceController->getType($personUri);
+
+        // TODO replace str_replace with SPARQL query for foaf:Account with NS === BaseUri()
+        if ($type === $nsFoaf . 'Person') {
+            $personUri = str_replace('?c=person&', '?c=user&', $personUri);
+        }
+
+        return $personUri;
+    }
+
+    /**
      * This method subscribes a user to a feed
      * @param $userUri the uri of the user who wants to be subscribed
      * @param $feedUri the uri of the feed where she wants to subscribe
@@ -70,22 +94,26 @@ class Xodx_UserController extends Xodx_ResourceController
     {
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
+        $resourceController = $this->_app->getController('Xodx_ResourceController');
 
         $logger->info('subscribeToFeed: user: ' . $userUri . ', feed: ' . $feedUri);
+        $type = $resourceController->getType($userUri);
+
+        $userUri = $this->_getVerifiedUserAccount($userUri);
 
         if (!$this->_isSubscribed($userUri, $feedUri)) {
             $pushController = $this->_app->getController('Xodx_PushController');
             if ($pushController->subscribe($feedUri)) {
 
-                $store = $bootstrap->getResource('store');
-                $model = $bootstrap->getResource('model');
+                $store    = $bootstrap->getResource('store');
+                $model    = $bootstrap->getResource('model');
                 $graphUri = $model->getModelIri();
 
-                $nsXodx = 'http://example.org/voc/xodx/';
+                $nsSioc = 'http://rdfs.org/sioc/ns#';
 
                 $subscribeStatement = array(
                     $userUri => array(
-                        $nsXodx . 'subscribedTo' => array(
+                        $nsSioc . 'subscriber_of' => array(
                             array(
                                 'type' => 'uri',
                                 'value' => $feedUri
@@ -186,9 +214,9 @@ class Xodx_UserController extends Xodx_ResourceController
         $model = $bootstrap->getResource('model');
 
         $query = '' .
-            'PREFIX xodx: <http://example.org/voc/xodx/> ' .
+            'PREFIX sioc: <http://rdfs.org/sioc/ns#>' .
             'ASK { ' .
-            '   <' . $userUri . '> xodx:subscribedTo <' . $feedUri . '> . ' .
+            '   <' . $userUri . '> sioc:subscriber_of <' . $feedUri . '> . ' .
             '}';
         $subscribedResult = $model->sparqlQuery($query);
 
