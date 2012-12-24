@@ -1,5 +1,11 @@
 <?php
 /**
+ * This file is part of the {@link http://aksw.org/Projects/Xodx Xodx} project.
+ *
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
+
+/**
  * This class represents an aair:Activity
  * TODO: replace this by DSSN_Activity from dssn-lib-php
  */

@@ -1,4 +1,9 @@
 <?php
+/**
+ * This file is part of the {@link http://aksw.org/Projects/Xodx Xodx} project.
+ *
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
 
 /**
  * This class represents notifications which are stored for a user to let him know, that some

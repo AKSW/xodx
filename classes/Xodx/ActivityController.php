@@ -1,7 +1,19 @@
 <?php
+/**
+ * This file is part of the {@link http://aksw.org/Projects/Xodx Xodx} project.
+ *
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
 
+/**
+ * The ActivityController provides methods to interact with Activity objects
+ * TODO: @splattater could you please add documentation to this class
+ */
 class Xodx_ActivityController extends Saft_Controller
 {
+    /**
+     * Add a new activity …
+     */
     public function addactivityAction ($template)
     {
         $bootstrap = $this->_app->getBootstrap();
