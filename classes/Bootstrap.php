@@ -28,6 +28,21 @@ class Bootstrap extends Saft_Bootstrap
     }
 
     /**
+     * Initializes all namespace prefixes
+     */
+    protected function initNamespacesConfig ()
+    {
+        $configPath = $this->_app->getBaseDir() . 'config.ini';
+
+        $configArray = parse_ini_file($configPath, true);
+
+        // TODO merge with some default settings
+        // TODO move most settings into the model
+
+        return $configArray['namespaces'];
+    }
+
+    /**
      * Initializes the Erfurt Store
      */
     protected function initStore ()

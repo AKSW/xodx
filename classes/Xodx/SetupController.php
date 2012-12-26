@@ -40,4 +40,43 @@ class Xodx_SetupController extends Saft_Controller
         $modelIri = $model->getBaseIri();
         $store->deleteModel($modelIri);
     }
+
+    /**
+     * If this action is called the database is prepared to be used by xodx.
+     */
+    function setupDatabaseAction ($template) {
+        try {
+            $this->setupDatabase();
+        } catch (Erfurt_Namespace_Exception $e) {
+            $template->addContent('templates/error.phtml');
+            $template->exception = $e;
+        }
+        return $template;
+    }
+
+    /**
+     * This method prepares the database to be used by xodx
+     */
+    function setupDatabase () {
+        $this->registerNamespaces();
+        // TODO: import some ontologies, like foaf
+        // TODO: import some basic config model (if config is stored in a model)
+    }
+
+    /**
+     * Register all namespaces needed for xodx
+     */
+    function registerNamespaces () {
+        $bootstrap = $this->_app->getBootstrap();
+        $nsConfig = $bootstrap->getResource('namespacesconfig');
+        $model = $bootstrap->getResource('model');
+
+        foreach ($nsConfig as $prefix => $namespace) {
+            // if the prefix already exists it will not be registered
+            // maybe we should report this is some log
+            if (!$model->hasNamespaceByPrefix($prefix)) {
+                $model->addNamespacePrefix($prefix, $namespace);
+            }
+        }
+    }
 }
