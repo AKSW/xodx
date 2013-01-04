@@ -3,7 +3,7 @@
 	url = git@github.com:AKSW/Erfurt.git
 [submodule "libraries/lib-dssn-php"]
 	path = libraries/lib-dssn-php
-	url = git://github.com/seebi/lib-dssn-php.git
+	url = git://github.com/AKSW/lib-dssn-php.git
 [submodule "libraries/Saft"]
 	path = libraries/Saft
 	url = git@github.com:white-gecko/Saft.git
