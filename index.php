@@ -49,8 +49,6 @@ $autoloader->registerNamespace('ARC2_');
 
 DSSN_Utils::setConstants();
 
-DSSN_Utils::setConstants();
-
 // Check if Application or Worker should be started
 $app = new Xodx_Application();
 $app->setAppNamespace('Xodx_');
