@@ -8,9 +8,6 @@
 class Xodx_PingbackController extends Saft_Controller
 {
 
-    protected $_targetGraph = null;
-    protected $_sourceRdf = null;
-
     /**
      *
      * Method offers a Semantic Pingback Service for resources of our model
