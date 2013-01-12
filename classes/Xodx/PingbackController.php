@@ -27,145 +27,26 @@ class Xodx_PingbackController extends Saft_Controller
         $target = $request->getValue('target', 'post');
         $comment = $request->getValue('comment', 'post');
 
-        $template->addDebug($this->receivePing($source, $target));
+        $ping = new Xodx_Ping($this->_app);
 
+        if ($ping->receive($source, $target)) {
+            $template->addDebug('proccessing ping data …');
+            /*
+            $foundPingbackTriples = $ping->getTriples();
+            var_dump($foundPingbackTriples);
+            $activityController = $this->_app->getController('Xodx_ActivityController');
+
+            foreach ($foundPingbackTriples as $triple) {
+                $act[] = new Xodx_Activity(null, $triple['s'], $triple['p'], $triple['o']);
+                $activityController->addActivities($act);
+            }
+            var_dump($act);
+            */
+        }
+
+        $template->addDebug($ping->getReturnValue());
         return $template;
     }
-
-
-    /**
-    * receive a ping API
-    *
-    * @param string $sourceUri The source URI
-    * @param string $targetUri The target URI
-    *
-    * @return integer An integer (fault) code
-    */
-    public function receivePing($sourceUri, $targetUri)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $request   = $bootstrap->getResource('request');
-        $model     = $bootstrap->getResource('model');
-        $store     = $bootstrap->getResource('store');
-        $logger    = $bootstrap->getResource('logger');
-        //$template->addDebug('Method ping was called.');
-
-        // Is $targetUri a valid linked data resource in this namespace?
-        if (!$this->_checkTargetExists($targetUri)) {
-            //$this->addDebug('0x0021');
-            return 'Error: 0x0021, $target is not a valid linked data resource';
-        }
-
-        //$config = $this->_privateConfig;
-        $foundPingbackTriplesGraph = array();
-
-        // 1. Try to dereference the source URI as RDF/XML, N3, Truples, Turtle
-        $foundPingbackTriplesGraph = $this->_getResourceFromWrapper($sourceUri, $targetUri, 'Linkeddata');
-
-        // 2. If nothing was found, try to use as RDFa service
-        //if (((boolean) $config->rdfa->enabled) && (count($foundPingbackTriplesGraph) === 0)) {
-        if ((count($foundPingbackTriplesGraph) === 0)) {
-            $foundPingbackTriplesGraph = $this->_getResourceFromWrapper($sourceUri, $targetUri, 'Rdfa');
-        }
-
-        $foundPingbackTriples = array();
-        foreach ($foundPingbackTriplesGraph as $s => $predicates) {
-            foreach ($predicates as $p => $objects) {
-                foreach ($objects as $o) {
-                    $foundPingbackTriples[] = array(
-                        's' => $s,
-                        'p' => $p,
-                        'o' => $o['value']
-                    );
-                }
-            }
-        }
-
-        // 3. If still nothing was found, try to find a link in the html
-        if (count($foundPingbackTriples) === 0) {
-            $client = Erfurt_App::getInstance()->getHttpClient(
-                $sourceUri,
-                array(
-                    'maxredirects' => 10,
-                    'timeout' => 30
-                )
-            );
-
-            try {
-                $response = $client->request();
-            } catch (Exception $e) {
-                $logger->error($e->getMessage());
-                return 0x0000;
-            }
-            if ($response->getStatus() === 200) {
-                $htmlDoc = new DOMDocument();
-                $result = @$htmlDoc->loadHtml($response->getBody());
-                $aElements = $htmlDoc->getElementsByTagName('a');
-
-                foreach ($aElements as $aElem) {
-                    $a = $aElem->getAttribute('href');
-                    if (strtolower($a) === $targetUri) {
-                        $foundPingbackTriples[] = array(
-                            's' => $sourceUri,
-                            'p' => $config->generic_relation,
-                            'o' => $targetUri
-                        );
-                        break;
-                    }
-                }
-            } else {
-                $logger->error('receive ping: 0x0010');
-                //$versioning->endAction();
-                return 'error: 0x0010';
-            }
-        }
-
-        // 4. If still nothing was found, the sourceUri does not contain any link to targetUri
-        if (count($foundPingbackTriples) === 0) {
-            // Remove all existing pingback triples from that sourceUri.
-            $removed = $this->_deleteInvalidPingbacks($sourceUri, $targetUri);
-
-            if (!$removed) {
-                $logger->error('0x0011');
-                return 0x0011;
-            } else {
-                $logger->info('All existing Pingbacks removed.');
-                return 'Existing Pingbacks from ' . $sourceUri . ' have been removed.';
-            }
-        }
-
-        // 6. Iterate through pingback triples candidates and add those, who are not already registered.
-        $added = false;
-        foreach ($foundPingbackTriples as $triple) {
-            //$store = Erfurt_App::getInstance()->getStore();
-
-            if (!$this->_pingbackExists($triple['s'], $triple['p'], $triple['o'])) {
-                $this->_addPingback($triple['s'], $triple['p'], $triple['o']);
-                $added = true;
-            }
-        }
-
-        // Remove all existing pingbacks from that source uri, that were not found this time.
-        $removed = $this->_deleteInvalidPingbacks($sourceUri, $targetUri, $foundPingbackTriples);
-
-        if (!$added && !$removed) {
-            $logger->error('0x0030');
-            return 0x0030;
-        }
-
-        $logger->info('Pingback registered.');
-        var_dump($foundPingbackTriples);
-        $activityController = $this->_app->getController('Xodx_ActivityController');
-
-        foreach ($foundPingbackTriples as $triple) {
-            $act[] = new Xodx_Activity(null, $triple['s'], $triple['p'], $triple['o']);
-            $activityController->addActivities($act);
-        }
-        var_dump($act);
-
-        return;
-    }
-
 
     /**
      * Parts of this method are taken from messages.php of the my-profile project
@@ -188,7 +69,7 @@ class Xodx_PingbackController extends Saft_Controller
             $memModel = new Erfurt_Rdf_MemoryModel($targetStatements);
 
             // get pingback:service or pingback:to from resource
-            $pingbackTo = $memModel->getValue($target, 'http://purl.org/net/pingback/to');
+            $pingbackTo = $memModel->getValue($target, EF_PING_NS . 'to');
 
             if ($pingbackTo !== null) {
                 // send post to service
@@ -220,8 +101,7 @@ class Xodx_PingbackController extends Saft_Controller
                 curl_close($ch);
                 return true;
             } else {
-                $pingbackService = $memModel->getValue($target,
-                    'http://purl.org/net/pingback/service');
+                $pingbackService = $memModel->getValue($target, EF_PING_NS . 'service');
                 // TODO support XML-RPC pingbacks
             }
         } else {
@@ -404,8 +284,6 @@ class Xodx_PingbackController extends Saft_Controller
             return false;
         }
     }
-
-
 
     public function testPingAction ($template) {
 
