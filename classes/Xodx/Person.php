@@ -7,6 +7,7 @@
 
 /**
  * This Class represents a foaf:Person or any other class like that
+ * @deprecated should be replaced by DSSN_Foaf_Person
  */
 class Xodx_Person
 {
