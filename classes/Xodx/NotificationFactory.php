@@ -19,7 +19,7 @@ class Xodx_NotificationFactory
      * The construct method for this factory
      * @param $app the currently valid application instance
      */
-    public __construct ($app) {
+    public function __construct ($app) {
         $this->_app = $app;
     }
 
