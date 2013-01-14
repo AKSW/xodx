@@ -75,7 +75,7 @@ class Xodx_ProfileController extends Xodx_ResourceController
         // get URI
         $personUri = $request->getValue('person', 'get');
 
-        $person = new Xodx_Person($personUri);
+        $person = new DSSN_Foaf_Person($personUri);
 
         // show only public Friends
         $allowed = false;
@@ -98,7 +98,7 @@ class Xodx_ProfileController extends Xodx_ResourceController
         // get URI
         $personUri = $request->getValue('person', 'get');
 
-        $person = new Xodx_Person($personUri);
+        $person = new DSSN_Foaf_Person($personUri);
 
         // show only public Profile
 

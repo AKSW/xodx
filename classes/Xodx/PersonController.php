@@ -13,7 +13,7 @@ class Xodx_PersonController extends Xodx_ResourceController
     {
         if (!isset($this->_persons[$psersonUri])) {
 
-            $person = new Xodx_Person($personUri);
+            $person = new DSSN_Foaf_Person($personUri);
 
             $this->_persons[$personUri] = $person;
         }
