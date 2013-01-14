@@ -8,6 +8,7 @@
 /**
  * The ActivityController provides methods to interact with Activity objects
  * TODO: @splattater could you please add documentation to this class
+ * @deprecated this should be moved to lib-dssn-php
  */
 class Xodx_ActivityController extends Saft_Controller
 {

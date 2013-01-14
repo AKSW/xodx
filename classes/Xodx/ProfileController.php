@@ -5,6 +5,10 @@
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
 
+/**
+ * @deprecated we don't need this controller, beacause the person things should be done in the
+ * Xodx_PersonController and the list action can move somewhere else.
+ */
 class Xodx_ProfileController extends Xodx_ResourceController
 {
     public function listAction($template)

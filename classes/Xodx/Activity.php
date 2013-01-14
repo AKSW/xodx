@@ -7,7 +7,7 @@
 
 /**
  * This class represents an aair:Activity
- * TODO: replace this by DSSN_Activity from dssn-lib-php
+ * @deprecated can should be replaced by DSSN_Activity
  */
 class Xodx_Activity
 {
