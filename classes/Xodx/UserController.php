@@ -159,8 +159,15 @@ class Xodx_UserController extends Xodx_ResourceController
      * @param $userUri a string which contains the URI of the required user
      * @return Xodx_User instance with the specified URI
      */
-    public function getUser ($userUri)
+    public function getUser ($userUri = null)
     {
+        if ($userUri === null) {
+            $bootstrap = $this->_app->getBootstrap();
+            $applicationController = $this->_app->getController('Xodx_ApplicationController');
+            $userId = $applicationController->getUser();
+            $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
+        }
+
         if (!isset($this->_users[$userUri])) {
 
             $user = new Xodx_User($userUri);
