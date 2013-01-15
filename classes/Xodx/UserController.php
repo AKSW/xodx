@@ -51,6 +51,10 @@ class Xodx_UserController extends Xodx_ResourceController
 
         $userUri = $request->getValue('user', 'get');
 
+        if ($userUri === null) {
+            $userUri = $this->getUser()->getUri();
+        }
+
         $notifications = $this->getNotifications($userUri);
 
         $template->disableLayout();
@@ -137,14 +141,15 @@ class Xodx_UserController extends Xodx_ResourceController
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
 
-        $query = 'SELECT ?uri' . PHP_EOL;
+        $query = 'PREFIX xodx: <http://xodx.org/ns#> ' . PHP_EOL;
+        $query.= 'SELECT ?uri' . PHP_EOL;
         $query.= 'WHERE {' . PHP_EOL;
         $query.= '  <' . $userUri . '> xodx:notification ?uri .' . PHP_EOL;
         $query.= '}' . PHP_EOL;
 
         $result = $model->sparqlQuery($query);
 
-        $notificationFactory = new Xodx_NotificationFactory($this->app);
+        $notificationFactory = new Xodx_NotificationFactory($this->_app);
         $notifications = array();
         foreach ($result as $notification) {
             $notificationUri = $notification['uri'];
@@ -191,7 +196,7 @@ class Xodx_UserController extends Xodx_ResourceController
         // TODO prevent sparql injection
 
         $query = '' .
-            'PREFIX xodx: <http://example.org/voc/xodx/> ' .
+            'PREFIX xodx: <http://xodx.org/ns#> ' .
             'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
             'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
             'SELECT ?userUri ?passwordHash ' .
