@@ -100,7 +100,6 @@ class Xodx_ActivityController extends Saft_Controller
         $nsSioct =    'http://rdfs.org/sioc/types#';
         $nsAtom =     'http://www.w3.org/2005/Atom/';
         $nsAair =     'http://xmlns.notu.be/aair#';
-        $nsXodx =     'http://xodx.org/ns#';
         $nsFoaf =     'http://xmlns.com/foaf/0.1/';
         $nsOv =       'http://open.vocab.org/docs/';
         $nsPingback = 'http://purl.org/net/pingback/';

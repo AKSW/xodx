@@ -55,14 +55,7 @@ class Xodx_ProfileController extends Xodx_ResourceController
 
         $personController = $this->_app->getController('Xodx_PersonController');
 
-        // TODO check rights
-        $allowed = true;
-
-        if ($allowed) {
-            $personController->addFriend($personUri, $friendUri);
-        } else {
-            $personController->addFriendRequest($personUri, $friendUri);
-        }
+        $personController->addFriend($personUri, $friendUri);
 
         return $template;
     }

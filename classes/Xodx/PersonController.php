@@ -48,15 +48,6 @@ class Xodx_PersonController extends Xodx_ResourceController
         $userController->subscribeToFeed($personUri, $feedUri);
     }
 
-    public function addFriendRequest ($personUri, $contactUri)
-    {
-        $model = $this->_app->getBootstrap()->getResource('model');
-
-        $model->addStatement($personUri, 'http://ns.xodx.org/friendRequest', array('type' => 'uri', 'value' => $contactUri));
-
-        // TODO trigger notification
-    }
-
     /**
      * Returns the feed of the specified $type of the person
      */

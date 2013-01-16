@@ -121,14 +121,14 @@ class Xodx_PushController extends Saft_Controller
                         throw new Exception('Subscription to hub failed');
                     }
 
-                    $nsXodx = 'http://example.org/voc/xodx/';
+                    $nsDssn = 'http://purl.org/net/dssn/';
 
                     $hubObj = array(
                         'type' => 'uri',
                         'value' => $hubUrl
                     );
 
-                    $store->addStatement($graphUri, $feedUri, $nsXodx . 'subscribedAt', $hubObj);
+                    $store->addStatement($graphUri, $feedUri, $nsDssn . 'subscribedAt', $hubObj);
                 } else {
                     throw new Exception('No hub found in feed');
                 }
@@ -246,10 +246,10 @@ class Xodx_PushController extends Saft_Controller
 
         // 'PREFIX dssn: <http://purl.org/net/dssn/> ' .
         $query = '' .
-            'PREFIX xodx: <http://example.org/voc/xodx/> ' .
+            'PREFIX dssn: <http://purl.org/net/dssn/> ' .
             'SELECT ?hub ' .
             'WHERE { ' .
-            '   <' . $feed . '> xodx:subscribedAt ?hub . ' .
+            '   <' . $feed . '> dssn:subscribedAt ?hub . ' .
             '}';
         $subscriptionResult = $model->sparqlQuery($query);
 

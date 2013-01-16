@@ -77,7 +77,6 @@ class Xodx_FeedController extends Saft_Controller
         $feed = DSSN_Activity_Feed_Factory::newFromXml($feedData);
         $activityController = $this->_app->getController('Xodx_ActivityController');
 
-        $nsXodx = 'http://xodx.org/ns#';
         $nsXsd = 'http://www.w3.org/2001/XMLSchema#';
 
         foreach ($feed->getActivities() as $key => $activity) {

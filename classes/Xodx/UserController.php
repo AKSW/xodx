@@ -141,10 +141,10 @@ class Xodx_UserController extends Xodx_ResourceController
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
 
-        $query = 'PREFIX xodx: <http://xodx.org/ns#> ' . PHP_EOL;
+        $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
         $query.= 'SELECT ?uri' . PHP_EOL;
         $query.= 'WHERE {' . PHP_EOL;
-        $query.= '  <' . $userUri . '> xodx:notification ?uri .' . PHP_EOL;
+        $query.= '  ?uri dssn:notify <' . $userUri . '> .' . PHP_EOL;
         $query.= '}' . PHP_EOL;
 
         $result = $model->sparqlQuery($query);
@@ -196,14 +196,14 @@ class Xodx_UserController extends Xodx_ResourceController
         // TODO prevent sparql injection
 
         $query = '' .
-            'PREFIX xodx: <http://xodx.org/ns#> ' .
+            'PREFIX ow: <http://ns.ontowiki.net/SysOnt/> ' .
             'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
             'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
             'SELECT ?userUri ?passwordHash ' .
             'WHERE { ' .
             '   ?userUri a sioc:UserAccount ; ' .
             '       foaf:accountName "' . $userName . '" ; ' .
-            '       xodx:hasPassword ?passwordHash . ' .
+            '       ow:userPassword ?passwordHash . ' .
             '}';
         $passwordQueryResult = $model->sparqlQuery($query);
 

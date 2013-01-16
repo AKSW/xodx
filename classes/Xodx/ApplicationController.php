@@ -43,7 +43,7 @@ class Xodx_ApplicationController extends Saft_Controller
         $nsRdfs = 'http://www.w3.org/2000/01/rdf-schema#';
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
         $nsSioc = 'http://rdfs.org/sioc/ns#';
-        $nsXodx = 'http://example.org/voc/xodx/';
+        $nsOw = 'http://ns.ontowiki.net/SysOnt/';
         $nsDssn = 'http://purl.org/net/dssn/';
 
         $bootstrap = $this->_app->getBootstrap();
@@ -168,7 +168,7 @@ class Xodx_ApplicationController extends Saft_Controller
                                 'value' => $username
                             )
                         ),
-                        $nsXodx . 'hasPassword' => array(
+                        $nsOw . 'userPassword' => array(
                             array(
                                 'type' => 'literal',
                                 'value' => password_hash($password, PASSWORD_DEFAULT)
