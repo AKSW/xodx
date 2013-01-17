@@ -19,9 +19,7 @@ class Xodx_ProfileController extends Xodx_ResourceController
             'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
             'SELECT DISTINCT ?person ' .
             'WHERE { ' .
-            '   ?profile a foaf:PersonalProfileDocument . ' .
-            '   ?profile foaf:primaryTopic ?person . ' .
-//            '   ?person foaf:name ?name . ' .
+            '   ?person a foaf:Person . ' .
             '}'
         );
 
