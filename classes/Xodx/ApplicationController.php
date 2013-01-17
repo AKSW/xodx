@@ -39,8 +39,6 @@ class Xodx_ApplicationController extends Saft_Controller
      */
     public function newuserAction ($template) {
         $nsPingback = 'http://purl.org/net/pingback/';
-        $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
-        $nsRdfs = 'http://www.w3.org/2000/01/rdf-schema#';
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
         $nsSioc = 'http://rdfs.org/sioc/ns#';
         $nsOw = 'http://ns.ontowiki.net/SysOnt/';
@@ -81,108 +79,97 @@ class Xodx_ApplicationController extends Saft_Controller
             }
 
             if (count($formError) <= 0) {
-                $graphUri = $model->getModelIri();
-
-                $memModel = null;
-
-                if (!empty($personUri)) {
-                    $newStatements = Saft_Tools::getLinkedDataResource($this->_app, $personUri);
-
-                    $memModel = new Erfurt_Rdf_MemoryModel($newStatements);
-
-                    //$store->addMultipleStatements($graphUri, $newStatements);
-
-                    $template->addDebug(var_export($newStatements, true));
-                }
-
                 // create new person
                 $newPersonUri = $this->_app->getBaseUri() . '?c=person&id=' . urlencode($username);
                 $newUserUri = $this->_app->getBaseUri() . '?c=user&id=' . urlencode($username);
                 $newPersonFeed = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri='
                     . urlencode($newPersonUri);
+
                 $newPerson = array(
                     $newPersonUri => array(
-                        $nsRdf . 'type' => array(
-                            array(
-                                'type' => 'uri',
-                                'value' => $nsFoaf . 'Person'
-                            )
+                        EF_RDF_TYPE => array(
+                            array('type' => 'uri', 'value' => $nsFoaf . 'Person')
                         ),
                         $nsFoaf . 'account' => array(
-                            array(
-                                'type' => 'uri',
-                                'value' => $newUserUri
-                            )
+                            array('type' => 'uri', 'value' => $newUserUri)
                         ),
                         $nsFoaf . 'nick' => array(
-                            array(
-                                'type' => 'literal',
-                                'value' => $username
-                            )
+                            array('type' => 'literal', 'value' => $username)
                         ),
                         $nsDssn . 'activityFeed' => array(
-                            array(
-                                'type' => 'uri',
-                                'value' => $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
-                                    urlencode($newPersonUri)
-                            )
+                            array('type' => 'uri', 'value' => $newPersonFeed)
                         )
                     )
                 );
 
-                // add seeAlso relation if a former uri was specified
+                // add some statements from a former existing foaf:Person which was specified
                 if (!empty($personUri)) {
-                    $newPerson[$newPersonUri][$nsRdfs . 'seeAlso'] = array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $personUri
+                    $newStatements = Saft_Tools::getLinkedDataResource($this->_app, $personUri);
+                    $template->addDebug(var_export($newStatements, true));
+                    $memModel = new Erfurt_Rdf_MemoryModel($newStatements);
+
+                    $types = $memModel->getValues($personUri, EF_RDF_TYPE);
+
+                    // extract the primaryTopic if the resource is a personalProfileDocument
+                    foreach ($types as $type) {
+                        if ($type['type'] == 'uri') {
+                            $type = $type['value'];
+                        } else {
+                            continue;
+                        }
+                        if ($type == $nsFoaf . 'Person') {
+                            break;
+                        } else if ($type == $nsFoaf . 'PersonalProfileDocument') {
+                            $personUri = $memModel->getValue($personUri, $nsFoaf . 'primaryTopic');
+                            $newStatements = Saft_Tools::getLinkedDataResource(
+                                $this->_app, $personUri
+                            );
+                            $template->addDebug(var_export($newStatements, true));
+                            $memModel = new Erfurt_Rdf_MemoryModel($newStatements);
+                            break;
+                        }
+                    }
+
+                    // add seeAlso relation if a former uri was specified
+                    $newPerson[$newPersonUri][EF_RDFS_NS . 'seeAlso'] = array(
+                        array('type' => 'uri', 'value' => $personUri
                         )
                     );
-                }
 
-                // add all statements about the former person to the new one
-                if ($memModel !== null) {
-                    $memStmt = $memModel->getPO($personUri);
-                    foreach ($memStmt as $p => $o) {
-                        if (isset($newPerson[$newPersonUri][$p])) {
-                            $newPerson[$newPersonUri][$p] = array_merge($o, $newPerson[$newPersonUri][$p]);
-                        } else {
-                            $newPerson[$newPersonUri][$p] = $o;
+                    // add all statements about the former person to the new one
+                    if ($memModel !== null) {
+                        $memStmt = $memModel->getPO($personUri);
+                        foreach ($memStmt as $p => $o) {
+                            if (isset($newPerson[$newPersonUri][$p])) {
+                                $newPerson[$newPersonUri][$p] = array_merge(
+                                    $o, $newPerson[$newPersonUri][$p]
+                                );
+                            } else {
+                                $newPerson[$newPersonUri][$p] = $o;
+                            }
                         }
                     }
                 }
 
-                $store->addMultipleStatements($graphUri, $newPerson);
+                $model->addMultipleStatements($newPerson);
 
                 $newUser = array(
                      $newUserUri => array(
-                        $nsRdf . 'type' => array(
-                            array(
-                                'type' => 'uri',
-                                'value' => $nsSioc . 'UserAccount'
-                            )
+                        EF_RDF_TYPE => array(
+                            array('type' => 'uri', 'value' => $nsSioc . 'UserAccount')
                         ),
                         $nsFoaf . 'accountName' => array(
-                            array(
-                                'type' => 'literal',
-                                'value' => $username
-                            )
+                            array('type' => 'literal', 'value' => $username)
                         ),
                         $nsOw . 'userPassword' => array(
-                            array(
-                                'type' => 'literal',
-                                'value' => password_hash($password, PASSWORD_DEFAULT)
-                            )
+                            array('type' => 'literal', 'value' => password_hash($password, PASSWORD_DEFAULT))
                         ),
                         $nsSioc . 'account_of' => array(
-                            array(
-                                'type' => 'uri',
-                                'value' => $newPersonUri
-                            )
+                            array('type' => 'uri', 'value' => $newPersonUri)
                         )
                     )
                 );
-                $store->addMultipleStatements($graphUri, $newUser);
+                $model->addMultipleStatements($newUser);
             } else {
                 $template->formError = $formError;
                 $template->addContent('templates/newuser.phtml');
