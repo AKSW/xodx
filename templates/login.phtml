@@ -1,6 +1,20 @@
-<h2>Add Person</h2>
-<form action="?c=application&a=login" method="post">
-Username: <input type="text" name="username" /><br />
-Password: <input type="password" name="password" /><br />
-<button class="btn btn-primary" type="submit">Login</button>
+<h2>Login</h2>
+<form action="?c=application&a=login" method="post" class="form-horizontal">
+<fieldset>
+<div class="control-group">
+    <label class="control-label" for="username">Username</label>
+    <div class="controls">
+        <input type="text" class="input-xlarge" name="username" id="username" />
+    </div>
+</div>
+<div class="control-group">
+    <label class="control-label" for="password">Password</label>
+    <div class="controls">
+        <input type="password"class="input-xlarge" name="password" id="password" /><br />
+    </div>
+</div>
+<div class="form-actions">
+    <button class="btn btn-primary" type="submit">Login</button>
+</div>
+</fieldset>
 </form>
