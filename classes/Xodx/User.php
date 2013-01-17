@@ -13,6 +13,7 @@
 class Xodx_User
 {
     private $_uri;
+    private $_name;
 
     public function __construct ($uri)
     {
@@ -22,5 +23,15 @@ class Xodx_User
     public function getUri ()
     {
         return $this->_uri;
+    }
+
+    public function getName ()
+    {
+        return $this->_name;
+    }
+
+    public function setName ($name)
+    {
+        $this->_name = $name;
     }
 }

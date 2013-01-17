@@ -167,7 +167,6 @@ class Xodx_UserController extends Xodx_ResourceController
     public function getUser ($userUri = null)
     {
         if ($userUri === null) {
-            $bootstrap = $this->_app->getBootstrap();
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
@@ -175,7 +174,26 @@ class Xodx_UserController extends Xodx_ResourceController
 
         if (!isset($this->_users[$userUri])) {
 
+            if (!isset($userId)) {
+                $bootstrap = $this->_app->getBootstrap();
+                $model = $bootstrap->getResource('model');
+
+                $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
+                $query.= 'SELECT ?name' . PHP_EOL;
+                $query.= 'WHERE {' . PHP_EOL;
+                $query.= '  <' . $userUri . '> foaf:accountName $name .' . PHP_EOL;
+                $query.= '}' . PHP_EOL;
+
+                $result = $model->sparqlQuery($query);
+                if (count($result) > 0) {
+                    $userId = $result[0]['name'];
+                } else {
+                    $userId = 'unkown';
+                }
+            }
+
             $user = new Xodx_User($userUri);
+            $user->setName($userId);
 
             $this->_users[$userUri] = $user;
         }
