@@ -45,7 +45,11 @@ class Xodx_Application extends Saft_Application
         $controller = $this->getController($controllerName);
         $template = $controller->$actionName($template);
 
-        $template->username = $appController->getUser();
+        $userController = $this->getController('Xodx_UserController');
+        $user = $userController->getUser();
+
+        $template->username = $user->getName();
+        $template->notifications = $userController->getNotifications($user->getUri());
 
         $template->render();
     }
