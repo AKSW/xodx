@@ -183,25 +183,6 @@ class Xodx_ApplicationController extends Saft_Controller
                     )
                 );
                 $store->addMultipleStatements($graphUri, $newUser);
-
-                $newProfile = array(
-                    $this->_app->getBaseUri() . '?c=profile&id=' . urlencode($username) => array(
-                        $nsRdf . 'type' => array(
-                            array(
-                                'type' => 'uri',
-                                'value' => $nsFoaf . 'PersonalProfileDocument'
-                            )
-                        ),
-                        $nsFoaf . 'primaryTopic' => array(
-                            array(
-                                'type' => 'uri',
-                                'value' => $newPersonUri
-                            )
-                        )
-                    )
-                );
-                $store->addMultipleStatements($graphUri, $newProfile);
-
             } else {
                 $template->formError = $formError;
                 $template->addContent('templates/newuser.phtml');
