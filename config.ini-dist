@@ -43,3 +43,4 @@ foaf =     'http://xmlns.com/foaf/0.1/';
 dssn =     'http://purl.org/net/dssn/';
 ow =       'http://ns.ontowiki.net/SysOnt/';
 ov =       'http://open.vocab.org/docs/';
+rel =      'http://purl.org/vocab/relationship/'
