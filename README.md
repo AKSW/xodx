@@ -5,7 +5,7 @@ This is an implementation of the basic functionalities of a DSSN Provider, as de
 * [Semantic Pingback](http://aksw.org/Projects/SemanticPingback) for Friending
 * [Pubsubhubbub](http://code.google.com/p/pubsubhubbub/) (PuSH) for notification along the edges
 
-It is written in PHP and utilizes the Zend Framework, the [Erfurt Framework](http://erfurt-framework.org/) and [lib-dssn](https://github.com/seebi/lib-dssn-php/).
+It is written in PHP and utilizes the Zend Framework, the [Erfurt Framework](http://erfurt-framework.org/) and [lib-dssn](https://github.com/AKSW/lib-dssn-php).
 
 Installation
 ------------
