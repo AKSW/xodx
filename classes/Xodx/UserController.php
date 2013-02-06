@@ -66,46 +66,27 @@ class Xodx_UserController extends Xodx_ResourceController
     }
 
     /**
-     *
-     * Method returns the Uri of the sioc:UserAccount
-     * @param unknown_type $personUri
-     */
-    private function _getVerifiedUserAccount ($personUri)
-    {
-        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
-        $nsSioc = 'http://rdfs.org/sioc/ns#';
-
-        $bootstrap = $this->_app->getBootstrap();
-        $request = $bootstrap->getResource('request');
-        $resourceController = $this->_app->getController('Xodx_ResourceController');
-
-        $type = $resourceController->getType($personUri);
-
-        // TODO replace str_replace with SPARQL query for foaf:Account with NS === BaseUri()
-        if ($type === $nsFoaf . 'Person') {
-            $personUri = str_replace('?c=person&', '?c=user&', $personUri);
-        }
-
-        return $personUri;
-    }
-
-    /**
      * This method subscribes a user to a feed
      * @param $userUri the uri of the user who wants to be subscribed
      * @param $feedUri the uri of the feed where she wants to subscribe
      */
-    public function subscribeToFeed ($userUri, $feedUri)
+    public function subscribeToFeed ($subscriberUri, $feedUri)
     {
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
         $resourceController = $this->_app->getController('Xodx_ResourceController');
 
-        $logger->info('subscribeToFeed: user: ' . $userUri . ', feed: ' . $feedUri);
-        $type = $resourceController->getType($userUri);
+        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+        $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);
+        $type = $resourceController->getType($subscriberUri);
 
-        $userUri = $this->_getVerifiedUserAccount($userUri);
+        if ($type === $nsFoaf . 'Person') {
+            $subscriberUri = $this->getUserUri($subscriberUri);
+        }
 
-        if (!$this->_isSubscribed($userUri, $feedUri)) {
+        $logger->info('subscribeToFeed: user: ' . $subscriberUri . ', feed: ' . $feedUri);
+
+        if (!$this->_isSubscribed($subscriberUri, $feedUri)) {
             $pushController = $this->_app->getController('Xodx_PushController');
             if ($pushController->subscribe($feedUri)) {
 
@@ -113,14 +94,49 @@ class Xodx_UserController extends Xodx_ResourceController
                 $model    = $bootstrap->getResource('model');
                 $graphUri = $model->getModelIri();
 
-                $nsSioc = 'http://rdfs.org/sioc/ns#';
+                $nsDssn = 'http://purl.org/net/dssn/';
+                $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 
-                $subscribeStatement = array(
-                    $userUri => array(
-                        $nsSioc . 'subscriber_of' => array(
+                $subUri = $this->_app->getBaseUri() . '&c=ressource&id=' . md5(rand);
+                $cbUri  = $this->_app->getBaseUri() . '?c=push&a=callback';
+
+                $subsription = array(
+                    $subUri => array(
+                        $nsRdf . 'typ' => array(
                             array(
                                 'type' => 'uri',
-                                'value' => $feedUri
+                                'value' => $nsDssn . 'Subscription'
+                            )
+                        ),
+                        $nsDssn . 'subscriptionCallback' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $cbUri
+                            )
+                        ),
+                        $nsDssn . 'subscriptionHub' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $feed->getLinkHub()
+                            )
+                        ),
+                        $nsRdf . 'subscriptionTopic' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $feed->getLinkSelf()
+                            )
+                        ),
+                    )
+                );
+
+                $store->addMultipleStatements($graphUri, $subscription);
+
+                $subscribeStatement = array(
+                    $subscriberUri => array(
+                        $nsDssn . 'subscribedTo' => array(
+                            array(
+                                'type' => 'uri',
+                                'value' => $subUri
                             )
                         )
                     )
@@ -181,7 +197,7 @@ class Xodx_UserController extends Xodx_ResourceController
                 $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
                 $query.= 'SELECT ?name' . PHP_EOL;
                 $query.= 'WHERE {' . PHP_EOL;
-                $query.= '  <' . $userUri . '> foaf:accountName $name .' . PHP_EOL;
+                $query.= '  <' . $userUri . '> foaf:accountName ?name .' . PHP_EOL;
                 $query.= '}' . PHP_EOL;
 
                 $result = $model->sparqlQuery($query);
@@ -243,11 +259,12 @@ class Xodx_UserController extends Xodx_ResourceController
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
 
-        $query = '' .
-            'PREFIX sioc: <http://rdfs.org/sioc/ns#>' .
-            'ASK { ' .
-            '   <' . $userUri . '> sioc:subscriber_of <' . $feedUri . '> . ' .
-            '}';
+        $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
+        $query.= 'ASK  ' . PHP_EOL;
+        $query.= 'WHERE { ' . PHP_EOL;
+        $query.= '   <' . $userUri . '> dssn:subscribedTo      ?subUri. ' . PHP_EOL;
+        $query.= '        ?subUri       dssn:subscriptionTopic <' . $feedUri. '> . ' . PHP_EOL;
+        $query.= '}' . PHP_EOL;
         $subscribedResult = $model->sparqlQuery($query);
 
         if (is_array($subscribedResult)) {
@@ -262,4 +279,75 @@ class Xodx_UserController extends Xodx_ResourceController
             throw new Exception('Erfurt returned an unexpected result to the ask query.');
         }
     }
+
+
+     /**
+     * Find all subscriptions of a user
+     * @param $userUri the uri of the user in question
+     * @return array $subscribedFeeds all feeds a user is subscribed to
+     */
+    public function getSubscriptions ($userUri)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        // SPARQL-Query
+        $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
+        $query.= 'SELECT  ?feedUri' . PHP_EOL;
+        $query.= 'WHERE {' . PHP_EOL;
+        $query.= '   <' . $userUri . '> dssn:subscribedTo        ?subUri. ' . PHP_EOL;
+        $query.= '   ?subUri            dssn:subscriptionTopic   ?feedUri. ' . PHP_EOL;
+        $query.= '}' . PHP_EOL;
+
+        $feedResult = $model->sparqlQuery($query);
+
+        $subscribedFeeds = array();
+
+        // results in array
+        foreach ($feedResult as $feed) {
+            if (isset($feed['feedUri'])) {
+                $subscribedFeeds[] = $act['activity'];
+            }
+        }
+
+        return $subscribedFeeds;
+    }
+
+    /**
+     * Get the Uri of a user account of a person
+     * @param string $personUri the uri of the person
+     * @return string $userUri uri of the found user account
+     */
+    public function getUserUri ($personUri)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        // SPARQL-Query
+        $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
+        $query.= 'SELECT  ?userUri ' . PHP_EOL;
+        $query.= 'WHERE {' . PHP_EOL;
+        $query.= '   <' . $personUri . '> foaf:account ?userUri. ' . PHP_EOL;
+        $query.= '}' . PHP_EOL;
+
+        $userResult = $model->sparqlQuery($query);
+
+        if (count($userResult[0])>0) {
+            return $userResult[0]['userUri'];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     *
+     */
+    public function testSubscribeAction ($template){
+        $user = $this->_app->getBaseDir() . '?c=user&id=splatte';
+        //$feed = 'http://www.lvz-online.de/rss/nachrichten-rss.xml';
+        $feed = 'http://xodx.local/?c=feed&a=getFeed&uri=http%3A%2F%2Fxodx.local%2F%3Fc%3Dresource%26id%3D72645a1c9a388a3dbc9f98ebf156d666';
+        $this->subscribeToFeed($user,$feed);
+        return $template;
+    }
+
 }
