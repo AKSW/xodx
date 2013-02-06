@@ -178,50 +178,52 @@ class Xodx_PingbackController extends Saft_Controller
      */
     public function sendPing($source, $target, $comment = null)
     {
+        $bootstrap = $this->_app->getBootstrap();
+        $logger    = $bootstrap->getResource('logger');
+
         $targetStatements = Saft_Tools::getLinkedDataResource($this->_app, $target);
 
-        if ($targetStatements === null) {
-            throw new Exception('Can\'t send pingback because target doesn\'t contain RDF data.');
-        }
+        if (!$targetStatements === null) {
+            $memModel = new Erfurt_Rdf_MemoryModel($targetStatements);
 
-        // TODO check for X-PINGBACK in header
+            // get pingback:service or pingback:to from resource
+            $pingbackTo = $memModel->getValue($target, 'http://purl.org/net/pingback/to');
 
-        $memModel = new Erfurt_Rdf_MemoryModel($targetStatements);
+            if ($pingbackTo !== null) {
+                // send post to service
+                if ($comment === null) {
+                    $comment = 'Do you want to be my friend?';
+                }
 
-        // get pingback:service or pingback:to from resource
-        $pingbackTo = $memModel->getValue($target, 'http://purl.org/net/pingback/to');
+                $fields = array (
+                    'source' => $source,
+                    'target' => $target,
+                    'comment' => $comment
+                );
 
-        if ($pingbackTo !== null) {
-            // send post to service
-            if ($comment === null) {
-                $comment = 'Do you want to be my friend?';
+                // Should really replace curl with an ajax call
+                // open connection to pingback service
+                $ch = curl_init();
+
+                //set the url, number of POST vars, POST data
+                curl_setopt($ch, CURLOPT_URL, $pingbackTo);
+                curl_setopt($ch, CURLOPT_POST, count($fields));
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+                //execute post
+                $return = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                //close connection
+                curl_close($ch);
+            } else {
+                $pingbackService = $memModel->getValue($target,
+                    'http://purl.org/net/pingback/service');
+                // TODO support XML-RPC pingbacks
             }
-
-            $fields = array (
-                'source' => $source,
-                'target' => $target,
-                'comment' => $comment
-            );
-
-            // Should really replace curl with an ajax call
-            // open connection to pingback service
-            $ch = curl_init();
-
-            //set the url, number of POST vars, POST data
-            curl_setopt($ch, CURLOPT_URL, $pingbackTo);
-            curl_setopt($ch, CURLOPT_POST, count($fields));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-            //execute post
-            $return = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            //close connection
-            curl_close($ch);
         } else {
-            $pingbackService = $memModel->getValue($target, 'http://purl.org/net/pingback/service');
-            // TODO support XML-RPC pingbacks
+            $logger = $logger->info('Ping to ' . $target . ' not possible. No pingback server found.');
         }
     }
 

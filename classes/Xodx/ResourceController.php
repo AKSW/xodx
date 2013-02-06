@@ -204,4 +204,29 @@ class Xodx_ResourceController extends Saft_Controller
             return false;
         }
     }
+
+
+    /**
+     *
+     * methods looks up a ressource to get the Uri of the activity feed
+     * and returns it if succesfull
+     * @param $resourceUri the Uri of the ressource to be looked up
+     */
+    public function getActivityFeedUri($resourceUri)
+    {
+        $statements = Saft_Tools::getLinkedDataResource($this->_app, $resourceUri);
+
+        if (!$statements === null) {
+            $memModel = new Erfurt_Rdf_MemoryModel($statements);
+
+            // get pingback:service or pingback:to from resource
+            $feedUri = $memModel->getValue($target, 'http://purl.org/net/dssn/activityFeed');
+
+            if ($feedUri !== null) {
+                return $feedUri;
+            }
+        } else {
+            return false;
+        }
+    }
 }
