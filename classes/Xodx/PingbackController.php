@@ -404,13 +404,13 @@ class Xodx_PingbackController extends Saft_Controller
 
 
 
-    public function testPingAction () {
+    public function testPingAction ($template) {
 
         echo $this->receivePing(
             'http://xodx.local/?c=resource&id=1b8c874744236dcdfcaaf08c817aa633',
             'http://xodx.local/?c=resource&id=805e60023b6f23384929d7869bd24185'
         );
-        return;
+        return $template;
 
      }
 }
