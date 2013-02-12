@@ -210,7 +210,7 @@ class Xodx_ResourceController extends Saft_Controller
      *
      * methods looks up a ressource to get the Uri of the activity feed
      * and returns it if succesfull
-     * @param $resourceUri the Uri of the ressource to be looked up
+     * @param $resourceUri - the URI of the ressource to be looked up
      */
     public function getActivityFeedUri($resourceUri)
     {
@@ -228,5 +228,40 @@ class Xodx_ResourceController extends Saft_Controller
         } else {
             return false;
         }
+    }
+
+
+    /**
+     * method imports a resource into the own model
+     * @param string $resourceUri - URI of resource that should be imported
+     */
+    public function importResource($resourceUri)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $logger = $bootstrap->getResource('logger');
+        $statements = Saft_Tools::getLinkedDataResource($this->_app, $resourceUri);
+
+        if ($statements !== null) {
+            $memModel = new Erfurt_Rdf_MemoryModel($statements);
+            $importStatements = $memModel->getStatements($resourceUri);
+
+            $model = $bootstrap->getResource('model');
+            $model->addMultipleStatements($importStatements);
+            $logger->info('Import of resource: ' . $resourceUri . ' successfull');
+        } else {
+            $logger->error('Import of resource: ' . $resourceUri . ' failed');
+        }
+        return;
+    }
+
+    /**
+     *
+     * Testing of importResource
+     */
+    public function testImportResourceAction($template)
+    {
+        //$template->disableLayout();
+        echo $this->importResource('http://dbpedia.org/resource/Hamburger_SV');
+        return $template;
     }
 }
