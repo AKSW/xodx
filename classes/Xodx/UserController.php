@@ -262,4 +262,35 @@ class Xodx_UserController extends Xodx_ResourceController
             throw new Exception('Erfurt returned an unexpected result to the ask query.');
         }
     }
+
+
+        /**
+     * Find all subscriptions of a user
+     * @param $userUri the uri of the user in question
+     * @return array $subscribedFeeds all feeds a user is subscribed to
+     */
+    public function getSubscriptions ($userUri)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        // SPARQL-Query
+        $query = 'PREFIX sioc: <http://rdfs.org/sioc/ns#>' . PHP_EOL;
+        $query.= 'SELECT { ' . PHP_EOL;
+        $query.= '   <' . $userUri . '> sioc:subscriber_of <' . $feedUri . '> . ' . PHP_EOL;
+        $query.= '}' . PHP_EOL;
+
+        $feedResult = $model->sparqlQuery($query);
+
+        $subscribedFeeds = array();
+
+        // results in array
+        foreach ($feedResult as $feed) {
+            if (isset($feed['feedUri'])) {
+                $subscribedFeeds[] = $act['activity'];
+            }
+        }
+
+        return $subscribedFeeds;
+    }
 }
