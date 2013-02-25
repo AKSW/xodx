@@ -239,8 +239,19 @@ class Xodx_PersonController extends Xodx_ResourceController
             $knows = $model->sparqlQuery($contactsQuery);
         }
 
+        $userController = $this->_app->getController('Xodx_UserController');
+        $userUri = $userController->getUserUri($personUri);
+        $subscribedFeeds = $userController->getSubscriptions($userUri);
+
         $activityController = $this->_app->getController('Xodx_ActivityController');
-        $activities = $activityController->getActivities($personUri);
+        $activities = array();
+
+        foreach ($subscribedFeeds as $feedUri) {
+            $act = $activityController->getActivities($feedUri);
+            $activities = array_merge($activities,$act);
+        }
+
+        $activities = array_unique($activities);
         $news = $this->getNotifications($personUri);
 
         $template->profileshowPersonUri = $personUri;
