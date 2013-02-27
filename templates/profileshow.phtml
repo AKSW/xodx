@@ -50,8 +50,8 @@ if ($contact['name'] != null) {
                 <?php else : ?>
                     <a href="<?= htmlentities($activity['object']) ?>">
                       <?= ($activity['object']) ?></a> at <?= $activity['pubDate'] ?>
-                    <em><a href="?c=feed&amp;a=getFeed&amp;uri=
-                      <?= urlencode($activity['object']) ?>"></em>
+                    <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
+                    Show Feed of Object</a></em>
                 <?php endif; ?>
                 <input type="hidden" name="object" value="<?= htmlentities($activity['object'])?>" />
                 <input type="hidden" name="actor" value="<?= htmlentities($this->profileshowPersonUri) ?>" />

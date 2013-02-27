@@ -25,6 +25,7 @@ class Xodx_PersonController extends Xodx_ResourceController
     {
         $model = $this->_app->getBootstrap()->getResource('model');
 
+        // update WebID
         $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
 
         $nsAair = 'http://xmlns.notu.be/aair#';
@@ -32,12 +33,14 @@ class Xodx_PersonController extends Xodx_ResourceController
 
         // add Activity to activity Stream
         $object = array(
-            'type' => 'uri',
-            'value' => $contactUri
+            'type' => 'Uri',
+            'content' => $contactUri,
+            'replyObject' => 'false'
         );
         $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
 
-        // ping the new contact
+/*      Pinging and Subscripion moved to addActivity of activityController
+		 // ping the new contact
         $pingbackController = $this->_app->getController('Xodx_PingbackController');
         $pingbackController->sendPing($personUri, $contactUri);
 
@@ -46,6 +49,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         $personUri = urlencode($personUri);
         $userController = $this->_app->getController('Xodx_UserController');
         $userController->subscribeToFeed($personUri, $feedUri);
+**/
     }
 
     /**
@@ -235,8 +239,19 @@ class Xodx_PersonController extends Xodx_ResourceController
             $knows = $model->sparqlQuery($contactsQuery);
         }
 
+        $userController = $this->_app->getController('Xodx_UserController');
+        $userUri = $userController->getUserUri($personUri);
+        $subscribedFeeds = $userController->getSubscriptions($userUri);
+
         $activityController = $this->_app->getController('Xodx_ActivityController');
-        $activities = $activityController->getActivities($personUri);
+        $activities = array();
+
+        foreach ($subscribedFeeds as $feedUri) {
+            $act = $activityController->getActivities($feedUri);
+            $activities = array_merge($activities,$act);
+        }
+
+        $activities = array_unique($activities);
         $news = $this->getNotifications($personUri);
 
         $template->profileshowPersonUri = $personUri;
