@@ -24,7 +24,9 @@ class Xodx_Notification
     /**
      * A resource related to this notification, e.g. an Activity
      */
-    private $_seeAlsoResource;
+    private $_attachment;
+
+    private $_content;
 
     /**
      * setter method for this objects uri
@@ -45,8 +47,17 @@ class Xodx_Notification
     /**
      * setter method for this objects uri
      */
-    public function setSeeAlsoUri ($seeAlsoResource)
+    public function setContent ($content)
     {
-        $this->_seeAlsoResource = $seeAlsoResource;
+        $this->_content = $content;
     }
+
+    /**
+     * setter method for this objects uri
+     */
+    public function setAttachment ($attachment)
+    {
+        $this->_attachment = $attachment;
+    }
+
 }
