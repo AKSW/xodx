@@ -54,6 +54,7 @@ class Xodx_PushController extends Saft_Controller
 
             $result = curl_exec($curlHandler);
             $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
+            // TODO check if we should better use the feedUri and ignorre the effective url
             $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
 
             $logger->info('push subscribe: return code from feed: ' . $httpCode);
