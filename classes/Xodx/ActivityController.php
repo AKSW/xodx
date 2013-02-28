@@ -13,7 +13,11 @@
 class Xodx_ActivityController extends Saft_Controller
 {
     /**
-     * Add a new activity …
+     * Add a new activity after user action.
+     * Activities are:  - Friendig
+     *                  - Post a status note
+     *                  - Post an image
+     *                  - Reply to an activity
      */
     public function addactivityAction ($template)
     {
@@ -56,7 +60,7 @@ class Xodx_ActivityController extends Saft_Controller
             break;
             case 'Bookmark';
                 $object = array(
-                    'type' => $actType,
+                    'type' => 'Uri',
                     'content' => $actContent,
                     'replyObject' => $replyObject,
                 );
@@ -126,8 +130,8 @@ class Xodx_ActivityController extends Saft_Controller
             $objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
             $imageUri =  $this->_app->getBaseUri() . '?c=resource&a=img&id=' . $objectId;
 
-        } else if ($object['type'] == 'Bookmark') {
-            $type =      'Bookmark';
+        } else if ($object['type'] == 'Uri') {
+            $type =      'Uri';
             $objectUri = $object['content'];
 
         } else if ($object['type'] == 'Note') {
@@ -151,6 +155,7 @@ class Xodx_ActivityController extends Saft_Controller
 
         // Creating resources
         // I. activity resource
+        // contains all triples activities have in common (e.g. date of publish)
         $activity = array(
             $activityUri => array(
                 $nsRdf . 'type' => array(
@@ -212,11 +217,13 @@ class Xodx_ActivityController extends Saft_Controller
 
             // Ping the object we commented
             $pingbackController->sendPing($activityUri, $replyUri,
-                'You were pinged from an Anctivity with verb: ' . $verbUri);
+                'You were pinged from an Activity with verb: ' . $verbUri);
         }
 
-           // II. general statements of object resource
-        if ($type != 'Bookmark') {
+        // II. general statements of object resource
+        // if $type == 'Uri' the ressource of aair:activityObject statement allready exists
+        // e.g. 'Sharing a Bookmark (URI)' and 'Friending'
+        if ($type != 'Uri') {
             $activity[$objectUri][$nsRdf . 'type'][0]['type'] = 'uri';
             $activity[$objectUri][$nsRdf . 'type'][0]['value'] = $object['type'];
 
@@ -237,12 +244,6 @@ class Xodx_ActivityController extends Saft_Controller
             $activity[$objectUri][$nsDssn . 'activityFeed'][0]['value'] = $this->_app->getBaseUri()
                 . '?c=feed&a=getFeed&uri=' . urlencode($objectUri);
 
-                // If this activity contains a reply, add this statement, too
-            /*if ($object['replyObject'] !== 'false') {
-                $activity[$objectUri][$nsAair . 'activityContext'][0]['type'] = 'uri';
-                $activity[$objectUri][$nsAair . 'activityContext'][0]['value'] = $object['replyObject'];
-            }**/
-
             // Triples of note resource
             if ($type == 'Note') {
                 $activity[$objectUri][$nsSioc . 'content'][0]['type']  = 'literal';
@@ -259,7 +260,6 @@ class Xodx_ActivityController extends Saft_Controller
                 $activity[$objectUri][$nsAair . 'content'][0]['value']   = $object['content'];
                 $activity[$objectUri][$nsAair . 'commenter'][0]['type']  = 'uri';
                 $activity[$objectUri][$nsAair . 'commenter'][0]['value'] = $actorUri;
-
             }
 
             // Triples of photo resource
@@ -272,6 +272,22 @@ class Xodx_ActivityController extends Saft_Controller
 
             $feedUri = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
                 urlencode($objectUri) . ';' . $feedUri;
+
+        // processes to perform if activityObject is a given ressource
+        } else if ($type = 'Uri') {
+
+            // try to ping the ressource
+            $pingbackController->sendPing($activityUri, $objectUri, 'You were pinged from an' .
+                ' Activity with verb: ' . $verbUri);
+
+            // try to add the activity feed of the ressource to the feeds we want to subscribe
+            $resourceController = $this->_app->getController('Xodx_ResourceController');
+            $foundFeedUri = $resourceController->getActivityFeedUri($objectUri);
+
+            if ($foundFeedUri) {
+                $feedUri = $foundFeedUri . ';' . $feedUri;
+            }
+
         }
 
         // proceed and subsribe to feed
@@ -282,7 +298,7 @@ class Xodx_ActivityController extends Saft_Controller
             //$pushController->publish($feedUri);
         }
 
-        // Subscribe user to feed of activityObject (photo, post, note)
+        // Subscribe user to activity feeds
         $userController = $this->_app->getController('Xodx_UserController');
         $pushController = $this->_app->getController('Xodx_PushController');
         $actorUri = urldecode($actorUri);
