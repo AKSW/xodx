@@ -15,7 +15,11 @@ class Xodx_NameHelper
     public function __construct ($app)
     {
         $this->_app = $app;
-        $this->_languages = $this->_parseLanguageString($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $this->_languages = $this->_parseLanguageString($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        } else {
+            $this->_languages = array();
+        }
         $this->_languages[] = '';
 
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
