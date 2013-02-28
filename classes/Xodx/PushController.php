@@ -244,13 +244,13 @@ class Xodx_PushController extends Saft_Controller
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
 
-        // 'PREFIX dssn: <http://purl.org/net/dssn/> ' .
-        $query = '' .
-            'PREFIX dssn: <http://purl.org/net/dssn/> ' .
-            'SELECT ?hub ' .
-            'WHERE { ' .
-            '   <' . $feed . '> dssn:subscribedAt ?hub . ' .
-            '}';
+        $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
+        $query.= 'SELECT ?hub ' . PHP_EOL;
+        $query.= 'WHERE { ' . PHP_EOL;
+        $query.= '?subscription a                           dssn:Subscription. ' . PHP_EOL;
+        $query.= '?subscription dssn:subscriptionTopic      <' . $feed . '>; ' . PHP_EOL;
+        $query.= '              dssn:subscriptionHub        ?hub. ' . PHP_EOL;
+        $query.= '}';
         $subscriptionResult = $model->sparqlQuery($query);
 
         return (count($subscriptionResult) > 0);
