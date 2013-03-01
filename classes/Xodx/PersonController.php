@@ -72,7 +72,7 @@ class Xodx_PersonController extends Xodx_ResourceController
      * This method returns all activities of a person
      * @param $personUri the uri of the person whoes activities should be returned
      * @return an array of activities
-     * TODO return an array of Xodx_Activity objects
+     * TODO return an array of DSSN_Activity objects
      */
     public function getActivities ($personUri)
     {

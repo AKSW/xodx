@@ -87,7 +87,7 @@ class Xodx_ActivityController extends Saft_Controller
 
     /**
      * This method adds a new activity to the store
-     * TODO should be replaced by a method with takes a DSSN_Activity object
+     * TODO should be replaced by a method which takes a DSSN_Activity object
      */
     public function addActivity ($actorUri, $verbUri, $object)
     {
@@ -318,6 +318,7 @@ class Xodx_ActivityController extends Saft_Controller
     /**
      * This method adds multiple activities to the store
      * @param $activities is an array of Xodx_Activity objects
+     * @deprecated should be replaced by according DSSN_Activity methods
      */
     public function addActivities (array $activities)
     {
@@ -360,8 +361,8 @@ class Xodx_ActivityController extends Saft_Controller
 
     /**
      * @param $personUri the uri of the person whoes activities should be returned
-     * @return an array of activities
-     * TODO return an array of Xodx_Activity objects
+     * @return an array of activity arrays
+     * TODO return an array of DSSN_Activity objects
      * TODO getActivity by objectURI
      */
     public function getActivities ($resourceUri)
