@@ -97,12 +97,12 @@ class Xodx_UserController extends Xodx_ResourceController
                 $nsDssn = 'http://purl.org/net/dssn/';
                 $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 
-                $subUri = $this->_app->getBaseUri() . '&c=ressource&id=' . md5(rand);
+                $subUri = $this->_app->getBaseUri() . '&c=ressource&id=' . md5(rand());
                 $cbUri  = $this->_app->getBaseUri() . '?c=push&a=callback';
 
-                $subsription = array(
+                $subscription = array(
                     $subUri => array(
-                        $nsRdf . 'typ' => array(
+                        $nsRdf . 'type' => array(
                             array(
                                 'type' => 'uri',
                                 'value' => $nsDssn . 'Subscription'
@@ -120,7 +120,7 @@ class Xodx_UserController extends Xodx_ResourceController
                                 'value' => $feed->getLinkHub()
                             )
                         ),
-                        $nsRdf . 'subscriptionTopic' => array(
+                        $nsDssn . 'subscriptionTopic' => array(
                             array(
                                 'type' => 'uri',
                                 'value' => $feed->getLinkSelf()
@@ -267,17 +267,20 @@ class Xodx_UserController extends Xodx_ResourceController
         $query.= '}' . PHP_EOL;
         $subscribedResult = $model->sparqlQuery($query);
 
-        if (is_array($subscribedResult)) {
-            // Erfurt problem
-            return empty($subscribedResult[0]['__ask_retval']);
-        } else if (is_bool($subscribedResult)) {
-            return $subscriptionResult;
-        } else {
-            $logger = $bootstrap->getResource('logger');
-            $logger->info('isSubscribed: user: ' . $userUri . ', feed: ' . $feedUri . '. ASK Query returned unexpectedly: ' . var_export($subscriptionResult));
+        if (count($subscribedResult) > 0) {
+            if (is_array($subscribedResult)) {
+                // Erfurt problem
+                return empty($subscribedResult[0]['__ask_retval']);
+            } else if (is_bool($subscribedResult)) {
+                return $subscriptionResult;
+            } else {
+                $logger = $bootstrap->getResource('logger');
+                $logger->info('isSubscribed: user: ' . $userUri . ', feed: ' . $feedUri . '. ASK Query returned unexpectedly: ' . var_export($subscriptionResult));
 
-            throw new Exception('Erfurt returned an unexpected result to the ask query.');
+                throw new Exception('Erfurt returned an unexpected result to the ask query.');
+            }
         }
+        return null;
     }
 
 
@@ -306,11 +309,44 @@ class Xodx_UserController extends Xodx_ResourceController
         // results in array
         foreach ($feedResult as $feed) {
             if (isset($feed['feedUri'])) {
-                $subscribedFeeds[] = $act['activity'];
+                $subscribedFeeds[] = $feed['feedUri'];
             }
         }
 
         return $subscribedFeeds;
+    }
+
+     /**
+     * Find all resources a user is subscribed to via Activity Feed
+     * @param $userUri the uri of the user in question
+     * @return array $subResources all resource a user is subscribed to
+     */
+    public function getSubscriptionResources ($userUri)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        // SPARQL-Query
+        $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
+        $query.= 'SELECT  DISTINCT ?resUri' . PHP_EOL;
+        $query.= 'WHERE {' . PHP_EOL;
+        $query.= '   <' . $userUri . '> dssn:subscribedTo        ?subUri. ' . PHP_EOL;
+        $query.= '   ?subUri            dssn:subscriptionTopic   ?feedUri. ' . PHP_EOL;
+        $query.= '   ?resUri            dssn:activityFeed   ?feedUri. ' . PHP_EOL;
+        $query.= '}' . PHP_EOL;
+
+        $result = $model->sparqlQuery($query);
+
+        $subResources = array();
+
+        // results in array
+        foreach ($result as $resource) {
+            if (isset($resource['resUri'])) {
+                $subResources[] = $resource['resUri'];
+            }
+        }
+
+        return $subResources;
     }
 
     /**
@@ -343,9 +379,9 @@ class Xodx_UserController extends Xodx_ResourceController
      *
      */
     public function testSubscribeAction ($template){
-        $user = $this->_app->getBaseDir() . '?c=user&id=splatte';
+        $user = $this->_app->getBaseUri() . '?c=user&id=splatte';
         //$feed = 'http://www.lvz-online.de/rss/nachrichten-rss.xml';
-        $feed = 'http://xodx.local/?c=feed&a=getFeed&uri=http%3A%2F%2Fxodx.local%2F%3Fc%3Dresource%26id%3D72645a1c9a388a3dbc9f98ebf156d666';
+        $feed = 'http://t61.comiles.eu/xodx/?c=feed&a=getFeed&uri=http%3A%2F%2Ft61.comiles.eu%2Fxodx%2F%3Fc%3Dperson%26id%3Dsplatte';
         $this->subscribeToFeed($user,$feed);
         return $template;
     }

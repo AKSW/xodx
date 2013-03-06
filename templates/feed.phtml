@@ -26,9 +26,13 @@
         <?php if (isset($activity['objectPubDate'])) : ?>
         <published><?= $activity['objectPubDate'] ?></published>
         <?php endif; ?>
+        <activity:object-type>
         <?php if (isset($activity['objectType'])) : ?>
-        <activity:object-type><?= $activity['objectType'] ?></activity:object-type>
+          <?= $activity['objectType'] ?>
+        <?php else : ?>
+          Linked Data
         <?php endif; ?>
+        </activity:object-type>
       </activity:object>
       <?php if (isset($activity['context'])) : ?>
       <activity:target>
@@ -38,7 +42,11 @@
         <?php endif; ?>
       </activity:target>
       <?php endif; ?>
-      <content>New Activity: <?= htmlentities($activity['title']) ?>: <?= $activity['objectContent'] ?></content>
+      <content>New Activity: <?= htmlentities($activity['title']) ?>
+      <?php if (isset($activity['objectContent'])) : ?>
+         : <?= $activity['objectContent'] ?>
+      <?php endif; ?>
+      </content>
     </entry>
     <?php endforeach; ?>
 </feed>

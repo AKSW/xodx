@@ -382,7 +382,7 @@ class Xodx_ActivityController extends Saft_Controller
             'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
             'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
             'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
-            'SELECT ?activity ?date ?verb ?object ?person ' .
+            'SELECT DISTINCT ?activity ?date ?verb ?object ?person ' .
             'WHERE { ' .
             '   ?activity a                   aair:Activity ; ' .
             '             ?p             <' . $resourceUri . '> ; ' .
@@ -497,7 +497,7 @@ class Xodx_ActivityController extends Saft_Controller
 
             $activity['objectFeed'] = htmlentities($this->_app->getBaseUri() .
                 '?c=feed&a=getFeed&uri=') . urlencode($objectUri);
-            $activities[] = $activity;
+            $activities[$activityUri] = $activity;
         }
 
         return $activities;
