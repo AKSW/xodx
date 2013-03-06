@@ -96,6 +96,30 @@ class Xodx_FeedController extends Saft_Controller
         }
     }
 
+    /**
+     * Returns the resourceUri belonging to an activity feed
+     * @return string $resourceUri the uri belonging to an activity feed
+     */
+    public function getFeedResource($feedUri)
+    {
+        $bootstrap      = $this->_app->getBootstrap();
+        $model          = $bootstrap->getResource('model');
+        $feedController = $this->_app->getController('Xodx_FeedController');
+
+        $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
+        $query.= 'PREFIX aair: <http://xmlns.notu.be/aair#> ' . PHP_EOL;
+        $query.= 'SELECT ?resUri ' . PHP_EOL;
+        $query.= 'WHERE { ' . PHP_EOL;
+        $query.= '?resUri dssn:activityFeed      <' . $feedUri . '>. ' . PHP_EOL;
+        $query.= '}';
+        $resourceUri = $model->sparqlQuery($query);
+
+        if (count($resourceUri) > 0) {
+            return $resourceUri[0]['resUri'];
+        }
+        return null;
+    }
+
     public  function testFeedAction ($template)
     {
      $feed = '<?xml version="1.0" encoding="utf-8"?>
