@@ -78,23 +78,26 @@ class Xodx_NotificationFactory
         $nsSioc = 'http://rdfs.org/sioc/ns#';
         $nsDct  = 'http://purl.org/dc/terms/';
 
-        $model->addMultipleStatements(
-            array(
-                $notificationUri => array(
-                    EF_RDF_NS . 'type' => array(
-                        array('type' => 'uri', 'value' => $nsDssn . 'Notification')
-                    ),
-                    $nsDssn . 'notify' => array(
-                        array('type' => 'uri', 'value' => $userUri)
-                    ),
-                    $nsSioc . 'content' => array(
-                        array('type' => 'literal', 'value' => $text)
-                    ),
-                    $nsDct . 'references' => array(
-                        array('type' => 'uri', 'value' => $attachmentUri)
-                    )
+        $statements = array(
+            $notificationUri => array(
+                EF_RDF_NS . 'type' => array(
+                    array('type' => 'uri', 'value' => $nsDssn . 'Notification')
+                ),
+                $nsDssn . 'notify' => array(
+                    array('type' => 'uri', 'value' => $userUri)
+                ),
+                $nsSioc . 'content' => array(
+                    array('type' => 'literal', 'value' => $text)
                 )
             )
         );
+
+        if ($attachmentUri !== null) {
+            $statements[$notificationUri][$nsDct . 'references'] = array(
+                'type' => 'uri', 'value' => $attachmentUri
+            );
+        }
+
+        $model->addMultipleStatements($statements);
     }
 }
