@@ -33,11 +33,12 @@ in the xodx root directory (should be the same directory where you found this fi
 
 Code Conventions
 ----------------
-Currently, this project is developed using [OntoWiki's coding standard](http://code.google.com/p/ontowiki/wiki/CodingStandard).
+Currently, this project is developed using [OntoWiki's coding standard](https://github.com/AKSW/OntoWiki/wiki/Coding-Standards).
 
 License
 -------
 Xodx - An implementation of the basic functionalities of a DSSN Provider
+
 Copyright (C) 2013  Natanael Arndt, Norman Radtke
 
 This program is free software; you can redistribute it and/or modify
@@ -52,6 +53,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-Or see [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html) for more details.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA, or see
+[http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
+for more details.
