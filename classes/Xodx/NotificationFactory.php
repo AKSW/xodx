@@ -93,7 +93,7 @@ class Xodx_NotificationFactory
         );
 
         if ($attachmentUri !== null) {
-            $statements[$notificationUri][$nsDct . 'references'] = array(
+            $statements[$notificationUri][$nsDct . 'references'][] = array(
                 'type' => 'uri', 'value' => $attachmentUri
             );
         }
