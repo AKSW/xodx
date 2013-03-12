@@ -216,11 +216,11 @@ class Xodx_ResourceController extends Saft_Controller
     {
         $statements = Saft_Tools::getLinkedDataResource($this->_app, $resourceUri);
 
-        if (!$statements === null) {
+        if ($statements !== null) {
             $memModel = new Erfurt_Rdf_MemoryModel($statements);
 
             // get pingback:service or pingback:to from resource
-            $feedUri = $memModel->getValue($target, 'http://purl.org/net/dssn/activityFeed');
+            $feedUri = $memModel->getValue($resourceUri, 'http://purl.org/net/dssn/activityFeed');
 
             if ($feedUri !== null) {
                 return $feedUri;

@@ -106,6 +106,12 @@ class Xodx_ApplicationController extends Saft_Controller
                 if (!empty($personUri)) {
                     $newStatements = Saft_Tools::getLinkedDataResource($this->_app, $personUri);
                     $template->addDebug(var_export($newStatements, true));
+                    if ($newStatements === null) {
+                        $formError['personUri'] = true;
+                        $template->formError = $formError;
+                        $template->addContent('templates/newuser.phtml');
+                        return $template;
+                    }
                     $memModel = new Erfurt_Rdf_MemoryModel($newStatements);
 
                     $types = $memModel->getValues($personUri, EF_RDF_TYPE);

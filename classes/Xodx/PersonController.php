@@ -24,6 +24,7 @@ class Xodx_PersonController extends Xodx_ResourceController
     public function addFriend ($personUri, $contactUri)
     {
         $model = $this->_app->getBootstrap()->getResource('model');
+        $userController = $this->_app->getController('Xodx_UserController');
 
         // update WebID
         $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
@@ -38,6 +39,9 @@ class Xodx_PersonController extends Xodx_ResourceController
             'replyObject' => 'false'
         );
         $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
+        $userUri = $userController->getUserUri($personUri);
+        $feedUri = $this->getActivityFeedUri($contactUri);
+        $userController->subscribeToFeed ($userUri, $feedUri);
     }
 
     /**

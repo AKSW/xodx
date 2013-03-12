@@ -183,7 +183,7 @@ class Xodx_PingbackController extends Saft_Controller
 
         $targetStatements = Saft_Tools::getLinkedDataResource($this->_app, $target);
 
-        if (!$targetStatements === null) {
+        if ($targetStatements !== null) {
             $memModel = new Erfurt_Rdf_MemoryModel($targetStatements);
 
             // get pingback:service or pingback:to from resource
@@ -214,7 +214,7 @@ class Xodx_PingbackController extends Saft_Controller
                 //execute post
                 $return = curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
+                $logger = $logger->info('ping send: Ping to ' . $target . ' successfull.');
                 //close connection
                 curl_close($ch);
             } else {
@@ -223,7 +223,7 @@ class Xodx_PingbackController extends Saft_Controller
                 // TODO support XML-RPC pingbacks
             }
         } else {
-            $logger = $logger->info('Ping to ' . $target . ' not possible. No pingback server found.');
+            $logger = $logger->info('ping send: Ping to ' . $target . ' not possible. No pingback server found.');
         }
     }
 
