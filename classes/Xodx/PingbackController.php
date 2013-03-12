@@ -24,21 +24,24 @@ class Xodx_PingbackController extends Saft_Controller
         $target = $request->getValue('target', 'post');
         $comment = $request->getValue('comment', 'post');
 
-        $ping = new Xodx_Ping($this->_app);
+        $ping = new Xodx_Ping($this->_app, array('write_data' => false));
 
         if ($ping->receive($source, $target)) {
             $template->addDebug('proccessing ping data …');
-            /*
-            $foundPingbackTriples = $ping->getTriples();
-            var_dump($foundPingbackTriples);
-            $activityController = $this->_app->getController('Xodx_ActivityController');
 
-            foreach ($foundPingbackTriples as $triple) {
-                $act[] = new Xodx_Activity(null, $triple['s'], $triple['p'], $triple['o']);
-                $activityController->addActivities($act);
+            $foundPingbackTriples = $ping->getReceivedData();
+
+            $notificationFactory = new Xodx_NotificationFactory($this->_app);
+            $userController = $this->_app->getController('Xodx_UserController');
+
+            // TODO get user which is in charge of the pinged resource
+            $userUri = $userController->getUser()->getUri();
+            $template->addDebug('ping useruri: ' . $userUri);
+
+            foreach ($foundPingbackTriples['add'] as $triple) {
+                $text = 'Ping received: s="' . $triple['s'] . '", p="' . $triple['p'] . '", o="' . $triple['o'] . '"';
+                $notificationFactory->forUser($userUri, $text);
             }
-            var_dump($act);
-            */
         }
 
         $template->addDebug($ping->getReturnValue());
