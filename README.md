@@ -34,3 +34,10 @@ in the xodx root directory (should be the same directory where you found this fi
 Code Conventions
 ----------------
 Currently, this project is developed using [OntoWiki's coding standard](http://code.google.com/p/ontowiki/wiki/CodingStandard).
+
+License
+-------
+This program is free software. It comes without any warranty, to the extent permitted by applicable
+law. You can redistribute it and/or modify it under the terms of the
+[GNU GENERAL PUBLIC LICENSE, Version 2](http://www.gnu.org/licenses/gpl-2.0.txt). See
+[http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html) for more details.
