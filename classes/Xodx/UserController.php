@@ -22,24 +22,6 @@ class Xodx_UserController extends Xodx_ResourceController
     private $_users = array();
 
     /**
-     * With this action a user can subscribe to a specified feed
-     * @param user (post) the uri of the user, who wants to subscribe
-     * @param feeduri (post) the uri of the feed where he want so subscribe to
-     */
-    public function subscribeAction ($template)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $request = $bootstrap->getResource('request');
-
-        $userUri = $request->getValue('user', 'post');
-        $feedUri = $request->getValue('feeduri', 'post');
-
-        $this->subscribeToFeed($userUri, $feedUri);
-
-        return $template;
-    }
-
-    /**
      * This action gets the notifications for the specified user
      * @param user (get) the uri of the user who wants to get its notifications
      * @return json representation of the Xodx_Notification objects
@@ -66,11 +48,38 @@ class Xodx_UserController extends Xodx_ResourceController
     }
 
     /**
+     *
+     * Enter description here ...
+     * @param unknown_type $subscriberUri
+     * @param unknown_type $feedUri
+     */
+    public function subscribeToResource ($subscriberUri, $resourceUri, $feedUri = null)
+    {
+
+        $model = $this->_app->getBootstrap()->getResource('model');
+
+        if ($feedUri === null) {
+            $feedUri = $this->getActivityFeedUri($resourceUri);
+        }
+
+        $feedObject = array(
+            'type' => 'uri',
+            'value' => $feedUri
+        );
+
+        $nsDssn = 'http://purl.org/net/dssn/';
+        $model->addStatement($resourceUri, $nsDssn . 'activityFeed', $feedObject);
+
+        $this->_subscribeToFeed($subscriberUri, $feedUri);
+
+    }
+
+    /**
      * This method subscribes a user to a feed
      * @param $userUri the uri of the user who wants to be subscribed
      * @param $feedUri the uri of the feed where she wants to subscribe
      */
-    public function subscribeToFeed ($subscriberUri, $feedUri)
+    private function _subscribeToFeed ($subscriberUri, $feedUri)
     {
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
@@ -101,48 +110,48 @@ class Xodx_UserController extends Xodx_ResourceController
                 $cbUri  = $this->_app->getBaseUri() . '?c=push&a=callback';
 
                 $subscription = array(
-                    $subUri => array(
-                        $nsRdf . 'type' => array(
-                            array(
+                $subUri => array(
+                $nsRdf . 'type' => array(
+                array(
                                 'type' => 'uri',
                                 'value' => $nsDssn . 'Subscription'
-                            )
-                        ),
-                        $nsDssn . 'subscriptionCallback' => array(
-                            array(
+                                )
+                                ),
+                                $nsDssn . 'subscriptionCallback' => array(
+                                array(
                                 'type' => 'uri',
                                 'value' => $cbUri
-                            )
-                        ),
-                        $nsDssn . 'subscriptionHub' => array(
-                            array(
+                                )
+                                ),
+                                $nsDssn . 'subscriptionHub' => array(
+                                array(
                                 'type' => 'uri',
                                 'value' => $feed->getLinkHub()
-                            )
-                        ),
-                        $nsDssn . 'subscriptionTopic' => array(
-                            array(
+                                )
+                                ),
+                                $nsDssn . 'subscriptionTopic' => array(
+                                array(
                                 'type' => 'uri',
                                 'value' => $feed->getLinkSelf()
-                            )
-                        ),
-                    )
-                );
+                                )
+                                ),
+                                )
+                                );
 
-                $store->addMultipleStatements($graphUri, $subscription);
+                                $store->addMultipleStatements($graphUri, $subscription);
 
-                $subscribeStatement = array(
-                    $subscriberUri => array(
-                        $nsDssn . 'subscribedTo' => array(
-                            array(
+                                $subscribeStatement = array(
+                                $subscriberUri => array(
+                                $nsDssn . 'subscribedTo' => array(
+                                array(
                                 'type' => 'uri',
                                 'value' => $subUri
-                            )
-                        )
-                    )
-                );
+                                )
+                                )
+                                )
+                                );
 
-                $store->addMultipleStatements($graphUri, $subscribeStatement);
+                                $store->addMultipleStatements($graphUri, $subscribeStatement);
             }
         }
     }
@@ -284,7 +293,7 @@ class Xodx_UserController extends Xodx_ResourceController
     }
 
 
-     /**
+    /**
      * Find all subscriptions of a user
      * @param $userUri the uri of the user in question
      * @return array $subscribedFeeds all feeds a user is subscribed to
@@ -316,7 +325,7 @@ class Xodx_UserController extends Xodx_ResourceController
         return $subscribedFeeds;
     }
 
-     /**
+    /**
      * Find all resources a user is subscribed to via Activity Feed
      * @param $userUri the uri of the user in question
      * @return array $subResources all resource a user is subscribed to
@@ -382,7 +391,7 @@ class Xodx_UserController extends Xodx_ResourceController
         $user = $this->_app->getBaseUri() . '?c=user&id=splatte';
         //$feed = 'http://www.lvz-online.de/rss/nachrichten-rss.xml';
         $feed = 'http://t61.comiles.eu/xodx/?c=feed&a=getFeed&uri=http%3A%2F%2Ft61.comiles.eu%2Fxodx%2F%3Fc%3Dperson%26id%3Dsplatte';
-        $this->subscribeToFeed($user,$feed);
+        $this->_subscribeToFeed($user,$feed);
         return $template;
     }
 

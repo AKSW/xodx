@@ -106,10 +106,4 @@ if ($contact['name'] != null) {
             </div>
         </div>
     <a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
-    <form method="post" action="?c=user&amp;a=subscribe">
-        <div class="input-append">
-            <input type="hidden" name="user" value="<?= $this->profileshowPersonUri ?>" />
-            <input type="text" name="feeduri" /><button class="btn btn-primary" type="submit">Subscribe</button>
-        </div>
-    </form>
 </div>
