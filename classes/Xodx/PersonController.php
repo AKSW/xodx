@@ -41,7 +41,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
         $userUri = $userController->getUserUri($personUri);
         $feedUri = $this->getActivityFeedUri($contactUri);
-        $userController->subscribeToFeed ($userUri, $feedUri);
+        $userController->subscribeToResource ($userUri, $contactUri, $feedUri);
     }
 
     /**
