@@ -475,13 +475,26 @@ class Xodx_ActivityController extends Saft_Controller
             $act['date'] = self::_issueE24fix($act['date']);
 
             $nameHelper = new Xodx_NameHelper($this->_app);
-            if (!($resourceController->getType($objectUri))) {
-                $type = $objectUri;
+            $resourceType = $resourceController->getType($objectUri);
+
+            $objectName = $nameHelper->getName($objectUri);
+            if ($objectName === false) {
+                if ($resourceType === false) {
+                    $titleObject = $objectUri;
+                } else {
+                    $titleObject = $resourceType;
+                }
             } else {
-                $type = $resourceController->getType($objectUri);
+                $titleObject = $objectName;
             }
+
             $personName = $nameHelper->getName($personUri);
-            $title = '"' . $personName . ' ' . Saft_Tools::getSpokenWord($act['verb']) . ' ' . $type . '"';
+            if ($personName === false) {
+                $personName = $personUri;
+            }
+            $title = '"' . $personName . ' ';
+            $title.= Saft_Tools::getSpokenWord($act['verb']);
+            $title.= ' ' . $titleObject . '"';
 
             $activity = array(
                 'title'     => $title,
