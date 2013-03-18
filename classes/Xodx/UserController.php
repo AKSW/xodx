@@ -111,47 +111,47 @@ class Xodx_UserController extends Xodx_ResourceController
 
                 $subscription = array(
                 $subUri => array(
-                $nsRdf . 'type' => array(
-                array(
-                                'type' => 'uri',
-                                'value' => $nsDssn . 'Subscription'
-                                )
-                                ),
-                                $nsDssn . 'subscriptionCallback' => array(
-                                array(
-                                'type' => 'uri',
-                                'value' => $cbUri
-                                )
-                                ),
-                                $nsDssn . 'subscriptionHub' => array(
-                                array(
-                                'type' => 'uri',
-                                'value' => $feed->getLinkHub()
-                                )
-                                ),
-                                $nsDssn . 'subscriptionTopic' => array(
-                                array(
-                                'type' => 'uri',
-                                'value' => $feed->getLinkSelf()
-                                )
-                                ),
-                                )
-                                );
+                    $nsRdf . 'type' => array(
+                        array(
+                            'type' => 'uri',
+                            'value' => $nsDssn . 'Subscription'
+                        )
+                    ),
+                    $nsDssn . 'subscriptionCallback' => array(
+                        array(
+                            'type' => 'uri',
+                            'value' => $cbUri
+                        )
+                    ),
+                    $nsDssn . 'subscriptionHub' => array(
+                        array(
+                            'type' => 'uri',
+                            'value' => $feed->getLinkHub()
+                        )
+                    ),
+                    $nsDssn . 'subscriptionTopic' => array(
+                        array(
+                            'type' => 'uri',
+                            'value' => $feed->getLinkSelf()
+                        )
+                    ),
+                )
+            );
 
-                                $store->addMultipleStatements($graphUri, $subscription);
+            $store->addMultipleStatements($graphUri, $subscription);
 
-                                $subscribeStatement = array(
-                                $subscriberUri => array(
-                                $nsDssn . 'subscribedTo' => array(
-                                array(
-                                'type' => 'uri',
-                                'value' => $subUri
-                                )
-                                )
-                                )
-                                );
+            $subscribeStatement = array(
+                $subscriberUri => array(
+                    $nsDssn . 'subscribedTo' => array(
+                        array(
+                            'type' => 'uri',
+                            'value' => $subUri
+                        )
+                    )
+                )
+            );
 
-                                $store->addMultipleStatements($graphUri, $subscribeStatement);
+            $store->addMultipleStatements($graphUri, $subscribeStatement);
             }
         }
     }
