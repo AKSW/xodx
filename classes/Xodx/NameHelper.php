@@ -86,7 +86,8 @@ class Xodx_NameHelper
      */
     private function _getNameByLinkedData ($resourceUri, $cache = true) {
 
-        $statements = Saft_Tools::getLinkedDataResource($this->_app, $resourceUri);
+        $linkeddataHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
+        $statements = $linkeddataHelper->getResource($resourceUri);
 
         if ($statements !== null) {
             $memModel = new Erfurt_Rdf_MemoryModel($statements);

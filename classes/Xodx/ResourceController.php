@@ -214,7 +214,8 @@ class Xodx_ResourceController extends Saft_Controller
      */
     public function getActivityFeedUri($resourceUri)
     {
-        $statements = Saft_Tools::getLinkedDataResource($this->_app, $resourceUri);
+        $linkeddataHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
+        $statements = $linkeddataHelper->getResource($resourceUri);
 
         if ($statements !== null) {
             $memModel = new Erfurt_Rdf_MemoryModel($statements);
@@ -239,7 +240,9 @@ class Xodx_ResourceController extends Saft_Controller
     {
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
-        $statements = Saft_Tools::getLinkedDataResource($this->_app, $resourceUri);
+
+        $linkeddataHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
+        $statements = $linkeddataHelper->getResource($resourceUri);
 
         if ($statements !== null) {
             $memModel = new Erfurt_Rdf_MemoryModel($statements);

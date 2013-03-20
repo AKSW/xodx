@@ -104,7 +104,8 @@ class Xodx_ApplicationController extends Saft_Controller
 
                 // add some statements from a former existing foaf:Person which was specified
                 if (!empty($personUri)) {
-                    $newStatements = Saft_Tools::getLinkedDataResource($this->_app, $personUri);
+                    $linkeddataHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
+                    $newStatements = $linkeddataHelper->getResource($personUri);
                     $template->addDebug(var_export($newStatements, true));
                     if ($newStatements === null) {
                         $formError['personUri'] = true;
@@ -127,9 +128,7 @@ class Xodx_ApplicationController extends Saft_Controller
                             break;
                         } else if ($type == $nsFoaf . 'PersonalProfileDocument') {
                             $personUri = $memModel->getValue($personUri, $nsFoaf . 'primaryTopic');
-                            $newStatements = Saft_Tools::getLinkedDataResource(
-                                $this->_app, $personUri
-                            );
+                            $newStatements = $linkeddataHelper->getResource($personUri);
                             $template->addDebug(var_export($newStatements, true));
                             $memModel = new Erfurt_Rdf_MemoryModel($newStatements);
                             break;

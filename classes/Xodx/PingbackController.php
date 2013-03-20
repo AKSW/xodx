@@ -181,7 +181,8 @@ class Xodx_PingbackController extends Saft_Controller
         $bootstrap = $this->_app->getBootstrap();
         $logger    = $bootstrap->getResource('logger');
 
-        $targetStatements = Saft_Tools::getLinkedDataResource($this->_app, $target);
+        $linkeddataHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
+        $targetStatements = $linkeddataHelper->getResource($target);
 
         if ($targetStatements !== null) {
             $memModel = new Erfurt_Rdf_MemoryModel($targetStatements);
