@@ -199,31 +199,77 @@ class Xodx_UserController extends Xodx_ResourceController
 
         if (!isset($this->_users[$userUri])) {
 
-            if (!isset($userId)) {
-                $bootstrap = $this->_app->getBootstrap();
-                $model = $bootstrap->getResource('model');
+            $bootstrap = $this->_app->getBootstrap();
+            $model = $bootstrap->getResource('model');
 
-                $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
-                $query.= 'SELECT ?name' . PHP_EOL;
-                $query.= 'WHERE {' . PHP_EOL;
-                $query.= '  <' . $userUri . '> foaf:accountName ?name .' . PHP_EOL;
-                $query.= '}' . PHP_EOL;
+            $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
+            $query.= 'SELECT ?name ?person' . PHP_EOL;
+            $query.= 'WHERE {' . PHP_EOL;
+            $query.= '  <' . $userUri . '> foaf:accountName ?name ;' . PHP_EOL;
+            $query.= '      sioc:account_of ?person .' . PHP_EOL;
+            $query.= '}' . PHP_EOL;
 
-                $result = $model->sparqlQuery($query);
-                if (count($result) > 0) {
-                    $userId = $result[0]['name'];
-                } else {
+            $result = $model->sparqlQuery($query);
+            if (count($result) > 0) {
+                $userId = $result[0]['name'];
+                $personUri = $result[0]['person'];
+            } else {
+                // This case is needed because ne guest account exists but it should throw an
+                // Exception if this issue is cleared
+                if (!isset($userId)) {
                     $userId = 'unkown';
                 }
+                $personUri = null;
             }
 
             $user = new Xodx_User($userUri);
             $user->setName($userId);
+            $user->setPerson($personUri);
 
             $this->_users[$userUri] = $user;
         }
 
         return $this->_users[$userUri];
+    }
+
+    /**
+     * Get the userAccount of a Person
+     * @param string $personUri the uri of the person
+     * @return Xodx_User for the given person
+     */
+    public function getUserForPerson ($personUri)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        // SPARQL-Query
+        $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
+        $query.= 'SELECT  ?userUri ' . PHP_EOL;
+        $query.= 'WHERE {' . PHP_EOL;
+        $query.= '   <' . $personUri . '> foaf:account ?userUri. ' . PHP_EOL;
+        $query.= '}' . PHP_EOL;
+
+        $userResult = $model->sparqlQuery($query);
+
+        if (count($userResult[0])>0) {
+            return $this->getUser($userResult[0]['userUri']);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the user uri of a user which is accosiated to the given person
+     * @deprecated use getUserForPerson
+     */
+    public function getUserUri ($personUri)
+    {
+        $user = $this->getUserForPerson($personUri);
+        if ($user !== null) {
+            return $user->getUri();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -356,32 +402,6 @@ class Xodx_UserController extends Xodx_ResourceController
         }
 
         return $subResources;
-    }
-
-    /**
-     * Get the Uri of a user account of a person
-     * @param string $personUri the uri of the person
-     * @return string $userUri uri of the found user account
-     */
-    public function getUserUri ($personUri)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $model = $bootstrap->getResource('model');
-
-        // SPARQL-Query
-        $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
-        $query.= 'SELECT  ?userUri ' . PHP_EOL;
-        $query.= 'WHERE {' . PHP_EOL;
-        $query.= '   <' . $personUri . '> foaf:account ?userUri. ' . PHP_EOL;
-        $query.= '}' . PHP_EOL;
-
-        $userResult = $model->sparqlQuery($query);
-
-        if (count($userResult[0])>0) {
-            return $userResult[0]['userUri'];
-        } else {
-            return null;
-        }
     }
 
     /**
