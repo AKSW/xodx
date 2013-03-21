@@ -338,48 +338,36 @@ class Xodx_UserController extends Xodx_ResourceController
         return null;
     }
 
-
     /**
-     * Find all subscriptions of a user
-     * @param $userUri the uri of the user in question
-     * @return array $subscribedFeeds all feeds a user is subscribed to
+     *
+     * Method returns all activities the user is subscribed to
+     * @param Xodx_User $user
+     * @return array of activities
      */
-    public function getSubscriptions ($userUri)
+    public function getActivityStream (Xodx_User $user = null)
     {
-        $bootstrap = $this->_app->getBootstrap();
-        $model = $bootstrap->getResource('model');
+        $subscribedResources = $this->getSubscribedResources($user);
 
-        // SPARQL-Query
-        $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
-        $query.= 'SELECT  ?feedUri' . PHP_EOL;
-        $query.= 'WHERE {' . PHP_EOL;
-        $query.= '   <' . $userUri . '> dssn:subscribedTo        ?subUri. ' . PHP_EOL;
-        $query.= '   ?subUri            dssn:subscriptionTopic   ?feedUri. ' . PHP_EOL;
-        $query.= '}' . PHP_EOL;
+        $activityController = $this->_app->getController('Xodx_ActivityController');
+        $activities = array();
 
-        $feedResult = $model->sparqlQuery($query);
-
-        $subscribedFeeds = array();
-
-        // results in array
-        foreach ($feedResult as $feed) {
-            if (isset($feed['feedUri'])) {
-                $subscribedFeeds[] = $feed['feedUri'];
-            }
+        foreach ($subscribedResources as $resourceUri) {
+            $act = $activityController->getActivities($resourceUri);
+            $activities = array_merge($activities, $act);
         }
-
-        return $subscribedFeeds;
+        return $activities;
     }
 
     /**
      * Find all resources a user is subscribed to via Activity Feed
      * @param $userUri the uri of the user in question
-     * @return array $subResources all resource a user is subscribed to
+     * @return array $subscribedResources all resource a user is subscribed to
      */
-    public function getSubscriptionResources ($userUri)
+    public function getSubscribedResources (Xodx_User $user)
     {
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
+        $userUri = $user->getUri();
 
         // SPARQL-Query
         $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
@@ -392,16 +380,16 @@ class Xodx_UserController extends Xodx_ResourceController
 
         $result = $model->sparqlQuery($query);
 
-        $subResources = array();
+        $subscribedResources = array();
 
         // results in array
         foreach ($result as $resource) {
             if (isset($resource['resUri'])) {
-                $subResources[] = $resource['resUri'];
+                $subscribedResources[] = $resource['resUri'];
             }
         }
 
-        return $subResources;
+        return $subscribedResources;
     }
 
     /**
