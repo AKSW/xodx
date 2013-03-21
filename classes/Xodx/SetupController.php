@@ -37,8 +37,10 @@ class Xodx_SetupController extends Saft_Controller
         $model = $bootstrap->getResource('model');
 
         // TODO: catch Exception and wrapt it in some Saft Exception
-        $modelIri = $model->getBaseIri();
+        $modelIri = $model->getModelIri();
         $store->deleteModel($modelIri);
+
+        $bootstrap->invalidateResource('model');
     }
 
     /**
