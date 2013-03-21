@@ -206,6 +206,16 @@ class Xodx_ApplicationController extends Saft_Controller
     }
 
     /**
+     * Action to logout the current user
+     */
+    public function logoutAction ($template)
+    {
+        $this->login('guest');
+
+        return $template;
+    }
+
+    /**
      * The login method checks the given credentials and changes the session properties, if login
      * was successfull.
      *
@@ -250,7 +260,6 @@ class Xodx_ApplicationController extends Saft_Controller
 
         if (!($request->getValue('logedin', 'session') === true)) {
             $this->login('guest');
-            $this->_user = 'guest';
         } else {
             $this->_user = $request->getValue('username');
         }
