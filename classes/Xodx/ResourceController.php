@@ -99,9 +99,6 @@ class Xodx_ResourceController extends Saft_Controller
         $template->activities = $activities;
 
         // TODO getActivity with objectURI from Xodx_ActivityController
-        //$personController = new Xodx_PersonController($this->_app);
-        //$activities = $personController->getActivities($personUri);
-        //$news = $personController->getNotifications($personUri);
 
         return $template;
     }
