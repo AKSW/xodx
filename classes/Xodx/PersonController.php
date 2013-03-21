@@ -234,12 +234,12 @@ class Xodx_PersonController extends Xodx_ResourceController
 
         $userController  = $this->_app->getController('Xodx_UserController');
         $userUri         = $userController->getUserUri($personUri);
-        $subResources    = $userController->getSubscriptionResources($userUri);
+        $subscriptionResources    = $userController->getSubscriptionResources($userUri);
 
         $activityController = $this->_app->getController('Xodx_ActivityController');
         $activities = array();
 
-        foreach ($subResources as $resourceUri) {
+        foreach ($subscriptionResources as $resourceUri) {
             $act = $activityController->getActivities($resourceUri);
             $activities = array_merge($activities, $act);
         }
