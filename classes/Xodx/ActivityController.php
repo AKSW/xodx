@@ -214,7 +214,7 @@ class Xodx_ActivityController extends Saft_Controller
                 'type' => 'uri', 'value' => $replyUri
             );
 
-            $feedUri[replyUri] = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
+            $feedUri[$replyUri] = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
                 urlencode($replyUri);
 
             // Ping the object we commented
