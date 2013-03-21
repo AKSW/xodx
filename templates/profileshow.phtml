@@ -43,7 +43,7 @@ if ($contact['name'] != null) {
                 <a href="<?= htmlentities($activity['verb']) ?>"><?= Saft_Tools::getSpokenWord($activity['verb']) ?></a>
                 <?php if (isset($activity['objectType'])) : ?>
                     a <a href="<?= htmlentities($activity['object']) ?>">
-                      <?= Saft_Tools::getSpokenWord($activity['type']) ?></a>
+                      <?= Saft_Tools::getSpokenWord($activity['objectType']) ?></a>
                         at <?= $activity['pubDate'] ?>
                     <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
                     Show Feed of Object</a></em>
@@ -53,7 +53,7 @@ if ($contact['name'] != null) {
                     <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
                     Show Feed of Object</a></em>
                 <?php endif; ?>
-                <input type="hidden" name="object" value="<?= htmlentities($activity['object'])?>" />
+                <input type="hidden" name="object" value="<?= htmlentities($activity['uri'])?>" />
                 <input type="hidden" name="actor" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
                 <button class="btn btn-mini" type="submit">Reply</button>
             </form>

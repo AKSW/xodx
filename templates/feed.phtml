@@ -38,7 +38,9 @@
       <activity:target>
         <id><?= htmlentities($activity['context']) ?></id>
         <?php if (isset($activity['contextType'])) : ?>
-        <activity:object-type><?= $activity['contextType'] ?></activity:object-type>
+          <activity:object-type><?= $activity['contextType'] ?></activity:object-type>
+        <?php else : ?>
+          <activity:object-type>Linked Data</activity:object-type>
         <?php endif; ?>
       </activity:target>
       <?php endif; ?>
