@@ -5,7 +5,7 @@
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
 
-class Xodx_NameHelper
+class Xodx_NameHelper extends Saft_Helper
 {
     private $_app;
     private $_names;
