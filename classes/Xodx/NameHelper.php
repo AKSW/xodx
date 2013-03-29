@@ -7,7 +7,6 @@
 
 class Xodx_NameHelper extends Saft_Helper
 {
-    private $_app;
     private $_names;
     private $_languages;
     private $_properties;
