@@ -7,19 +7,6 @@
 
 $main_dir = rtrim(dirname(__FILE__), '/\\');
 
-if (isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
-    $protocol = 'https';
-} else {
-    $protocol = 'http';
-}
-
-$base_uri =  $protocol . "://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']);
-
-// append trailing slash if not present
-if ($base_uri[strlen($base_uri) - 1] != '/') {
-    $base_uri .= '/';
-}
-
 if ($main_dir[strlen($main_dir) - 1] != '/') {
     $main_dir .= '/';
 }
@@ -49,9 +36,32 @@ $autoloader->registerNamespace('ARC2_');
 
 DSSN_Utils::setConstants();
 
-// Check if Application or Worker should be started
 $app = new Xodx_Application();
 $app->setAppNamespace('Xodx_');
-$app->setBaseUri($base_uri);
 $app->setBaseDir($main_dir);
-$app->run();
+
+// Check if Application should be started normaly or to run the Worker
+$options = getopt('j');
+if ($options === false) {
+    // if the Application is started normaly we assume to be in a server environment
+    if (isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+        $protocol = 'https';
+    } else {
+        $protocol = 'http';
+    }
+
+    $base_uri =  $protocol . "://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']);
+
+    // append trailing slash if not present
+    if ($base_uri[strlen($base_uri) - 1] != '/') {
+        $base_uri .= '/';
+    }
+
+    $app->setBaseUri($base_uri);
+
+    $app->run();
+} else if (isset($options['j'])) {
+    $app->runJobs();
+} else {
+    print 'Undetermined options given: ' . var_export($options, true) . PHP_EOL;
+}
