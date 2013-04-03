@@ -59,6 +59,8 @@ class Xodx_PingbackController extends Saft_Controller
      */
     public function sendPing($source, $target, $comment = null)
     {
+        $nsPing = 'http://purl.org/net/pingback/';
+
         $bootstrap = $this->_app->getBootstrap();
         $logger    = $bootstrap->getResource('logger');
 
@@ -69,7 +71,7 @@ class Xodx_PingbackController extends Saft_Controller
             $memModel = new Erfurt_Rdf_MemoryModel($targetStatements);
 
             // get pingback:service or pingback:to from resource
-            $pingbackTo = $memModel->getValue($target, EF_PING_NS . 'to');
+            $pingbackTo = $memModel->getValue($target, $nsPing . 'to');
 
             if ($pingbackTo !== null) {
                 // send post to service
@@ -101,7 +103,7 @@ class Xodx_PingbackController extends Saft_Controller
                 curl_close($ch);
                 return true;
             } else {
-                $pingbackService = $memModel->getValue($target, EF_PING_NS . 'service');
+                $pingbackService = $memModel->getValue($target, $nsPing . 'service');
                 // TODO support XML-RPC pingbacks
             }
         } else {
