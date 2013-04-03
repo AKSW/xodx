@@ -52,7 +52,7 @@ class Xodx_PushController extends Saft_Controller
             curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
 
-            $result = curl_exec($curlHandler);
+            $feedResult = curl_exec($curlHandler);
             $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
             // TODO check if we should better use the feedUri and ignorre the effective url
             $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
@@ -62,7 +62,7 @@ class Xodx_PushController extends Saft_Controller
             curl_close($curlHandler);
 
             if ($httpCode-($httpCode%100) == 200) {
-                $xml = simplexml_load_string($result);
+                $xml = simplexml_load_string($feedResult);
 
                 $hubUrl = null;
 
@@ -79,8 +79,6 @@ class Xodx_PushController extends Saft_Controller
                         }
                     }
                 }
-
-                // TODO: read the rest of the feed and store the actions
 
                 $logger->info('push subscribe: hub: ' . $hubUrl . ', callbackUrl: ' . $this->_callbackUrl);
 
@@ -111,12 +109,15 @@ class Xodx_PushController extends Saft_Controller
                     curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
                     curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
 
-                    $result = curl_exec($curlHandler);
+                    $subscriptionResult = curl_exec($curlHandler);
                     $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
 
                     curl_close($curlHandler);
 
-                    $logger->info('push subscribe: return code from hub: ' . $httpCode . ', result: ' . $result);
+                    $logger->info(
+                        'push subscribe: return code from hub: ' . $httpCode .
+                        ', result: ' . $subscriptionResult
+                    );
 
                     if (($httpCode - ($httpCode % 100)) != 200) {
                         throw new Exception('Subscription to hub failed');
@@ -130,11 +131,16 @@ class Xodx_PushController extends Saft_Controller
                     );
 
                     $store->addStatement($graphUri, $feedUri, $nsDssn . 'subscribedAt', $hubObj);
+
+                    //import activities
+                    $feedController = $this->_app->getController('Xodx_FeedController');
+                    $feedController->feedToActivity($feedResult);
+
                 } else {
                     throw new Exception('No hub found in feed');
                 }
             } else {
-                $logger->info('push subscribe: subscription error: ' . $result);
+                $logger->info('push subscribe: subscription error: ' . $feedResult);
                 throw new Exception('Error when requesting feed');
             }
         }
