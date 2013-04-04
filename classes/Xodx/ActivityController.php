@@ -424,6 +424,7 @@ class Xodx_ActivityController extends Saft_Controller
         $activityQuery.= 'OPTIONAL { ' . PHP_EOL;
         $activityQuery.= '    <' . $resourceUri . '> aair:activityContext ?context . } ' . PHP_EOL;
         $activityQuery.= '} ';
+        $activityQuery.= 'ORDER BY DESC(?date)'; PHP_EOL;
 
         // Get all activity with an activityActor given in $resourceUri
         $personQuery = 'PREFIX atom: <http://www.w3.org/2005/Atom/> ' . PHP_EOL;
@@ -439,6 +440,7 @@ class Xodx_ActivityController extends Saft_Controller
         $personQuery.= 'OPTIONAL { ' . PHP_EOL;
         $personQuery.= '<' . $resourceUri . '> aair:activityContext ?context . } ' . PHP_EOL;
         $personQuery.= '} ';
+        $personQuery.= 'ORDER BY DESC(?date)'; PHP_EOL;
 
         $model = $this->_app->getBootstrap()->getResource('model');
 
