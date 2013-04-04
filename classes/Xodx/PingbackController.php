@@ -215,7 +215,7 @@ class Xodx_PingbackController extends Saft_Controller
                 //execute post
                 $return = curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $logger = $logger->info('ping send: Ping to ' . $target . ' successfull.');
+                $logger->info('ping send: Ping to ' . $target . ' @ ' . $pingbackTo . ' from ' . $source . ' successfull.');
                 //close connection
                 curl_close($ch);
             } else {
@@ -224,7 +224,7 @@ class Xodx_PingbackController extends Saft_Controller
                 // TODO support XML-RPC pingbacks
             }
         } else {
-            $logger = $logger->info('ping send: Ping to ' . $target . ' not possible. No pingback server found.');
+            $logger->info('ping send: Ping to ' . $target . ' not possible. No pingback server found.');
         }
     }
 

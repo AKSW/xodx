@@ -216,10 +216,6 @@ class Xodx_ActivityController extends Saft_Controller
 
             $feedUri[$replyUri] = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
                 urlencode($replyUri);
-
-            // Ping the object we commented
-            $pingbackController->sendPing($activityUri, $replyUri,
-                'You were pinged from an Activity with verb: ' . $verbUri);
         }
 
         // II. general statements of object resource
@@ -290,14 +286,8 @@ class Xodx_ActivityController extends Saft_Controller
 
             $feedUri[$objectUri] = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
                 urlencode($objectUri);
-
-        // processes to perform if activityObject is a given ressource
-        } else if ($type = 'Uri') {
-
-            // try to ping the ressource
-            $pingbackController->sendPing($activityUri, $objectUri, 'You were pinged from an' .
-                ' Activity with verb: ' . $verbUri);
-
+        } else {
+            // processes to perform if activityObject is a given ressource
             // try to add the activity feed of the ressource to the feeds we want to subscribe
             $resourceController = $this->_app->getController('Xodx_ResourceController');
             $foundFeedUri = $resourceController->getActivityFeedUri($objectUri);
@@ -305,11 +295,25 @@ class Xodx_ActivityController extends Saft_Controller
             if ($foundFeedUri) {
                 $feedUri[$objectUri] = $foundFeedUri;
             }
-
         }
 
         // proceed and subsribe to feed
         $store->addMultipleStatements($graphUri, $activity);
+
+        if ($replyUri !== null) {
+            // Ping the object we commented
+            $pingbackController->sendPing(
+                $activityUri, $replyUri, 'You were pinged from an Activity with verb: ' . $verbUri
+            );
+        }
+
+        if ($type == 'Uri') {
+            // try to ping the ressource
+            $pingbackController->sendPing(
+                $activityUri, $objectUri,
+                'You were pinged from an' .  ' Activity with verb: ' . $verbUri
+            );
+        }
 
         // Subscribe user to activity feeds
         $userController = $this->_app->getController('Xodx_UserController');

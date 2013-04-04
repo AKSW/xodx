@@ -29,6 +29,9 @@ class Xodx_PersonController extends Xodx_ResourceController
         // update WebID
         $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
 
+        $pingbackController = $this->_app->getController('Xodx_PingbackController');
+        $pingbackController->sendPing($personUri, $contactUri, 'Do you want to be my friend?');
+
         $nsAair = 'http://xmlns.notu.be/aair#';
         $activityController = $this->_app->getController('Xodx_ActivityController');
 
