@@ -121,10 +121,11 @@ class Xodx_PersonController extends Xodx_ResourceController
 
         // TODO deal with language tags
         $contactsQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' . PHP_EOL;
-        $contactsQuery.=     'SELECT ?contactUri ?name ' . PHP_EOL;
+        $contactsQuery.=     'SELECT ?contactUri ?name ?nick ' . PHP_EOL;
         $contactsQuery.= 'WHERE { ' . PHP_EOL;
         $contactsQuery.= '   <' . $personUri . '> foaf:knows ?contactUri . ' . PHP_EOL;
         $contactsQuery.= '   OPTIONAL {?contactUri foaf:name ?name .} ' . PHP_EOL;
+		$contactsQuery.= '   OPTIONAL {?contactUri foaf:nick ?nick .} ' . PHP_EOL;
         $contactsQuery.= '}';
 
         $profile = $model->sparqlQuery($profileQuery);
@@ -158,6 +159,32 @@ class Xodx_PersonController extends Xodx_ResourceController
         $activities = $activityController->getActivities($personUri);
 
         $news = $this->getNotifications($personUri);
+		/* get logegin user */
+		$userController = $this->_app->getController('Xodx_UserController');
+        $userUri = $userController->getUser()->getUri();
+
+		$nsSioc = 'http://rdfs.org/sioc/ns#';
+		$personUriQuery = 'PREFIX sioc: <'.$nsSioc.'>'.
+				'SELECT ?personUri '.
+				'WHERE { '.
+				'	<'.$userUri.'> sioc:account_of ?personUri . '.
+				' }';
+
+        $personUrires = $model->sparqlQuery($personUriQuery);
+		/* if someone is loggedin, show add as Friend, else not */
+        if ($personUrires) {
+		    $logedInUserUri = $personUrires[0]['personUri'];
+			$contactLoginQuery = 'ASK { <'.$logedInUserUri.'> foaf:knows <'.$personUri.'>  }';
+			if(($model->sparqlQuery($contactLoginQuery)) || ($logedInUserUri == $personUri)) {
+				$template->profileshowLoggedIn = false; 
+			} else {
+        		$template->profileshowLogInUri = $logedInUserUri;
+				$template->profileshowLoggedIn = true;
+			}
+		} else {
+			$template->profileshowLoggedIn = false;
+		}
+		/* */
 
         $template->profileshowPersonUri = $personUri;
         $template->profileshowDepiction = $profile[0]['depiction'];
