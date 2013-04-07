@@ -392,84 +392,55 @@ class Xodx_UserController extends Xodx_ResourceController
         return $subscribedResources;
     }
 
-	public function homeAction($template) {
+    public function homeAction ($template)
+    {
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         $request = $bootstrap->getResource('request');
 
-		$nsSioc = 'http://rdfs.org/sioc/ns#';
-		$personUriQuery = 'PREFIX sioc: <'.$nsSioc.'>'.
-				'SELECT ?personUri '.
-				'WHERE { '.
-				'	<'.$this->getUser()->getUri().'> sioc:account_of ?personUri . '.
-				' }';
+        $user = $this->getUser();
 
-        $personUrires = $model->sparqlQuery($personUriQuery);
-        if ($personUrires) {
-		    $personUri = $personUrires[0]['personUri'];
-        
-        
-        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+        if ($user->getName() !== 'guest') {
+            $personUri = $user->getPerson();
 
-        $profileQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' .
-            'SELECT ?depiction ?name ?nick ' .
-            'WHERE { ' .
-            '   <' . $personUri . '> a foaf:Person . ' .
-            '   OPTIONAL {<' . $personUri . '> foaf:depiction ?depiction .} ' .
-            '   OPTIONAL {<' . $personUri . '> foaf:name ?name .} ' .
-            '   OPTIONAL {<' . $personUri . '> foaf:nick ?nick .} ' .
-            '}';
+            $nsFoaf = 'http://xmlns.com/foaf/0.1/';
 
-        // TODO deal with language tags
-        $contactsQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' .
-            'SELECT ?contactUri ?name ?nick ' .
-            'WHERE { ' .
-            '   <' . $personUri . '> foaf:knows ?contactUri . ' .
-            '   OPTIONAL {?contactUri foaf:name ?name .} ' .
-            '   OPTIONAL {?contactUri foaf:nick ?nick .} ' .
-            '}';
+            $profileQuery = 'PREFIX foaf: <' . $nsFoaf . '>' . PHP_EOL;
+            $profileQuery.= 'SELECT ?depiction ?name ?nick' . PHP_EOL;
+            $profileQuery.= 'WHERE {' . PHP_EOL;
+            $profileQuery.= '   <' . $personUri . '> a foaf:Person .' . PHP_EOL;
+            $profileQuery.= '   OPTIONAL {<' . $personUri . '> foaf:depiction ?depiction .}' . PHP_EOL;
+            $profileQuery.= '   OPTIONAL {<' . $personUri . '> foaf:name ?name .}' . PHP_EOL;
+            $profileQuery.= '   OPTIONAL {<' . $personUri . '> foaf:nick ?nick .}' . PHP_EOL;
+            $profileQuery.= '}';
 
-        $profile = $model->sparqlQuery($profileQuery);
+            // TODO deal with language tags
+            $contactsQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' . PHP_EOL;
+            $contactsQuery.= 'SELECT ?contactUri ?name ?nick ' . PHP_EOL;
+            $contactsQuery.= 'WHERE { ' . PHP_EOL;
+            $contactsQuery.= '   <' . $personUri . '> foaf:knows ?contactUri . ' . PHP_EOL;
+            $contactsQuery.= '   OPTIONAL {?contactUri foaf:name ?name .} ' . PHP_EOL;
+            $contactsQuery.= '   OPTIONAL {?contactUri foaf:nick ?nick .} ' . PHP_EOL;
+            $contactsQuery.= '}';
 
-        if (count($profile) < 1) {
-            $newStatements = Saft_Tools::getLinkedDataResource($this->_app, $personUri);
-            if ($newStatements !== null) {
-                $template->addDebug('Import Profile with LinkedDate');
+            $profile = $model->sparqlQuery($profileQuery);
 
-                $modelNew = new Erfurt_Rdf_MemoryModel($newStatements);
-                $newStatements = $modelNew->getStatements();
+            if (count($profile) > 0) {
+                $knows = $model->sparqlQuery($contactsQuery);
 
-                $template->addDebug(var_export($newStatements, true));
+                $activities = $this->getActivityStream($user);
+                $news = $this->getNotifications($personUri);
 
-                $profile = array();
-                $profile[0] = array(
-                    'depiction' => $modelNew->getValue($personUri, $nsFoaf . 'depiction'),
-                    'name' => $modelNew->getValue($personUri, $nsFoaf . 'name'),
-                    'nick' => $modelNew->getValue($personUri, $nsFoaf . 'nick')
-                );
+                $template->profileshowPersonUri = $personUri;
+                $template->profileshowDepiction = $profile[0]['depiction'];
+                $template->profileshowName = $profile[0]['name'];
+                $template->profileshowNick = $profile[0]['nick'];
+                $template->profileshowActivities = $activities;
+                $template->profileshowKnows = $knows;
+                $template->profileshowNews = $news;
+                $template->addContent('templates/usershow.phtml');
             }
-            //$knows = $modelNew->sparqlQuery($contactsQuery);
-
-            $knows = array();
-        } else {
-            $knows = $model->sparqlQuery($contactsQuery);
         }
-
-        $activities = $this->getActivityStream($this->getUser());
-        //print_r($activities);    
-
-        $news = $this->getNotifications($personUri);
-
-        $template->profileshowPersonUri = $personUri;
-        $template->profileshowDepiction = $profile[0]['depiction'];
-        $template->profileshowName = $profile[0]['name'];
-        $template->profileshowNick = $profile[0]['nick'];
-        $template->profileshowActivities = $activities;
-        $template->profileshowKnows = $knows;
-        $template->profileshowNews = $news;
-        $template->addContent('templates/usershow.phtml');
-        }
-		return $template;
-	}
-
+        return $template;
+    }
 }
