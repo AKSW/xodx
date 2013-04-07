@@ -42,7 +42,7 @@ $app->setBaseDir($main_dir);
 
 // Check if Application should be started normaly or to run the Worker
 $options = getopt('j');
-if ($options === false) {
+if (!isset($options['j'])) {
     // if the Application is started normaly we assume to be in a server environment
     if (isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
         $protocol = 'https';
@@ -60,8 +60,6 @@ if ($options === false) {
     $app->setBaseUri($base_uri);
 
     $app->run();
-} else if (isset($options['j'])) {
-    $app->runJobs();
 } else {
-    print 'Undetermined options given: ' . var_export($options, true) . PHP_EOL;
+    $app->runJobs();
 }
