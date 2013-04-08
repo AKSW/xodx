@@ -1,19 +1,20 @@
-<div class="container-fluid">
-    <h2>Home of ...</h2>
-    <?php if(isset($this->profileshowDepiction)) : ?> <img class="avatar size128" src="<?= $this->profileshowDepiction ?>" /> <?php endif; ?>
-    <div class="profile row-fluid">
-        <div class="span9">
-        <h3><?= $this->profileshowName ?></h3>
-        <?php if(isset($this->profileshowNick)) : ?> <h4><?= $this->profileshowNick ?></h4> <?php endif; ?>
-        <h2>Pings</h2>
+<div class="profile row-fluid">
+    <div class="span9">
+        <?php if(isset($this->profileshowDepiction)) : ?> <img class="avatar size128" src="<?= $this->profileshowDepiction ?>" /> <?php endif; ?>
+        <h2>Hello <?= $this->profileshowName ?></h2>
+        <h3>Notifications</h3>
+        <?php if (isset($this->profileshowNews) && count($this->profileshowNews) > 0) : ?>
         <ul>
-        <?php foreach ($this->profileshowNews as $notification) : ?>
+            <?php foreach ($this->profileshowNews as $notification) : ?>
             <li><?= var_export($notification, true) ?></li>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        <?php else: ?>
+        <div class="alert alert-info">
+            There are no notifications for you
+        </div>
+        <?php endif; ?>
         </ul>
-        <h2>Add Activity ...</h2>
-        <strong>Actor:</strong> <?= $this->profileshowName ?>
-        <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
+        <h3>Activities</h3>
         <ul class="nav nav-pills">
             <li class="active"><a href="#status" data-toggle="tab">Status</a></li>
             <li><a href="#link" data-toggle="tab">Link</a></li>
@@ -22,7 +23,7 @@
         <div class="tab-content">
             <div class="tab-pane active" id="status">
                 <form method="post" action="?c=activity&amp;a=addactivity">
-                    <textarea name="content"></textarea>
+                    <textarea placeholder="Write a status note" class="input-block-level" name="content"></textarea>
                     <input type="hidden" name="verb" value="Post"  >
                     <input type="hidden" name="type" value="Note" />
                     <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
@@ -32,7 +33,7 @@
             </div>
             <div class="tab-pane" id="link">
                 <form method="post" action="?c=activity&amp;a=addactivity">
-                    <input type="text" name="content" />
+                    <input placeholder="Share a link" class="input-block-level" type="text" name="content" />
                     <input type="hidden" name="verb" value="Share" />
                     <input type="hidden" name="type" value="Bookmark" />
                     <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
@@ -51,19 +52,11 @@
                 </form>
             </div>
         </div>
-        <a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
-        <form method="post" action="?c=user&amp;a=subscribe">
-            <div class="input-append">
-                <input type="hidden" name="user" value="<?= $this->profileshowPersonUri ?>" />
-                <input type="text" name="feeduri" /><button class="btn btn-primary" type="submit">Subscribe</button>
-            </div>
-        </form>
-        <h2>Activities</h2>
-        <?php if (isset($this->profileshowActivities)) : ?>
+        <?php if (isset($this->profileshowActivities) && count($this->profileshowActivities) > 0) : ?>
         <?php foreach ($this->profileshowActivities as $activity ) : ?>
-        <div class="activity well">
+        <div class="activity well well-small">
             <div class="row-fluid">
-                <form method="post" action="?c=activity&amp;a=replyForm">
+                <form method="post" action="?c=activity&amp;a=replyForm" class="form-inline">
                     <div class="span10">
                         <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['author']) ?></a>
                         <?php if (isset($activity['objectType'])) : ?>
@@ -78,11 +71,10 @@
                         <a  href="<?= htmlentities($activity['verb']) ?>"><span class="label label-info"><?= Saft_Tools::getSpokenWord($activity['verb']) ?></span></a>
                         <a  href="<?= htmlentities($activity['object']) ?>"> <?= Saft_Tools::getSpokenWord($activity['object']) ?></a><br>at <?= $activity['pubDate'] ?>
                         <?php endif; ?>
-
-                        <input type="hidden" name="object" value="<?= htmlentities($activity['uri'])?>" />
-                        <input type="hidden" name="actor" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
                     </div>
                     <div class="span2">
+                        <input type="hidden" name="object" value="<?= htmlentities($activity['uri'])?>" />
+                        <input type="hidden" name="actor" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
                         <a class="btn btn-mini btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">Show Feed of Object</a>
                         <button class="btn btn-mini btn-block" type="submit">Reply</button>
                     </div>
@@ -91,33 +83,35 @@
         </div>
         <?php endforeach; ?>
         <?php else: ?>
-        <div class="well">
-            There are not Activities of this person
+        <div class="alert alert-info">
+            You have no activities so far
         </div>
         <?php endif; ?>
     </div>
     <div class="span3">
-        <h5>Friends:</h5>
+        <a class="btn btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
+        <hr />
+        <h3>Friends</h3>
         <form method="post" action="?c=profile&amp;a=addfriend">
-            <div class="row-fluid">
-                <?php foreach($this->profileshowKnows as $contact) : ?>
-                <?php
-                    if ($contact['name'] != null) {
-                        $name = $contact['name'];
-                    } elseif ($contact['nick'] != null) {
-                        $name = $contact['nick'];
-                    } else {
-                        $name = "unknown name";
-                    }
-                ?>
-                <div><?= $name ?></div>
-                <div><a href="?c=profile&amp;a=show&amp;person=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
-            <?php endforeach; ?>
-            </div>
             <div class="input-append">
                 <input type="hidden" name="person" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
-                <input type="text" name="friend" /><button class="btn btn-primary" type="submit">Add</button>
+                <input type="text" name="friend" placeholder="Add a friends URI" /><button class="btn btn-primary" type="submit">Add</button>
             </div>
-       </form>
+        </form>
+        <?php foreach($this->profileshowKnows as $contact) : ?>
+        <address>
+            <?php
+                if ($contact['name'] != null) {
+                    $name = $contact['name'];
+                } elseif ($contact['nick'] != null) {
+                    $name = $contact['nick'];
+                } else {
+                    $name = "unknown name";
+                }
+            ?>
+            <strong><?= $name ?></strong><br />
+            <a href="?c=profile&amp;a=show&amp;person=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
+        </address>
+        <?php endforeach; ?>
     </div>
 </div>
