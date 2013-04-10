@@ -21,6 +21,30 @@ class Xodx_PersonController extends Xodx_ResourceController
         return $this->_persons[$personUri];
     }
 
+    /**
+     * This method gets the userAccount responsible for a given person.
+     *
+     * @param $personUri the URI of the person whoes account should be returned
+     * @returns Xodx_User account of this person
+     */
+    public function getUserForPerson ($personUri)
+    {
+        $model = $this->_app->getBootstrap()->getResource('model');
+        $userController = $this->_app->getController('Xodx_UserController');
+
+        $userQuery = 'SELECT ?user' . PHP_EOL;
+        $userQuery.= 'WHERE {' . PHP_EOL;
+        $userQuery.= '    ?user sioc:account_of <' . $personUri . '>.' . PHP_EOL;
+        $userQuery.= '}' . PHP_EOL;
+        $userQuery.= 'LIMIT 1' . PHP_EOL;
+
+        $result = $model->sparqlQuery($userQuery);
+
+        $user = $userController->getUser($result[0]['user']);
+
+        return $user;
+    }
+
     public function addFriend ($personUri, $contactUri)
     {
         $model = $this->_app->getBootstrap()->getResource('model');
