@@ -32,10 +32,10 @@ class Xodx_PingbackController extends Saft_Controller
             $foundPingbackTriples = $ping->getReceivedData();
 
             $notificationFactory = new Xodx_NotificationFactory($this->_app);
-            $userController = $this->_app->getController('Xodx_UserController');
+            $personController = $this->_app->getController('Xodx_PersonController');
 
             // TODO get user which is in charge of the pinged resource
-            $userUri = $userController->getUser()->getUri();
+            $userUri = $personController->getUserForPerson($target)->getUri();
             $template->addDebug('ping useruri: ' . $userUri);
 
             foreach ($foundPingbackTriples['add'] as $triple) {
