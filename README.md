@@ -12,12 +12,15 @@ Installation
 You need a webserver (tested with Apache, but I hope it also runs with nginx and lighttd) and a database backend which is supported by Erfurt (MySQL and Virtuoso).
 
 Take the prepared `config.ini-dist` file, copy it to `config.ini` and configure it according to your system setup.
+If you have an OntoWiki runnnig you can copy the database connection section (`store.*`) into the config.ini of xodx.
 
 ### Erfurt and lib-dssn
-Run `git submodule init` and `git submodule update` to clone Erfurt and lib-dssn.
+Run `make submodules` to clone Erfurt, lib-dssn-php and Saft.
+
+If make failes you can try it manually with `git submodule init` and `git submodule update`.
 
 ### Zend
-You have to place a copy of the Zend framework library into `libraries/Zend/` you can do this by doing the following things (replace `${ZENDVERSION}` e.g. with `1.12.0`):
+Zend is installed with `make zend` or alternatively you have to place a copy of the Zend framework library into `libraries/Zend/` you can do this by doing the following things (replace `${ZENDVERSION}` e.g. with `1.12.0`):
 
     wget http://packages.zendframework.com/releases/ZendFramework-${ZENDVERSION}/ZendFramework-${ZENDVERSION}-minimal.tar.gz
     tar xzf ZendFramework-${ZENDVERSION}-minimal.tar.gz
@@ -25,7 +28,7 @@ You have to place a copy of the Zend framework library into `libraries/Zend/` yo
     rm -rf ZendFramework-${ZENDVERSION}-minimal.tar.gz ZendFramework-${ZENDVERSION}-minimal
 
 ### JavaScript
-In order to get [twitter bootstrap](http://twitter.github.com/bootstrap/) and [jquery](http://jquery.com/) run:
+In order to get the JavaScript dependencies [twitter bootstrap](http://twitter.github.com/bootstrap/) and [jquery](http://jquery.com/) run:
 
     make resources
 
