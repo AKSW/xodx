@@ -1,7 +1,7 @@
 xodx
 ====
 
-pronunciation: ˈɛksodʊs
+pronunciation: [ˈɛksodʊs]
 
 This is an implementation of the basic functionalities of a DSSN Provider, as described in Tramp et al. [An Architecture of a Distributed Semantic Social Network](http://www.semantic-web-journal.net/sites/default/files/swj201_4.pdf):
 * [Semantic Pingback](http://aksw.org/Projects/SemanticPingback) for Friending
