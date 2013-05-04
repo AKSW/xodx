@@ -79,6 +79,9 @@ class Xodx_ActivityController extends Saft_Controller
                 );
                 $debugStr = $this->addActivity($actorUri, $verbUri, $object);
             break;
+            default:
+                $debugStr = 'The given activity type ("' . $actType . '") is unknown.';
+            break;
         }
         $template->addDebug($debugStr);
 
