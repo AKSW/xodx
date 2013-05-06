@@ -140,7 +140,7 @@ class Xodx_ActivityController extends Saft_Controller
 
         } else if ($object['type'] == 'Note') {
             $type               = 'Note';
-            $object['type']     = $nsSioc . 'Note';
+            $object['type']     = $nsSioc . 'Post';
             $object['aairType'] = $nsAair . 'Note';
             $content            = $object['content'];
 
