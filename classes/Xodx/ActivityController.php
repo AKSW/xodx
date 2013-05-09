@@ -516,7 +516,7 @@ class Xodx_ActivityController extends Saft_Controller
                 'type'      => $type,
             );
 
-            if (isset($act['context'])) {
+            if (isset($act['context']) && !empty($act['context'])) {
                 $activity['context'] = $act['context'];
             }
 
