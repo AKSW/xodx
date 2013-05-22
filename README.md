@@ -11,7 +11,8 @@ It is written in PHP and utilizes the Zend Framework, the [Erfurt Framework](htt
 
 Installation
 ------------
-You need a webserver (tested with Apache, but I hope it also runs with nginx and lighttd) and a database backend which is supported by Erfurt (MySQL and Virtuoso).
+You need a webserver (tested with Apache and nginx but I hope it also runs with lighttd) and a database backend which is supported by Erfurt (Virtuoso and MySQL).
+Because this software is written in PHP your need php (>= 5.3.7) with the bindings for your webserver of fastcgi, php-support for your database (php-odbc or php-mysql) and php-curl.
 
 Take the prepared `config.ini-dist` file, copy it to `config.ini` and configure it according to your system setup.
 If you have an OntoWiki runnnig you can copy the database connection section (`store.*`) into the config.ini of xodx.
