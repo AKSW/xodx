@@ -1,6 +1,6 @@
 <div class="profile row-fluid">
     <div class="span9">
-        <?php if(isset($this->profileshowDepiction)) : ?> <img class="avatar size128" src="<?= $this->profileshowDepiction ?>" /> <?php endif; ?>
+        <?php if(isset($this->profileshowDepiction)) : ?> <img class="avatar size128 img-polaroid" src="<?= $this->profileshowDepiction ?>" /> <?php endif; ?>
         <h2>Hello <?= $this->profileshowName ?></h2>
         <h3>Notifications</h3>
         <?php if (isset($this->profileshowNews) && count($this->profileshowNews) > 0) : ?>
