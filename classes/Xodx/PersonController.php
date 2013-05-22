@@ -126,11 +126,14 @@ class Xodx_PersonController extends Xodx_ResourceController
         $bootstrap  = $this->_app->getBootstrap();
         $model      = $bootstrap->getResource('model');
         $request    = $bootstrap->getResource('request');
+        $personUri  = $request->getValue('uri', 'get');
         $id         = $request->getValue('id', 'get');
         $controller = $request->getValue('c', 'get');
 
         // get URI
-        $personUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $id;
+        if ($id !== null) {
+            $personUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $id;
+        }
 
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
 
