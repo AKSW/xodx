@@ -9,6 +9,8 @@ This is an implementation of the basic functionalities of a DSSN Provider, as de
 
 It is written in PHP and utilizes the Zend Framework, the [Erfurt Framework](http://erfurt-framework.org/) and [lib-dssn](https://github.com/AKSW/lib-dssn-php).
 
+If you want to read more about xodx take a look at the [wiki](https://github.com/white-gecko/xodx/wiki). In case you see any bugs or have feature-requests please follow the [issue-workflow](https://github.com/white-gecko/xodx/wiki/Issue-Workflow).
+
 Installation
 ------------
 You need a webserver (tested with Apache and nginx but I hope it also runs with lighttd) and a database backend which is supported by Erfurt (Virtuoso and MySQL).
