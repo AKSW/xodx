@@ -110,7 +110,7 @@
                 }
             ?>
             <strong><?= $name ?></strong><br />
-            <a href="?c=profile&amp;a=show&amp;person=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
+            <a href="?c=person&amp;uri=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
         </address>
         <?php endforeach; ?>
     </div>

@@ -175,9 +175,19 @@ class Xodx_PersonController extends Xodx_ResourceController
                     'nick' => $modelNew->getValue($personUri, $nsFoaf . 'nick')
                 );
             }
-            //$knows = $modelNew->sparqlQuery($contactsQuery);
+            $friends = $modelNew->getValues($personUri, $nsFoaf . 'knows');
 
             $knows = array();
+
+//            var_dump($friends);
+            foreach($friends as $friend) {
+                $knows[] = array(
+                    'contactUri' => $friend['value'],
+                    'name' => '',
+                    'nick' => ''
+                );
+            }
+
         } else {
             $knows = $model->sparqlQuery($contactsQuery);
         }
