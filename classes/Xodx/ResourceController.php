@@ -16,11 +16,6 @@ class Xodx_ResourceController extends Saft_Controller
     {
         $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
-        $objectId = $request->getValue('id', 'get');
-        $controller = $request->getValue('c', 'get');
-        //$header = $request->getHeader();
-        //$accept = explode(',',$header['Accept']);
-        header('HTTP/1.1 302 Found');
 
         // Array of Accept Header values
         $otherType = array(
@@ -29,6 +24,7 @@ class Xodx_ResourceController extends Saft_Controller
         );
 
         // Array of Accept Header values (keys) for serialised view
+        // TODO: get this list from Erfurt
         $rdfType = array(
             'application/sparql-results+xml' => 'rdfxml',
             'application/json' => 'rdfjson',
@@ -43,29 +39,28 @@ class Xodx_ResourceController extends Saft_Controller
         );
 
         $supportedTypes = array_merge($rdfType, $otherType);
-        $match = Saft_Tools::matchMimetypeFromRequest($request, array_keys($supportedTypes));
+
+        $mimetypeHelper = $this->_app->getHelper('Saft_Helper_MimetypeHelper');
+        $match = $mimetypeHelper->matchFromRequest($request, array_keys($supportedTypes));
+
         $template->disableLayout();
         $template->setRawContent('');
 
         if ($match != '') {
+            header('HTTP/1.1 302 Found');
             if (array_key_exists($match, $rdfType)) {
-                header('Location: ' . $this->_app->getBaseUri() . '?c=' . $controller .
-                '&a=rdf&id=' . $objectId . '&mime=' . urlencode($match));
-                return $template;
+                $location = $this->_app->getBaseUri() . '?a=rdf&mime=' . urlencode($match);
+                $location.= '&' . $request->getQueryString();
             } else if (strpos($match, 'image') !== false) {
-                header('Location: ' . $this->_app->getBaseUri() . '?c=' . $controller .
-                '&a=img&id=' . $objectId);
-                return $template;
+                $location = $this->_app->getBaseUri() . '?a=img&' . $request->getQueryString();
             } else if (strpos($match, 'text') !== false) {
                 // TODO change name of showAction in ProfileController so it won't be overwritten
-                header('Location: ' . $this->_app->getBaseUri() . '?c=' . $controller .
-                '&a=show&id=' . $objectId);
-                return $template;
+                $location = $this->_app->getBaseUri() . '?a=show&' . $request->getQueryString();
             }
+            header('Location: ' . $location);
+        } else {
+            header('HTTP/1.1 404 Not Found');
         }
-
-        // default
-        //header('Location: ' . $this->_app->getBaseUri() . '?c=resource&a=show&id=' . $objectId);
 
         return $template;
     }
