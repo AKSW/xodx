@@ -198,6 +198,11 @@ class Xodx_ApplicationController extends Saft_Controller
         $password = $request->getValue('password', 'post');
 
         if ($this->login($username, $password)) {
+            $template->disableLayout();
+            $template->setRawContent('');
+            $location = $this->_app->getBaseUri() . '?c=user&a=home';
+            header('HTTP/1.1 302 Found');
+            header('Location: ' . $location);
         } else {
             $template->addContent('templates/login.phtml');
         }
@@ -211,6 +216,12 @@ class Xodx_ApplicationController extends Saft_Controller
     public function logoutAction ($template)
     {
         $this->login('guest');
+
+        $template->disableLayout();
+        $template->setRawContent('');
+        $location = $this->_app->getBaseUri() . '?c=application&a=login';
+        header('HTTP/1.1 302 Found');
+        header('Location: ' . $location);
 
         return $template;
     }
