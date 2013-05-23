@@ -47,23 +47,26 @@ class Xodx_ResourceController extends Saft_Controller
         $template->setRawContent('');
 
         if ($match != '') {
-            header('HTTP/1.1 302 Found');
+            $location = new Saft_Url($request);
+
             if (array_key_exists($match, $rdfType)) {
-                $location = $this->_app->getBaseUri() . '?a=rdf&mime=' . urlencode($match);
-                $location.= '&' . $request->getQueryString();
+                $location->setParameter('a', 'rdf');
+                $location->setParameter('mime', $match);
             } else if (strpos($match, 'image') !== false) {
-                $location = $this->_app->getBaseUri() . '?a=img&' . $request->getQueryString();
+                $location->setParameter('a', 'img');
             } else if (strpos($match, 'text') !== false) {
                 // TODO change name of showAction in ProfileController so it won't be overwritten
-                $location = $this->_app->getBaseUri() . '?a=show&' . $request->getQueryString();
+                $location->setParameter('a', 'show');
             }
-            header('Location: ' . $location);
+
+            $template->redirect($location);
         } else {
-            header('HTTP/1.1 404 Not Found');
+            $template->setResponseCode(404);
         }
 
         return $template;
     }
+
     /**
      *
      * Method returns all tuples of a resource to html template

@@ -14,13 +14,17 @@ class Xodx_IndexController extends Saft_Controller
         $template->disableLayout();
         $template->setRawContent('');
 
+        $location = new Saft_Url($this->_app->getBaseUri());
+
         if ($user->getName() == 'guest') {
-            $location = $this->_app->getBaseUri() . '?c=application&a=login';
+            $location->setParameter('c', 'application');
+            $location->setParameter('a', 'login');
         } else {
-            $location = $this->_app->getBaseUri() . '?c=user&a=home';
+            $location->setParameter('c', 'user');
+            $location->setParameter('a', 'home');
         }
-        header('HTTP/1.1 302 Found');
-        header('Location: ' . $location);
+
+        $template->redirect($location);
 
         return $template;
     }

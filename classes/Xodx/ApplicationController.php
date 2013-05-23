@@ -200,9 +200,12 @@ class Xodx_ApplicationController extends Saft_Controller
         if ($this->login($username, $password)) {
             $template->disableLayout();
             $template->setRawContent('');
-            $location = $this->_app->getBaseUri() . '?c=user&a=home';
-            header('HTTP/1.1 302 Found');
-            header('Location: ' . $location);
+
+            $location = new Saft_Url($this->_app->getBaseUri());
+            $location->setParameter('c', 'user');
+            $location->setParameter('a', 'home');
+
+            $template->redirect($location);
         } else {
             $template->addContent('templates/login.phtml');
         }
@@ -219,9 +222,12 @@ class Xodx_ApplicationController extends Saft_Controller
 
         $template->disableLayout();
         $template->setRawContent('');
-        $location = $this->_app->getBaseUri() . '?c=application&a=login';
-        header('HTTP/1.1 302 Found');
-        header('Location: ' . $location);
+
+        $location = new Saft_Url($this->_app->getBaseUri());
+        $location->setParameter('c', 'application');
+        $location->setParameter('a', 'login');
+
+        $template->redirect($location);
 
         return $template;
     }
