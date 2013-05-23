@@ -7,51 +7,6 @@
 
 class Xodx_MediaController extends Saft_Controller
 {
-    public function getAction ($template)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-
-        $request = $bootstrap->getResource('request');
-        $actorUri = $request->getValue('actor', 'post');
-        $verbUri = $request->getValue('verb', 'post');
-        $actTypeUri = $request->getValue('type', 'post');
-        $actContent = $request->getValue('content', 'post');
-
-        switch ($actTypeUri) {
-            case 'http://xmlns.notu.be/aair#Note':
-                $object = array(
-                    'type' => $actTypeUri,
-                    'content' => $actContent,
-                );
-                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
-                break;
-            case 'http://xmlns.notu.be/aair#Link':
-                $object = array(
-                    'type' => $actTypeUri,
-                    'about' => $request->getValue('about', 'post'),
-                    'content' => $actContent,
-                );
-                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
-                break;
-            case 'http://xmlns.notu.be/aair#Photo':
-                $fieldName = 'content';
-                $fileInfo = $this->_uploadImage($fieldName);
-                $object = array(
-                    'type' => $actTypeUri,
-                    'about' => $request->getValue('about', 'post'),
-                    'content' => $actContent,
-                    'fileName' => $fileInfo['fileId'],
-                    'mimeType' => $fileInfo['mimeType'],
-                );
-                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
-                break;
-        }
-
-        $template->addDebug($debugStr);
-
-        return $template;
-    }
-
     /**
      * This method uploads an image file after using an upload form
      * @param $fileName the name.ext of the file posted
