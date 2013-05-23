@@ -237,7 +237,7 @@ class Xodx_ActivityController extends Saft_Controller
                 'type' => 'literal', 'value' => $now, 'datatype' => $nsXsd . 'dateTime'
             );
 
-            $activity[$objectUri][$nsSioc . 'has_creator'][] = array(
+            $activity[$objectUri][$nsFoaf . 'maker'][] = array(
                 'type' => 'uri', 'value' => $actorUri
             );
 
