@@ -29,30 +29,11 @@
                     <span class="icon-bar"></span>
                 </a>
                 <a class="brand"><img src="resources/img/xodx_20.png" alt="Xodx" title="[ˈɛksodʊs]" /></a>
-                <div class="btn-group pull-right">
-                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                        <?php if (count($this->notifications) > 0): ?>
-                        <span class="badge badge-info"><?= count($this->notifications) ?></span>
-                        <?php endif; ?>
-                        <i class="icon-user"></i>
-                        <?= $this->username ?>
-                        <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="?c=user&amp;a=getnotifications">Notifications</a></li>
-                        <li class="divider"></li>
-                        <li><a href="?c=application&amp;a=login">Login</a></li>
-                        <li><a href="?c=application&amp;a=logout">Logout</a></li>
-                        <li><a href="?c=application&amp;a=newuser">Sign Up (Add User)</a></li>
-                    </ul>
-                </div>
-                <div class="nav-collapse">
                 <?php
                 foreach ($this->_menuFiles as $menuFile) {
                     include $menuFile;
                 }
                 ?>
-                </div><!--/.nav-collapse -->
             </div>
         </div>
     </div>

@@ -1,4 +1,23 @@
 <ul class="nav">
-    <li><a href="?c=user&a=home">Dashboard</a></li>
+    <li>
+        <div class="btn-group">
+            <?php if (count($this->notifications) > 0): ?>
+            <a href="?c=user&amp;a=getnotifications" class="btn">
+                <span class="badge badge-info" title="<?php echo count($this->notifications) ?> Notifications"><?= count($this->notifications) ?></span>
+            </a>
+            <?php endif; ?>
+            <a href="?c=user&a=home" class="btn">
+                <i class="icon-user"></i> <?= $this->username ?>
+            </a>
+        </div>
+    </li>
+</ul>
+<div class="nav-collapse">
+<ul class="nav">
     <li><a href="?c=profile&amp;a=list">List All Profiles</a></li>
 </ul>
+<ul class="nav pull-right">
+    <li><a href="?c=application&amp;a=login">Login</a></li>
+    <li><a href="?c=application&amp;a=logout">Logout</a></li>
+</ul>
+</div><!--/.nav-collapse -->
