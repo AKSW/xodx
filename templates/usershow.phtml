@@ -5,8 +5,8 @@
         <h3>Notifications</h3>
         <?php if (isset($this->profileshowNews) && count($this->profileshowNews) > 0) : ?>
         <ul>
-            <?php foreach ($this->profileshowNews as $notification) : ?>
-            <li><?= var_export($notification, true) ?></li>
+            <?php foreach ($this->profileshowNews as $noteUri => $notification) : ?>
+            <li><a href="<?= $noteUri ?>"><?= var_export($notification, true) ?></a></li>
             <?php endforeach; ?>
         <?php else: ?>
         <div class="alert alert-info">

@@ -429,7 +429,7 @@ class Xodx_UserController extends Xodx_ResourceController
                 $knows = $model->sparqlQuery($contactsQuery);
 
                 $activities = $this->getActivityStream($user);
-                $news = $this->getNotifications($personUri);
+                $news = $this->getNotifications($user->getUri());
 
                 $template->profileshowPersonUri = $personUri;
                 $template->profileshowDepiction = $profile[0]['depiction'];
