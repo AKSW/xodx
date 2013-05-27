@@ -9,118 +9,9 @@ class Xodx_PersonController extends Xodx_ResourceController
 {
     private $_persons = array();
 
-    public function getPerson ($personUri)
-    {
-        if (!isset($this->_persons[$psersonUri])) {
-
-            $person = new DSSN_Foaf_Person($personUri);
-
-            $this->_persons[$personUri] = $person;
-        }
-
-        return $this->_persons[$personUri];
-    }
-
     /**
-     * This method gets the userAccount responsible for a given person.
-     *
-     * @param $personUri the URI of the person whoes account should be returned
-     * @returns Xodx_User account of this person
+     * A view action to show a person
      */
-    public function getUserForPerson ($personUri)
-    {
-        $model = $this->_app->getBootstrap()->getResource('model');
-        $userController = $this->_app->getController('Xodx_UserController');
-
-        $userQuery = 'SELECT ?user' . PHP_EOL;
-        $userQuery.= 'WHERE {' . PHP_EOL;
-        $userQuery.= '    ?user sioc:account_of <' . $personUri . '>.' . PHP_EOL;
-        $userQuery.= '}' . PHP_EOL;
-        $userQuery.= 'LIMIT 1' . PHP_EOL;
-
-        $result = $model->sparqlQuery($userQuery);
-
-        $user = $userController->getUser($result[0]['user']);
-
-        return $user;
-    }
-
-    public function addFriend ($personUri, $contactUri)
-    {
-        $model = $this->_app->getBootstrap()->getResource('model');
-        $userController = $this->_app->getController('Xodx_UserController');
-
-        // update WebID
-        $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
-
-        $pingbackController = $this->_app->getController('Xodx_PingbackController');
-        $pingbackController->sendPing($personUri, $contactUri, 'Do you want to be my friend?');
-
-        $nsAair = 'http://xmlns.notu.be/aair#';
-        $activityController = $this->_app->getController('Xodx_ActivityController');
-
-        // add Activity to activity Stream
-        $object = array(
-            'type' => 'Uri',
-            'content' => $contactUri,
-            'replyObject' => 'false'
-        );
-        $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
-        $userUri = $userController->getUserUri($personUri);
-        $feedUri = $this->getActivityFeedUri($contactUri);
-        $userController->subscribeToResource ($userUri, $contactUri, $feedUri);
-    }
-
-    /**
-     * Returns the feed of the specified $type of the person
-     */
-    public function getFeed ($personUri, $type = 'activity')
-    {
-        $model = $this->_app->getBootstrap()->getResource('model');
-
-        $nsDssn = 'http://purl.org/net/dssn/';
-
-        $feedProp = '';
-        if ($type == 'activity') {
-            $feedProp = $nsDssn . 'activityFeed';
-        } else if ($type == 'sync') {
-            $feedProp = $nsDssn . 'syncFeed';
-        }
-
-        $feedResult = $model->sparqlQuery(
-            'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
-            'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
-            'SELECT ?feed ' .
-            'WHERE { ' .
-            '   <' . $personUri . '> <' . $feedProp . '> ?feed . ' .
-            '}'
-        );
-
-        return $feedResult[0]['feed'];
-    }
-
-    /**
-     * Get an array of new notifications for the person
-     */
-    public function getNotifications ($personUri)
-    {
-        $model = $this->_app->getBootstrap()->getResource('model');
-
-        $pingResult = $model->sparqlQuery(
-            'PREFIX pingback: <http://purl.org/net/pingback/> ' .
-            'SELECT ?ping ?source ?target ?comment ' .
-            'WHERE { ' .
-            '   <' . $personUri . '> pingback:ping ?ping . ' .
-            '   ?ping a                pingback:Item ; ' .
-            '         pingback:source  ?source ; ' .
-            '         pingback:target  ?target ; ' .
-            '         pingback:comment ?comment . ' .
-            '} '
-        );
-
-        return $pingResult;
-    }
-
     public function showAction ($template)
     {
         $bootstrap  = $this->_app->getBootstrap();
@@ -227,6 +118,131 @@ class Xodx_PersonController extends Xodx_ResourceController
         $template->addContent('templates/profileshow.phtml');
 
         return $template;
+    }
+
+    /**
+     * Get a DSSN_Foaf_Person object representing the specified person
+     *
+     * @param $personUri the URI of the person who sould be represented by the returned object
+     * @return a DSSN_Foaf_Person object
+     */
+    public function getPerson ($personUri)
+    {
+        if (!isset($this->_persons[$psersonUri])) {
+            $person = new DSSN_Foaf_Person($personUri);
+            $this->_persons[$personUri] = $person;
+        }
+        return $this->_persons[$personUri];
+    }
+
+    /**
+     * This method gets the userAccount responsible for a given person.
+     *
+     * @param $personUri the URI of the person whoes account should be returned
+     * @returns Xodx_User account of this person
+     */
+    public function getUserForPerson ($personUri)
+    {
+        $model = $this->_app->getBootstrap()->getResource('model');
+        $userController = $this->_app->getController('Xodx_UserController');
+
+        $userQuery = 'SELECT ?user' . PHP_EOL;
+        $userQuery.= 'WHERE {' . PHP_EOL;
+        $userQuery.= '    ?user sioc:account_of <' . $personUri . '>.' . PHP_EOL;
+        $userQuery.= '}' . PHP_EOL;
+        $userQuery.= 'LIMIT 1' . PHP_EOL;
+
+        $result = $model->sparqlQuery($userQuery);
+
+        $user = $userController->getUser($result[0]['user']);
+
+        return $user;
+    }
+
+    /**
+     * Add a new contact to the list of freinds of a person
+     * This is a one-way connection, the contact doesn't has to approve it
+     *
+     * @param $personUri the URI of the person to whome the contact should be added
+     * @param $contactUri the URI of the person who sould be added as friend
+     */
+    public function addFriend ($personUri, $contactUri)
+    {
+        $model = $this->_app->getBootstrap()->getResource('model');
+        $userController = $this->_app->getController('Xodx_UserController');
+
+        // update WebID
+        $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
+
+        $pingbackController = $this->_app->getController('Xodx_PingbackController');
+        $pingbackController->sendPing($personUri, $contactUri, 'Do you want to be my friend?');
+
+        $nsAair = 'http://xmlns.notu.be/aair#';
+        $activityController = $this->_app->getController('Xodx_ActivityController');
+
+        // add Activity to activity Stream
+        $object = array(
+            'type' => 'Uri',
+            'content' => $contactUri,
+            'replyObject' => 'false'
+        );
+        $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
+        $userUri = $userController->getUserUri($personUri);
+        $feedUri = $this->getActivityFeedUri($contactUri);
+        $userController->subscribeToResource ($userUri, $contactUri, $feedUri);
+    }
+
+    /**
+     * Returns the feed of the specified $type of the person
+     * @param $personUri the URI of the person whoes feed sould be returned
+     */
+    public function getFeed ($personUri, $type = 'activity')
+    {
+        $model = $this->_app->getBootstrap()->getResource('model');
+
+        $nsDssn = 'http://purl.org/net/dssn/';
+
+        $feedProp = '';
+        if ($type == 'activity') {
+            $feedProp = $nsDssn . 'activityFeed';
+        } else if ($type == 'sync') {
+            $feedProp = $nsDssn . 'syncFeed';
+        }
+
+        $feedResult = $model->sparqlQuery(
+            'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
+            'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
+            'SELECT ?feed ' .
+            'WHERE { ' .
+            '   <' . $personUri . '> <' . $feedProp . '> ?feed . ' .
+            '}'
+        );
+
+        return $feedResult[0]['feed'];
+    }
+
+    /**
+     * Get an array of new notifications for the person
+     *
+     * @param $personUri the URI of the person whoes notifications should be returned
+     */
+    public function getNotifications ($personUri)
+    {
+        $model = $this->_app->getBootstrap()->getResource('model');
+
+        $pingResult = $model->sparqlQuery(
+            'PREFIX pingback: <http://purl.org/net/pingback/> ' .
+            'SELECT ?ping ?source ?target ?comment ' .
+            'WHERE { ' .
+            '   <' . $personUri . '> pingback:ping ?ping . ' .
+            '   ?ping a                pingback:Item ; ' .
+            '         pingback:source  ?source ; ' .
+            '         pingback:target  ?target ; ' .
+            '         pingback:comment ?comment . ' .
+            '} '
+        );
+
+        return $pingResult;
     }
 
     /**
