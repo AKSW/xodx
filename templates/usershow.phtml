@@ -92,7 +92,7 @@
         <a class="btn btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
         <hr />
         <h3>Friends</h3>
-        <form method="post" action="?c=profile&amp;a=addfriend">
+        <form method="post" action="?c=person&amp;a=addfriend">
             <div class="input-append">
                 <input type="hidden" name="person" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
                 <input type="text" name="friend" placeholder="Add a friends URI" /><button class="btn btn-primary" type="submit">Add</button>

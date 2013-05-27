@@ -41,20 +41,4 @@ class Xodx_ProfileController extends Xodx_ResourceController
 
         return $template;
     }
-
-    public function addfriendAction($template)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $request = $bootstrap->getResource('request');
-
-        // get URI
-        $personUri = $request->getValue('person', 'post');
-        $friendUri = $request->getValue('friend', 'post');
-
-        $personController = $this->_app->getController('Xodx_PersonController');
-
-        $personController->addFriend($personUri, $friendUri);
-
-        return $template;
-    }
 }

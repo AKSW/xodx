@@ -38,7 +38,7 @@
         <?php endif; ?>
     </div>
     <div class="span3">
-        <form method="post" action="?c=profile&amp;a=addfriend">
+        <form method="post" action="?c=person&amp;a=addfriend">
             <?php if ($this->profileshowLoggedIn) : ?>
             <input type="hidden" name="person" value="<?= htmlentities($this->profileshowLogInUri) ?>" />
             <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />

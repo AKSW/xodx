@@ -121,6 +121,25 @@ class Xodx_PersonController extends Xodx_ResourceController
     }
 
     /**
+     * View action for adding a new friend. (This action should be called from a form)
+     */
+    public function addfriendAction($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+
+        // get URI
+        $personUri = $request->getValue('person', 'post');
+        $friendUri = $request->getValue('friend', 'post');
+
+        $personController = $this->_app->getController('Xodx_PersonController');
+
+        $personController->addFriend($personUri, $friendUri);
+
+        return $template;
+    }
+
+    /**
      * Get a DSSN_Foaf_Person object representing the specified person
      *
      * @param $personUri the URI of the person who sould be represented by the returned object
