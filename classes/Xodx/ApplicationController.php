@@ -64,8 +64,7 @@ class Xodx_ApplicationController extends Saft_Controller
 
             // TODO check if username is already taken
 
-            // TODO check of personUri is a uri and is available
-            if (false) {
+            if (!Erfurt_Uri::check($personUri)) {
                 $formError['personUri'] = true;
             }
 
