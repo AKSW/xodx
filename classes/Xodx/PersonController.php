@@ -132,9 +132,15 @@ class Xodx_PersonController extends Xodx_ResourceController
         $personUri = $request->getValue('person', 'post');
         $friendUri = $request->getValue('friend', 'post');
 
-        $personController = $this->_app->getController('Xodx_PersonController');
+        if (Erfurt_Uri::check($personUri) && Erfurt_Uri::check($friendUri)) {
+            $personController = $this->_app->getController('Xodx_PersonController');
+            $personController->addFriend($personUri, $friendUri);
 
-        $personController->addFriend($personUri, $friendUri);
+            // TODO redirect to the page, where the request came from
+        } else {
+            $template->addContent('templates/error.phtml');
+            $template->exception = 'At least one of the given URIs is not valid: personUri="' . $personUri . '", friendUri="' . $friendUri . '".';
+        }
 
         return $template;
     }
