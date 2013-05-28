@@ -46,7 +46,7 @@
     ?>
     </div>
 
-    <?php if (!empty($this->_debugLog)) : ?>
+    <?php if ($this->_debug && !empty($this->_debugLog)) : ?>
 
     <div class="debug" id="debugConsole">
         <h3>Debuglog:</h3>

@@ -51,6 +51,11 @@ class Xodx_Application extends Saft_Application
         $template->username = $user->getName();
         $template->notifications = $userController->getNotifications($user->getUri());
 
+        $config = $bootstrap->getResource('config');
+        if ($config['debug'] == false) {
+            $template->disableDebug();
+        }
+
         $template->render();
     }
 }
