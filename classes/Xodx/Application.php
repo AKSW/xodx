@@ -52,7 +52,7 @@ class Xodx_Application extends Saft_Application
         $template->notifications = $userController->getNotifications($user->getUri());
 
         $config = $bootstrap->getResource('config');
-        if ($config['debug'] == false) {
+        if (isset($config['debug']) && $config['debug'] == false) {
             $template->disableDebug();
         }
 
