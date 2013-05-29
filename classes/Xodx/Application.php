@@ -20,9 +20,8 @@ class Xodx_Application extends Saft_Application
         /**
          * Prepare Template
          */
-        $template = Saft_Template::getInstance();
-        $template->setLayout('templates/layout.phtml');
-        $template->addMenu('templates/menu.phtml');
+        $this->_layout->setLayout('templates/layout.phtml');
+        $this->_layout->addMenu('templates/menu.phtml');
 
         $request = $bootstrap->getResource('request');
 
@@ -43,19 +42,19 @@ class Xodx_Application extends Saft_Application
 
         $actionName = $requestAction . 'Action';
         $controller = $this->getController($controllerName);
-        $template = $controller->$actionName($template);
+        $this->_layout = $controller->$actionName($this->_layout);
 
         $userController = $this->getController('Xodx_UserController');
         $user = $userController->getUser();
 
-        $template->username = $user->getName();
-        $template->notifications = $userController->getNotifications($user->getUri());
+        $this->_layout->username = $user->getName();
+        $this->_layout->notifications = $userController->getNotifications($user->getUri());
 
         $config = $bootstrap->getResource('config');
         if (isset($config['debug']) && $config['debug'] == false) {
-            $template->disableDebug();
+            $this->_layout->disableDebug();
         }
 
-        $template->render();
+        $this->_layout->render();
     }
 }
