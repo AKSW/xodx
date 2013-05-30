@@ -5,8 +5,15 @@
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
 
+/**
+ * The PersonController is responsible for all action concerning Persons.
+ * This is showing the profile, befriending and maybe more in the future.
+ */
 class Xodx_PersonController extends Xodx_ResourceController
 {
+    /**
+     * The cache-array of already queried persons to not query for the same person twice
+     */
     private $_persons = array();
 
     /**
@@ -70,7 +77,6 @@ class Xodx_PersonController extends Xodx_ResourceController
 
             $knows = array();
 
-//            var_dump($friends);
             foreach($friends as $friend) {
                 $knows[] = array(
                     'contactUri' => $friend['value'],
