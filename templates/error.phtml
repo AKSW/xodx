@@ -1,4 +1,21 @@
-<h2>Error</h2>
-<div class="error">
+<?php if (isset($this->errorType)) : ?>
+    <h2><?= $this->errorType ?></h2>
+<?php else : ?>
+    <h2>Error</h2>
+<?php endif; ?>
+<div class="alert alert-error">
+    <?php if (is_a($this->exception, 'Exception')): ?>
+    <strong><?= $this->exception->getMessage() ?></strong> in <?= basename($this->exception->getFile()) . '@l.' . $this->exception->getLine() ?>
+    <ol>
+    <?php foreach($this->exception->getTrace() as $item): ?>
+        <li><?=basename($item['file']) . '@l.' . $item['line'] ?></li>
+    <?php endforeach; ?>
+    </ol>
+    <?php else: ?>
     <?= $this->exception ?>
+    <?php endif; ?>
 </div>
+<p>If you think reporting this error can help improving this software, please <a href="https://github.com/white-gecko/xodx/issues">create a new issue on our GitHub page</a>.</p>
+<?php if (isset($this->back)) : ?>
+<a class="btn" href="<?= $this->back ?>"><i class="icon-hand-left"></i> Back to Start</a>
+<?php endif; ?>
