@@ -49,21 +49,11 @@
         </form>
         <a class="btn btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
         <hr />
-        <h3>Friends</h3>
-        <?php foreach($this->profileshowKnows as $contact) : ?>
-        <address>
-            <?php
-                if ($contact['name'] != null) {
-                    $name = $contact['name'];
-                } elseif ($contact['nick'] != null) {
-                    $name = $contact['nick'];
-                } else {
-                    $name = "unknown name";
-                }
-            ?>
-            <strong><?= $name ?></strong><br />
-            <a href="?c=person&amp;uri=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
-        </address>
-        <?php endforeach; ?>
+        <?php
+            $this->partial(
+                'templates/partials/friendlist.phtml',
+                array('personUri' => $this->profileshowPersonUri, 'knows' => $this->profileshowKnows, 'addFriend' => false)
+            );
+        ?>
     </div>
 </div>

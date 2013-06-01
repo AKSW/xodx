@@ -48,6 +48,7 @@ class Xodx_ApplicationController extends Saft_Controller
         $model = $bootstrap->getResource('model');
         $store = $bootstrap->getResource('store');
         $request = $bootstrap->getResource('request');
+        $logger = $bootstrap->getResource('logger');
 
         // get URI
         $personUri = $request->getValue('personUri', 'post');
@@ -105,7 +106,7 @@ class Xodx_ApplicationController extends Saft_Controller
                 if (!empty($personUri)) {
                     $linkeddataHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
                     $newStatements = $linkeddataHelper->getResource($personUri);
-                    $template->addDebug(var_export($newStatements, true));
+                    $logger->debug(var_export($newStatements, true));
                     if ($newStatements === null) {
                         $formError['personUri'] = true;
                         $template->formError = $formError;
@@ -128,7 +129,7 @@ class Xodx_ApplicationController extends Saft_Controller
                         } else if ($type == $nsFoaf . 'PersonalProfileDocument') {
                             $personUri = $memModel->getValue($personUri, $nsFoaf . 'primaryTopic');
                             $newStatements = $linkeddataHelper->getResource($personUri);
-                            $template->addDebug(var_export($newStatements, true));
+                            $logger->debug(var_export($newStatements, true));
                             $memModel = new Erfurt_Rdf_MemoryModel($newStatements);
                             break;
                         }

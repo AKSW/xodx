@@ -23,6 +23,7 @@ class Xodx_ActivityController extends Saft_Controller
     {
         $bootstrap = $this->_app->getBootstrap();
 
+        $logger = $bootstrap->getResource('logger');
         $request = $bootstrap->getResource('request');
         $actorUri = $request->getValue('actor', 'post');
         $verb = $request->getValue('verb', 'post');
@@ -48,7 +49,7 @@ class Xodx_ActivityController extends Saft_Controller
                     'content' => $actContent,
                     'replyObject' => $replyObject,
                 );
-                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
+                $this->addActivity($actorUri, $verbUri, $object);
             break;
             case 'Comment';
                 $object = array(
@@ -56,7 +57,7 @@ class Xodx_ActivityController extends Saft_Controller
                     'content' => $actContent,
                     'replyObject' => $replyObject,
                 );
-                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
+                $this->addActivity($actorUri, $verbUri, $object);
             break;
             case 'Bookmark';
                 $object = array(
@@ -64,7 +65,7 @@ class Xodx_ActivityController extends Saft_Controller
                     'content' => $actContent,
                     'replyObject' => $replyObject,
                 );
-                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
+                $this->addActivity($actorUri, $verbUri, $object);
             break;
             case 'Photo';
                 $fieldName = 'content';
@@ -77,13 +78,12 @@ class Xodx_ActivityController extends Saft_Controller
                     'mime' => $fileInfo['mimeType'],
                     'replyObject' => $replyObject,
                 );
-                $debugStr = $this->addActivity($actorUri, $verbUri, $object);
+                $this->addActivity($actorUri, $verbUri, $object);
             break;
             default:
-                $debugStr = 'The given activity type ("' . $actType . '") is unknown.';
+                $logger->info('The given activity type ("' . $actType . '") is unknown.');
             break;
         }
-        $template->addDebug($debugStr);
 
         return $template;
     }
@@ -100,6 +100,7 @@ class Xodx_ActivityController extends Saft_Controller
         $store = $bootstrap->getResource('store');
         $model = $bootstrap->getResource('model');
         $config = $bootstrap->getResource('config');
+        $logger = $bootstrap->getResource('logger');
         $graphUri = $model->getModelIri();
         $nsXsd =      'http://www.w3.org/2001/XMLSchema#';
         $nsRdf =      'http://www.w3.org/1999/02/22-rdf-syntax-ns#';

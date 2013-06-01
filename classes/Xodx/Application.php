@@ -20,7 +20,6 @@ class Xodx_Application extends Saft_Application
              * Prepare Template
              */
             $this->_layout->setLayout('templates/layout.phtml');
-            $this->_layout->addMenu('templates/menu.phtml');
 
             $request = $bootstrap->getResource('request');
 
@@ -48,6 +47,7 @@ class Xodx_Application extends Saft_Application
 
             $this->_layout->username = $user->getName();
             $this->_layout->notifications = $userController->getNotifications($user->getUri());
+            $this->_layout->addDebug($bootstrap->getResource('logger')->getLastLog());
 
             $config = $bootstrap->getResource('config');
             if (isset($config['debug']) && $config['debug'] == false) {

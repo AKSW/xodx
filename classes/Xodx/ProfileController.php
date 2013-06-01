@@ -37,8 +37,6 @@ class Xodx_ProfileController extends Xodx_ResourceController
         $template->profilelistList = $persons;
         $template->addContent('templates/profilelist.phtml');
 
-        $template->addDebug(var_export($profiles, true));
-
         return $template;
     }
 }

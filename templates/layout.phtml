@@ -30,9 +30,10 @@
                 </a>
                 <a class="brand"><img src="resources/img/xodx_20.png" alt="Xodx" title="[ˈɛksodʊs]" /></a>
                 <?php
-                foreach ($this->_menuFiles as $menuFile) {
-                    include $menuFile;
-                }
+                    $this->partial(
+                        'templates/menu.phtml',
+                        array('username' => $this->username, 'notifications' => $this->notifications)
+                    );
                 ?>
             </div>
         </div>

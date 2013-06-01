@@ -24,6 +24,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         $bootstrap  = $this->_app->getBootstrap();
         $model      = $bootstrap->getResource('model');
         $request    = $bootstrap->getResource('request');
+        $logger     = $bootstrap->getResource('logger');
         $personUri  = $request->getValue('uri', 'get');
         $id         = $request->getValue('id', 'get');
         $controller = $request->getValue('c', 'get');
@@ -59,12 +60,10 @@ class Xodx_PersonController extends Xodx_ResourceController
             $linkeddataHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
             $newStatements = $linkeddataHelper->getResource($personUri);
             if ($newStatements !== null) {
-                $template->addDebug('Import Profile with LinkedDate');
+                $logger->info('Import Profile with LinkedDate');
 
                 $modelNew = new Erfurt_Rdf_MemoryModel($newStatements);
                 $newStatements = $modelNew->getStatements();
-
-                $template->addDebug(var_export($newStatements, true));
 
                 $profile = array();
                 $profile[0] = array(

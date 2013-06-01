@@ -91,27 +91,11 @@
     <div class="span3">
         <a class="btn btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
         <hr />
-        <h3>Friends</h3>
-        <form method="post" action="?c=person&amp;a=addfriend">
-            <div class="input-append">
-                <input type="hidden" name="person" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
-                <input type="text" name="friend" placeholder="Add a friends URI" /><button class="btn btn-primary" type="submit">Add</button>
-            </div>
-        </form>
-        <?php foreach($this->profileshowKnows as $contact) : ?>
-        <address>
-            <?php
-                if ($contact['name'] != null) {
-                    $name = $contact['name'];
-                } elseif ($contact['nick'] != null) {
-                    $name = $contact['nick'];
-                } else {
-                    $name = "unknown name";
-                }
-            ?>
-            <strong><?= $name ?></strong><br />
-            <a href="?c=person&amp;uri=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
-        </address>
-        <?php endforeach; ?>
+        <?php
+            $this->partial(
+                'templates/partials/friendlist.phtml',
+                array('personUri' => $this->profileshowPersonUri, 'knows' => $this->profileshowKnows, 'addFriend' => true)
+            );
+        ?>
     </div>
 </div>

@@ -1,0 +1,24 @@
+<h3>Friends</h3>
+<?php if($this->addFriend == true) : ?>
+<form method="post" action="?c=person&amp;a=addfriend">
+    <div class="input-append">
+        <input type="hidden" name="person" value="<?= htmlentities($this->personUri) ?>" />
+        <input type="text" name="friend" placeholder="Add a friends URI" /><button class="btn btn-primary" type="submit">Add</button>
+    </div>
+</form>
+<?php endif; ?>
+<?php foreach($this->knows as $contact) : ?>
+<address>
+    <?php
+        if ($contact['name'] != null) {
+            $name = $contact['name'];
+        } elseif ($contact['nick'] != null) {
+            $name = $contact['nick'];
+        } else {
+            $name = "unknown name";
+        }
+    ?>
+    <strong><?= $name ?></strong><br />
+    <a href="?c=person&amp;uri=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
+</address>
+<?php endforeach; ?>
