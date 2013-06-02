@@ -19,7 +19,7 @@ class Xodx_Application extends Saft_Application
             /**
              * Prepare Template
              */
-            $this->_layout->setLayout('templates/layout.phtml');
+            $this->_layout->setLayout('layout.phtml');
 
             $request = $bootstrap->getResource('request');
 
@@ -47,18 +47,23 @@ class Xodx_Application extends Saft_Application
 
             $this->_layout->username = $user->getName();
             $this->_layout->notifications = $userController->getNotifications($user->getUri());
-            $this->_layout->addDebug($bootstrap->getResource('logger')->getLastLog());
 
             $config = $bootstrap->getResource('config');
-            if (isset($config['debug']) && $config['debug'] == false) {
-                $this->_layout->disableDebug();
+            if (!isset($config['debug']) || $config['debug'] == true) {
+                $debug = new Saft_Template(
+                    'debug.phtml', array('log' => $bootstrap->getResource('logger')->getLastLog())
+                );
+                $this->_layout->setPlaceholder('debug', $debug);
             }
         } catch (Exception $e) {
-            $this->_layout->setLayout('templates/errorlayout.phtml');
-            $this->_layout->errorType = 'Application Error';
-            $this->_layout->exception = $e;
-            $this->_layout->back = $this->getBaseUri();
-            $this->_layout->addContent('templates/error.phtml');
+            $this->_layout->setLayout('errorlayout.phtml');
+            $options = array(
+                'errorType' => 'Application Error',
+                'exception' => $e,
+                'back' => $this->getBaseUri()
+            );
+            $errorPlaceholder = new Saft_Template('error.phtml', $options);
+            $this->_layout->setPlaceholder('error', $errorPlaceholder);
         }
         $this->_layout->render();
     }

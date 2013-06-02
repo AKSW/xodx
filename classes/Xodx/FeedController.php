@@ -45,7 +45,7 @@ class Xodx_FeedController extends Saft_Controller
 
             $nameHelper = new Xodx_NameHelper($this->_app);
 
-            $template->setLayout('templates/feed.phtml');
+            $template->setLayout('feed.phtml');
             $template->updated = $updated;
             $template->uri = $uri;
             $template->feedUri = $feedUri;
