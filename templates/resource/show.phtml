@@ -36,6 +36,11 @@ foreach ($this->properties as $property) {
             a <a href="<?= htmlentities($activity['object']) ?>">
               <?= Saft_Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
             <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
+        <?php if(isset($activity['objectImage'])) : ?>
+            <div class="span10">
+                <img class="avatar img-polaroid" src="<?= $activity['objectImage'] ?>"></img>
+            </div>
+        <?php endif; ?>
               Show Feed of Object</a></em>
         <?php else : ?>
             <a href="<?= htmlentities($activity['object']) ?>"><?= ($activity['object']) ?></a>
