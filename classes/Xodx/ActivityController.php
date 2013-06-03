@@ -525,11 +525,12 @@ class Xodx_ActivityController extends Saft_Controller
             $objectQuery.= 'PREFIX aair: <http://xmlns.notu.be/aair#> ' . PHP_EOL;
             $objectQuery.= 'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' . PHP_EOL;
             $objectQuery.= 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
-            $objectQuery.= 'SELECT ?type ?content ?date ' . PHP_EOL;
+            $objectQuery.= 'SELECT ?type ?content ?image ?date ' . PHP_EOL;
             $objectQuery.= 'WHERE { ' . PHP_EOL;
             $objectQuery.= '   <' . $objectUri . '> a ?type ; ' . PHP_EOL;
             $objectQuery.= '        sioc:created_at ?date . ' . PHP_EOL;
             $objectQuery.= '   OPTIONAL {<' . $objectUri . '> sioc:content ?content .} ' . PHP_EOL;
+            $objectQuery.= '   OPTIONAL {<' . $objectUri . '> aair:largerImage ?image .} ' . PHP_EOL;
             $objectQuery.= '} ' . PHP_EOL;
             $objectQuery.= 'ORDER BY DESC(?date)' . PHP_EOL;
 
@@ -540,6 +541,9 @@ class Xodx_ActivityController extends Saft_Controller
                 $activity['objectPubDate'] = self::_issueE24fix($objectResult[0]['date']);
                 if (!empty($objectResult[0]['content'])) {
                     $activity['objectContent'] = $objectResult[0]['content'];
+                }
+                if (!empty($objectResult[0]['image'])) {
+                    $activity['objectImage'] = $objectResult[0]['image'];
                 }
             // set data from activity to get valid feed
             } else {
