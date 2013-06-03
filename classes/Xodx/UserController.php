@@ -355,6 +355,12 @@ class Xodx_UserController extends Xodx_ResourceController
             $act = $activityController->getActivities($resourceUri);
             $activities = array_merge($activities, $act);
         }
+        $tmp = Array();
+        foreach($activities as &$act) {
+            $tmp[] = &$act["pubDate"];
+        }
+        array_multisort($tmp, $activities);
+
         return $activities;
     }
 
@@ -436,7 +442,9 @@ class Xodx_UserController extends Xodx_ResourceController
                 $template->profileshowName = $profile[0]['name'];
                 $template->profileshowNick = $profile[0]['nick'];
                 $template->profileshowActivities = $activities;
-                $template->profileshowKnows = $knows;
+                if (count($profile) > 0) {
+                    $template->profileshowKnows = $knows;
+                };
                 $template->profileshowNews = $news;
                 $template->addContent('templates/usershow.phtml');
             }

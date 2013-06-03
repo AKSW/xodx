@@ -521,18 +521,19 @@ class Xodx_ActivityController extends Saft_Controller
                 $activity['context'] = $act['context'];
             }
 
-            $objectResult = $model->sparqlQuery(
-                'PREFIX atom: <http://www.w3.org/2005/Atom/> ' .
-                'PREFIX aair: <http://xmlns.notu.be/aair#> ' .
-                'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
-                'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
-                'SELECT ?type ?content ?date ' .
-                'WHERE { ' .
-                '   <' . $objectUri . '> a ?type ; ' .
-                '        sioc:created_at ?date . ' .
-                '   OPTIONAL {<' . $objectUri . '> sioc:content ?content .} ' .
-                '} '
-                );
+            $objectQuery = 'PREFIX atom: <http://www.w3.org/2005/Atom/> ' . PHP_EOL;
+            $objectQuery.= 'PREFIX aair: <http://xmlns.notu.be/aair#> ' . PHP_EOL;
+            $objectQuery.= 'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' . PHP_EOL;
+            $objectQuery.= 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
+            $objectQuery.= 'SELECT ?type ?content ?date ' . PHP_EOL;
+            $objectQuery.= 'WHERE { ' . PHP_EOL;
+            $objectQuery.= '   <' . $objectUri . '> a ?type ; ' . PHP_EOL;
+            $objectQuery.= '        sioc:created_at ?date . ' . PHP_EOL;
+            $objectQuery.= '   OPTIONAL {<' . $objectUri . '> sioc:content ?content .} ' . PHP_EOL;
+            $objectQuery.= '} ' . PHP_EOL;
+            $objectQuery.= 'ORDER BY DESC(?date)' . PHP_EOL;
+
+            $objectResult = $model->sparqlQuery($objectQuery);
 
             if (count($objectResult) > 0) {
                 $activity['objectType']    = $objectResult[0]['type'];
