@@ -3,7 +3,7 @@
 <fieldset>
 <legend>Create a new Account on this Xodx instance.</legend>
 <div class="control-group">
-    <label class="control-label" for="personUri">Your personal URI</label>
+    <label class="control-label" for="personUri">Your FOAF profile URI (optional)</label>
     <div class="controls">
         <input type="text" class="input-xlarge" name="personUri" id="personUri" />
         <?php if (isset($this->formError['personUri'])): ?>
@@ -19,7 +19,7 @@
         <?php if (isset($this->formError['username'])): ?>
         <p>Error</p>
         <?php endif; ?>
-        <p class="help-block">Choose your favourit username</p>
+        <p class="help-block">Choose your favorite username</p>
     </div>
 </div>
 <div class="control-group">
@@ -31,7 +31,7 @@
         <?php endif; ?>
         <p class="help-block">Choose a secure password …</p>
         <input type="password" class="input-xlarge" name="passwordVerify" id="passwordVerify" />
-        <p class="help-block">… and verify it to make sure you have no typo</p>
+        <p class="help-block">… and verify it to make sure it has no typos</p>
     </div>
 </div>
 <div class="form-actions">
