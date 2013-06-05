@@ -60,4 +60,23 @@ class Xodx_Notification
         $this->_attachment = $attachment;
     }
 
+    public function getUri ()
+    {
+        return $this->_uri;
+    }
+
+    public function getUserUri ()
+    {
+        return $this->_userUri;
+    }
+
+    public function getContent ()
+    {
+        return $this->_content;
+    }
+
+    public function getAttachment ()
+    {
+        return $this->_attachment;
+    }
 }

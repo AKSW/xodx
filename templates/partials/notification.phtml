@@ -1,0 +1,4 @@
+<div class="notification well well-small">
+    <p><?= $this->notification->getContent() ?></p>
+    Attachment: <a href="?c=resource&amp;uri=<?= urlencode($this->notification->getAttachment()) ?>"><?= $this->notification->getAttachment() ?></a>
+</div>

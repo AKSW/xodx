@@ -4,16 +4,16 @@
         <h2>Hello <?= $this->profileshowName ?></h2>
         <h3>Notifications</h3>
         <?php if (isset($this->profileshowNews) && count($this->profileshowNews) > 0) : ?>
-        <ul>
-            <?php foreach ($this->profileshowNews as $noteUri => $notification) : ?>
-            <li><a href="<?= $noteUri ?>"><?= var_export($notification, true) ?></a></li>
-            <?php endforeach; ?>
+            <?php
+                foreach ($this->profileshowNews as $noteUri => $notification) {
+                    $this->partial('notification.phtml', array('notification' => $notification));
+                }
+            ?>
         <?php else: ?>
         <div class="alert alert-info">
             There are no notifications for you
         </div>
         <?php endif; ?>
-        </ul>
         <h3>Activities</h3>
         <ul class="nav nav-pills">
             <li class="active"><a href="#status" data-toggle="tab">Status</a></li>
