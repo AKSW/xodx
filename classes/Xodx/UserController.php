@@ -359,7 +359,7 @@ class Xodx_UserController extends Xodx_ResourceController
         foreach($activities as &$act) {
             $tmp[] = &$act["pubDate"];
         }
-        array_multisort($tmp, $activities);
+        array_multisort($tmp, SORT_DESC, $activities);
 
         return $activities;
     }
