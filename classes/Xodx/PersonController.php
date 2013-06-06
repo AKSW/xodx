@@ -144,7 +144,15 @@ class Xodx_PersonController extends Xodx_ResourceController
                 $template->addContent('templates/error.phtml');
                 $template->exception = $result;
             }
-            // TODO redirect to the page, where the request came from
+            //Redirect
+            $template->disableLayout();
+            $template->setRawContent('');
+
+            $location = new Saft_Url($this->_app->getBaseUri());
+
+            $location->setParameter('c', 'user');
+            $location->setParameter('a', 'home');
+            $template->redirect($location);
         } else {
             $template->addContent('templates/error.phtml');
             $template->exception = 'At least one of the given URIs is not valid: personUri="' . $personUri . '", friendUri="' . $friendUri . '".';
