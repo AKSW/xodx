@@ -355,6 +355,12 @@ class Xodx_UserController extends Xodx_ResourceController
             $act = $activityController->getActivities($resourceUri);
             $activities = array_merge($activities, $act);
         }
+        $tmp = Array();
+        foreach($activities as &$act) {
+            $tmp[] = &$act["pubDate"];
+        }
+        array_multisort($tmp, $activities);
+
         return $activities;
     }
 

@@ -27,6 +27,11 @@
                         <a class="btn btn-mini btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">Show Feed of Object</a>
                         <button class="btn btn-mini btn-block" type="submit">Reply</button>
                     </div>
+                    <?php if(isset($activity['objectImage'])) : ?>
+                        <div class="span10">
+                            <a href="<?= htmlentities($activity['object']) ?>"><img class="avatar size128 img-polaroid" src="<?= $activity['objectImage'] ?>"></img></a>
+                        </div>
+                    <?php endif; ?>
                 </form>
             </div>
         </div>
