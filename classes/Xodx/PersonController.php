@@ -139,8 +139,11 @@ class Xodx_PersonController extends Xodx_ResourceController
 
         if (Erfurt_Uri::check($personUri) && Erfurt_Uri::check($friendUri)) {
             $personController = $this->_app->getController('Xodx_PersonController');
-            $personController->addFriend($personUri, $friendUri);
-
+            $result = $personController->addFriend($personUri, $friendUri);
+            if ($result !== true) {
+                $template->addContent('templates/error.phtml');
+                $template->exception = $result;
+            }
             // TODO redirect to the page, where the request came from
         } else {
             $template->addContent('templates/error.phtml');
@@ -201,11 +204,26 @@ class Xodx_PersonController extends Xodx_ResourceController
         $model = $this->_app->getBootstrap()->getResource('model');
         $userController = $this->_app->getController('Xodx_UserController');
 
+        // check if activity feed of contact is given in webid to fulfill dssn spec
+        $feedUri = $this->getActivityFeedUri($contactUri);
+        if ($feedUri === false) {
+                $error = 'Your contacts WebID does not contain an activity feed.' .
+                'Activity feeds are neccesarry to run a DSSN. Contact not added to your' .
+                'list of friends';
+            return $error;
+        }
+
         // update WebID
         $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
 
         $pingbackController = $this->_app->getController('Xodx_PingbackController');
-        $pingbackController->sendPing($personUri, $contactUri, 'Do you want to be my friend?');
+        if (is_null($pingbackController->sendPing(
+            $personUri, $contactUri, 'Do you want to be my friend?'))) {
+            $error = 'Your contacts WebID does not contain a Pingback service.' .
+                'Sending pings is a neccesarry feature to run a DSSN. Contact not added to your' .
+                'list of friends';
+            return $error;
+        };
 
         $nsAair = 'http://xmlns.notu.be/aair#';
         $activityController = $this->_app->getController('Xodx_ActivityController');
@@ -218,8 +236,8 @@ class Xodx_PersonController extends Xodx_ResourceController
         );
         $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
         $userUri = $userController->getUserUri($personUri);
-        $feedUri = $this->getActivityFeedUri($contactUri);
         $userController->subscribeToResource ($userUri, $contactUri, $feedUri);
+        return true;
     }
 
     /**
