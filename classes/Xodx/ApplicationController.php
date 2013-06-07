@@ -65,7 +65,7 @@ class Xodx_ApplicationController extends Saft_Controller
 
             // TODO check if username is already taken
 
-            if (!Erfurt_Uri::check($personUri)) {
+            if (!empty($personUri) && !Erfurt_Uri::check($personUri)) {
                 $formError['personUri'] = true;
             }
 
@@ -74,7 +74,7 @@ class Xodx_ApplicationController extends Saft_Controller
                 $formError['username'] = true;
             }
 
-            if ($password != $passwordVerify) {
+            if (empty($password) || $password != $passwordVerify) {
                 $formError['password'] = true;
             }
 

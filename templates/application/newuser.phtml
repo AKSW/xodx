@@ -1,37 +1,46 @@
+<?php
+    function errorClass ($name, $formError)
+    {
+        if (isset($formError[$name])) {
+            return 'error';
+        } else {
+            return '';
+        }
+    }
+?>
 <h2>Signup</h2>
-<form action="?c=application&a=newuser" method="post" class="form-horizontal">
+<form action="?c=application&amp;a=newuser" method="post" class="form-horizontal">
 <fieldset>
 <legend>Create a new Account on this Xodx instance.</legend>
-<div class="control-group">
+<div class="control-group <?= errorClass('personUri', $this->formError) ?>">
     <label class="control-label" for="personUri">Your FOAF profile URI (optional)</label>
     <div class="controls">
         <input type="text" class="input-xlarge" name="personUri" id="personUri" />
         <?php if (isset($this->formError['personUri'])): ?>
-        <p>Error</p>
+        <p class="help-inline">The given URI is not valid</p>
         <?php endif; ?>
         <p class="help-block">If you already have a FOAF profile enter your URI here if you don't have one, just leave it blank.</p>
     </div>
 </div>
-<div class="control-group">
+<div class="control-group <?= errorClass('username', $this->formError) ?>">
     <label class="control-label" for="username">Username</label>
     <div class="controls">
         <input type="text" class="input-xlarge" name="username" id="username" />
         <?php if (isset($this->formError['username'])): ?>
-        <p>Error</p>
+        <p class="help-inline">The given username is empty</p>
         <?php endif; ?>
-        <p class="help-block">Choose your favorite username</p>
     </div>
 </div>
-<div class="control-group">
+<div class="control-group <?= errorClass('password', $this->formError) ?>">
     <label class="control-label" for="password">Password</label>
     <div class="controls">
         <input type="password" class="input-xlarge" name="password" id="password" />
         <?php if (isset($this->formError['password'])): ?>
-        <p>Error</p>
+        <p class="help-inline">The given passwords are empty or do not match</p>
         <?php endif; ?>
-        <p class="help-block">Choose a secure password …</p>
+        <br />
         <input type="password" class="input-xlarge" name="passwordVerify" id="passwordVerify" />
-        <p class="help-block">… and verify it to make sure it has no typos</p>
+        <p class="help-block">… verify it to make sure it has no typos</p>
     </div>
 </div>
 <div class="form-actions">
