@@ -28,7 +28,7 @@
             </div>
             <?php if(isset($activity['objectImage'])) : ?>
                 <div class="span10">
-                    <a href="<?= htmlentities($activity['object']) ?>"><img class="avatar size128 img-polaroid" src="<?= $activity['objectImage'] ?>"></img></a>
+                    <a href="<?= htmlentities($activity['object']) ?>"><img class="avatar size128 img-polaroid" src="<?= htmlentities($activity['objectImage']) ?>" /></a>
                 </div>
             <?php endif; ?>
         </form>
