@@ -3,7 +3,7 @@
 <?php
 if (!empty($this->profilelistList)) :
     foreach($this->profilelistList as $entry) :?>
-<li>Profile of <a href="<?= $entry['person'] ?>"><?php echo $entry['name']; ?></a></li>
+<li>Profile of <a href="<?= htmlentities($entry['person']) ?>"><?php echo $entry['name']; ?></a></li>
 <?php
     endforeach;
 endif;
