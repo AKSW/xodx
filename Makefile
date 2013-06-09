@@ -27,6 +27,7 @@ help:
 	@echo "advanced:"
 	@echo "	make libraries      to get zend and the JavaScript resources"
 	@echo "	make resources      to get the JavaScript resources"
+	@echo "	make dirs           to create directories needed for xodx"
 	@echo "	make zend           to get the zend (needed for Erfurt)"
 	@echo "	make submodules     to get the git submodules"
 	@echo "	make submodules-dev to get the git submodules (if you have write permission)"
@@ -39,13 +40,13 @@ info:
 	less README.md
 
 # Default installation for external users
-install: libraries submodules
+install: libraries submodules dirs
 
 # Installation for developers with writer permission
-install-dev: libraries submodules-dev
+install-dev: libraries submodules-dev dirs
 
 # Installation without git remotes, just zip files
-install-fb: libraries submodules-zip
+install-fb: libraries submodules-zip dirs
 
 # shortcut for the non submodule dependencies
 libraries: zend resources
@@ -109,3 +110,5 @@ zend:
 	mv ZendFramework-${ZENDVERSION}-minimal/library/Zend libraries
 	rm -rf ZendFramework-${ZENDVERSION}-minimal.tar.gz ZendFramework-${ZENDVERSION}-minimal
 
+dirs:
+	mkdir raw
