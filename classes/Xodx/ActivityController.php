@@ -275,6 +275,12 @@ class Xodx_ActivityController extends Saft_Controller
                 $activity[$objectUri][$nsAair . 'commenter'][] = array(
                     'type' => 'uri', 'value' => $actorUri
                 );
+
+                if ($replyUri !== false) {
+                    $activity[$objectUri][$nsSioc . 'reply_of'][] = array(
+                        'type' => 'uri', 'value' => $replyUri
+                    );
+                }
             }
 
             // Triples of photo resource
@@ -365,7 +371,6 @@ class Xodx_ActivityController extends Saft_Controller
         $actorUri = $request->getValue('actor', 'post');
         $template->replyObject = $objectUri;
         $template->replyActor = $actorUri;
-        $template->addContent('templates/reply.phtml');
 
         return $template;
     }
