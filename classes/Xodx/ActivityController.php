@@ -357,7 +357,7 @@ class Xodx_ActivityController extends Saft_Controller
      * @param $template the template
      * @returns the template
      */
-    public function replyFormAction ($template)
+    public function replyAction ($template)
     {
         $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
@@ -368,15 +368,6 @@ class Xodx_ActivityController extends Saft_Controller
         $template->addContent('templates/reply.phtml');
 
         return $template;
-    }
-
-    /**
-     * @param $template the template
-     * @returns the template
-     */
-    public function replyAction ($template)
-    {
-
     }
 
     /**

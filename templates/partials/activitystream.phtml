@@ -2,7 +2,7 @@
 <?php foreach ($this->profileshowActivities as $activity) : ?>
 <div class="activity well well-small">
     <div class="row-fluid">
-        <form method="post" action="?c=activity&amp;a=replyForm">
+        <form method="post" action="?c=activity&amp;a=reply">
             <div class="span10">
                 <?php if ($this->home === true) : ?>
                 <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['author']) ?></a>
