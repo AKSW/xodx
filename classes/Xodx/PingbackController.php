@@ -19,6 +19,7 @@ class Xodx_PingbackController extends Saft_Controller
         $request = $bootstrap->getResource('request');
         $model = $bootstrap->getResource('model');
         $store = $bootstrap->getResource('store');
+        $logger = $bootstrap->getResource('logger');
 
         $source = $request->getValue('source', 'post');
         $target = $request->getValue('target', 'post');
@@ -27,7 +28,7 @@ class Xodx_PingbackController extends Saft_Controller
         $ping = new Xodx_Ping($this->_app, array('write_data' => false));
 
         if ($ping->receive($source, $target)) {
-            $template->addDebug('proccessing ping data …');
+            $logger->info('proccessing ping data …');
 
             $foundPingbackTriples = $ping->getReceivedData();
 
@@ -36,7 +37,7 @@ class Xodx_PingbackController extends Saft_Controller
 
             // TODO get user which is in charge of the pinged resource
             $userUri = $personController->getUserForPerson($target)->getUri();
-            $template->addDebug('ping useruri: ' . $userUri);
+            $logger->info('ping useruri: ' . $userUri);
 
             foreach ($foundPingbackTriples['add'] as $triple) {
                 $text = 'Ping received: s="' . $triple['s'] . '", p="' . $triple['p'] . '", o="' . $triple['o'] . '"';
@@ -44,7 +45,7 @@ class Xodx_PingbackController extends Saft_Controller
             }
         }
 
-        $template->addDebug($ping->getReturnValue());
+        $logger->info($ping->getReturnValue());
         return $template;
     }
 
