@@ -61,6 +61,6 @@ class Xodx_MediaController extends Saft_Controller
     {
         header('Content-Type: ' . $mimeType);
         $dir = $this->_app->getBaseDir() . 'raw/';
-        readfile($dir . $objectId);
+        return $dir . $objectId;
     }
 }

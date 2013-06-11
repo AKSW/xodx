@@ -128,9 +128,8 @@ class Xodx_ResourceController extends Saft_Controller
         $format = Erfurt_Syntax_RdfSerializer::normalizeFormat($mime);
         $serializer = Erfurt_Syntax_RdfSerializer::rdfSerializerWithFormat($format);
         $rdfData = $serializer->serializeResourceToString($objectUri, $modelUri, false, true, array());
-        header('Content-type: ' . $mime);
+        $template->setHeader('Content-type', $mime);
 
-        $template->disableLayout();
         $template->setRawContent($rdfData);
 
         return $template;
@@ -163,13 +162,13 @@ class Xodx_ResourceController extends Saft_Controller
         $properties = $model->sparqlQuery($query);
         $mediaController = $this->_app->getController('Xodx_MediaController');
 
-        $template->disableLayout();
-        $template->setRawContent('');
-
         $mimeType = $properties[0]['mime'];
 
-        $mediaController->getImage($objectId, $mimeType);
-        //$template->addContent('templates/resourceshow.phtml');
+        $filePath = $mediaController->getImage($objectId, $mimeType);
+        $template->setHeader('Cache-Control', 'min-fresh = 120');
+        $template->setHeader('Expires', gmdate('D, d M Y H:i:s', time()+120) . ' GMT');
+        $template->setHeader('Pragma', '');
+        $template->setRawFile($filePath);
 
         return $template;
     }
