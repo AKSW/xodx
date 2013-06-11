@@ -218,6 +218,7 @@ class Xodx_PingbackController extends Saft_Controller
                 $logger->info('ping send: Ping to ' . $target . ' @ ' . $pingbackTo . ' from ' . $source . ' successfull.');
                 //close connection
                 curl_close($ch);
+                return true;
             } else {
                 $pingbackService = $memModel->getValue($target,
                     'http://purl.org/net/pingback/service');
@@ -225,6 +226,7 @@ class Xodx_PingbackController extends Saft_Controller
             }
         } else {
             $logger->info('ping send: Ping to ' . $target . ' not possible. No pingback server found.');
+            return null;
         }
     }
 

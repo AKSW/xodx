@@ -141,7 +141,12 @@ class Xodx_PersonController extends Xodx_ResourceController
             $personController = $this->_app->getController('Xodx_PersonController');
             $personController->addFriend($personUri, $friendUri);
 
-            // TODO redirect to the page, where the request came from
+            //Redirect
+            $location = new Saft_Url($this->_app->getBaseUri());
+
+            $location->setParameter('c', 'user');
+            $location->setParameter('a', 'home');
+            $template->redirect($location);
         } else {
             $template->addContent('templates/error.phtml');
             $template->exception = 'At least one of the given URIs is not valid: personUri="' . $personUri . '", friendUri="' . $friendUri . '".';
@@ -201,25 +206,36 @@ class Xodx_PersonController extends Xodx_ResourceController
         $model = $this->_app->getBootstrap()->getResource('model');
         $userController = $this->_app->getController('Xodx_UserController');
 
-        // update WebID
-        $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
+        $ldHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
+        if (!$ldHelper->resourceExists($contactUri)) {
+            throw new Exception('The WebID of your friend does not exist.');
+        }
 
-        $pingbackController = $this->_app->getController('Xodx_PingbackController');
-        $pingbackController->sendPing($personUri, $contactUri, 'Do you want to be my friend?');
+        // Update WebID
+        $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
 
         $nsAair = 'http://xmlns.notu.be/aair#';
         $activityController = $this->_app->getController('Xodx_ActivityController');
 
-        // add Activity to activity Stream
+        // Add Activity to activity Stream
         $object = array(
             'type' => 'Uri',
             'content' => $contactUri,
             'replyObject' => 'false'
         );
         $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
+
+        // Send Ping to new friend
+        $pingbackController = $this->_app->getController('Xodx_PingbackController');
+        $pingbackController->sendPing($personUri, $contactUri, 'Do you want to be my friend?');
+
+        // Subscribe to new friend
         $userUri = $userController->getUserUri($personUri);
         $feedUri = $this->getActivityFeedUri($contactUri);
-        $userController->subscribeToResource ($userUri, $contactUri, $feedUri);
+        if ($feedUri !== null) {
+            $userController->subscribeToResource ($userUri, $contactUri, $feedUri);
+        }
+        return;
     }
 
     /**
