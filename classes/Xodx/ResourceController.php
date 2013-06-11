@@ -222,7 +222,7 @@ class Xodx_ResourceController extends Saft_Controller
                 return $feedUri;
             }
         } else {
-            return false;
+            return null;
         }
     }
 
