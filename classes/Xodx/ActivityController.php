@@ -296,7 +296,7 @@ class Xodx_ActivityController extends Saft_Controller
             $resourceController = $this->_app->getController('Xodx_ResourceController');
             $foundFeedUri = $resourceController->getActivityFeedUri($objectUri);
 
-            if ($foundFeedUri) {
+            if ($foundFeedUri !== null) {
                 $feedUri[$objectUri] = $foundFeedUri;
             }
         }
