@@ -122,12 +122,10 @@ class Xodx_ResourceController extends Saft_Controller
             throw new Exception('Please specify a mime type');
         }
 
-        //$format = Erfurt_Syntax_RdfSerializer::normalizeFormat($format);
-
         $modelUri = $model->getModelIri();
         $format = Erfurt_Syntax_RdfSerializer::normalizeFormat($mime);
         $serializer = Erfurt_Syntax_RdfSerializer::rdfSerializerWithFormat($format);
-        $rdfData = $serializer->serializeResourceToString($objectUri, $modelUri, false, true, array());
+        $rdfData = $serializer->serializeResourceToString($objectUri, $modelUri);
         $template->setHeader('Content-type', $mime);
 
         $template->setRawContent($rdfData);

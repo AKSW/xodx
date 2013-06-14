@@ -125,6 +125,51 @@ class Xodx_PersonController extends Xodx_ResourceController
         return $template;
     }
 
+    public function rdfAction ($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        $request = $bootstrap->getResource('request');
+
+        $objectId = $request->getValue('id', 'get');
+        $mime = $request->getValue('mime', 'get');
+        $controller = $request->getValue('c', 'get');
+        $personUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $objectId;
+        $documentUri = new Saft_Url($request);
+
+        if ($mime === null) {
+            throw new Exception('Please specify a mime type');
+        }
+
+        $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/>' . PHP_EOL;
+        $query.= 'SELECT ?resourceUri ?p ?o' . PHP_EOL;
+        $query.= 'WHERE {' . PHP_EOL;
+        $query.= '  ?resourceUri ?p ?o.' . PHP_EOL;
+        $query.= '  {' . PHP_EOL;
+        $query.= '    ?documentUri a foaf:PersonalProfileDocument .' . PHP_EOL;
+        $query.= '    ?documentUri foaf:primaryTopic ?personUri .' . PHP_EOL;
+        $query.= '    FILTER(sameTerm(?documentUri, <' . $documentUri . '>))' . PHP_EOL;
+        $query.= '    FILTER(?resourceUri=?documentUri)' . PHP_EOL;
+        $query.= '  } UNION {' . PHP_EOL;
+        $query.= '    ?personUri a foaf:Person.' . PHP_EOL;
+        $query.= '    FILTER(sameTerm(?personUri, <' . $personUri . '>))' . PHP_EOL;
+        $query.= '    FILTER(?resourceUri=?personUri)' . PHP_EOL;
+        $query.= '  }' . PHP_EOL;
+        $query.= '}' . PHP_EOL;
+
+        $queryObject = Erfurt_Sparql_SimpleQuery::initWithString($query);
+
+        $modelUri = $model->getModelIri();
+        $format = Erfurt_Syntax_RdfSerializer::normalizeFormat($mime);
+        $serializer = Erfurt_Syntax_RdfSerializer::rdfSerializerWithFormat($format);
+        $rdfData = $serializer->serializeQueryResultToString($queryObject, $modelUri);
+        $template->setHeader('Content-type', $mime);
+
+        $template->setRawContent($rdfData);
+
+        return $template;
+    }
+
     /**
      * View action for adding a new friend. (This action should be called from a form)
      */
