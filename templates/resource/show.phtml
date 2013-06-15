@@ -1,18 +1,16 @@
 <h2>Resource</h2>
 <table>
+<?php foreach ($this->properties as $property) : ?>
+<tr>
+    <td><?= htmlentities($property['p']) ?></td>
+    <td><?= htmlentities($property['o']) ?></td>
+</tr>
 <?php
-foreach ($this->properties as $property) {
-    echo '<tr>';
-    echo '<td>' . $property['p'] . '</td>';
-    echo '<td>' . $property['o'] . '</td>';
-    echo '</tr>';
-
     if ($property['p'] == 'http://xmlns.com/foaf/spec/#Image') {
         $id = $property['o'];
     }
-}
 ?>
-
+<?php endforeach; ?>
 </table>
 
 <?php if (isset($id)) :?>
@@ -23,25 +21,25 @@ foreach ($this->properties as $property) {
 <?php foreach ($this->activities as $activity) : ?>
 <div class="activity">
     <p>
-        <a href="<?= $activity['uri'] ?>"><strong><?= $activity['title'] ?></strong></a><br />
-        <em><?= $activity['pubDate'] ?> </em>
-        <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['uri']) ?>">Show Activity Feed</a> </em>
+        <a href="<?= htmlentities($activity['uri']) ?>"><strong><?= $activity['title'] ?></strong></a><br />
+        <em><?= $activity['pubDate'] ?></em>
+        <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['uri']) ?>">Show Activity Feed</a></em>
     </p>
-    <p>
+    <div>
         <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['authorUri']) ?></a>
-        <a href="<?= htmlentities($activity['verb']) ?>">
-          <?= htmlentities(Saft_Tools::getSpokenWord($activity['verb'])) ?></a>
+        <a href="<?= htmlentities($activity['verb']) ?>"><?= htmlentities(Saft_Tools::getSpokenWord($activity['verb'])) ?></a>
 
         <?php if (isset($activity['objectType'])) : ?>
-            a <a href="<?= htmlentities($activity['object']) ?>">
-              <?= Saft_Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
-            <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
+
+            a <a href="<?= htmlentities($activity['object']) ?>"><?= Saft_Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
+
+            <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">Show Feed of Object</a></em>
         <?php if(isset($activity['objectImage'])) : ?>
+
             <div class="span10">
-                <img class="avatar img-polaroid" src="<?= $activity['objectImage'] ?>"></img>
+                <img class="avatar img-polaroid" src="<?= htmlentities($activity['objectImage']) ?>" />
             </div>
         <?php endif; ?>
-              Show Feed of Object</a></em>
         <?php else : ?>
             <a href="<?= htmlentities($activity['object']) ?>"><?= ($activity['object']) ?></a>
               at <?= $activity['pubDate'] ?>
@@ -49,7 +47,7 @@ foreach ($this->properties as $property) {
               Show Feed of Object</a></em>
         <?php endif; ?>
 
-    </p>
+    </div>
 </div>
 <?php endforeach; ?>
 <?php else: ?>
