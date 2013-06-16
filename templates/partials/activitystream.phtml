@@ -1,5 +1,5 @@
-<?php if (isset($this->profileshowActivities) && count($this->profileshowActivities) > 0) : ?>
-<?php foreach ($this->profileshowActivities as $activity) : ?>
+<?php if (isset($this->activities) && count($this->activities) > 0) : ?>
+<?php foreach ($this->activities as $activity) : ?>
 <div class="activity well well-small">
     <div class="row-fluid">
         <form method="post" action="?c=activity&amp;a=reply">
@@ -22,7 +22,7 @@
             </div>
             <div class="span2">
                 <input type="hidden" name="object" value="<?= htmlentities($activity['uri'])?>" />
-                <input type="hidden" name="actor" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
+                <input type="hidden" name="actor" value="<?= htmlentities($this->personUri) ?>" />
                 <a class="btn btn-mini btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">Show Feed of Object</a>
                 <button class="btn btn-mini btn-block" type="submit">Reply</button>
             </div>
@@ -40,7 +40,7 @@
     <?php if ($this->home === true) : ?>
     You have no activities so far
     <?php else : ?>
-    <?= $this->profileshowName ?> has no activities so far
+    <?= $this->personName ?> has no activities so far
     <?php endif; ?>
 </div>
 <?php endif; ?>
