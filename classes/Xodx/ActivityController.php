@@ -132,8 +132,8 @@ class Xodx_ActivityController extends Saft_Controller
             // Take photo filename as objectname
             $content =   $object['content'];
             $objectId =  $object['fileName'];
-            $objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
-            $imageUri =  $this->_app->getBaseUri() . '?c=resource&a=img&id=' . $objectId;
+            $objectUri = $this->_app->getBaseUri() . '?c=media&id=' . $objectId;
+            $imageUri =  $this->_app->getBaseUri() . '?c=media&a=img&id=' . $objectId;
 
         } else if ($object['type'] == 'Uri') {
             $type =      'Uri';

@@ -5,8 +5,79 @@
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
 
-class Xodx_MediaController extends Saft_Controller
+class Xodx_MediaController extends Xodx_ResourceController
 {
+    public function showAction ($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+
+        // Array of Accept Header values
+        $imageTypes = array(
+            '*/*' => 'show',
+            'image/jpg' => 'imagejpg'
+        );
+
+        $mimetypeHelper = $this->_app->getHelper('Saft_Helper_MimetypeHelper');
+        $match = $mimetypeHelper->matchFromRequest($request, array_keys($imageTypes));
+
+        if ($imageTypes[$match] == 'imagejpg') {
+            $template->disableLayout();
+            $template->setRawContent('');
+            $location = new Saft_Url($request);
+            $location->setParameter('a', 'img');
+            $template->redirect($location);
+        } else {
+            $model = $bootstrap->getResource('model');
+
+            $nsAair = 'http://xmlns.notu.be/aair#';
+            $nsSioc = 'http://rdfs.org/sioc/ns#';
+            $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+            $nsDssn = 'http://purl.org/net/dssn/';
+
+            $objectId = $request->getValue('id', 'get');
+            $controller = $request->getValue('c', 'get');
+            $objectUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $objectId;
+
+            $query = 'PREFIX aair: <' . $nsAair . '> ' . PHP_EOL;
+            $query.= 'PREFIX sioc: <' . $nsSioc . '> ' . PHP_EOL;
+            $query.= 'PREFIX dssn: <' . $nsDssn . '> ' . PHP_EOL;
+            $query.= 'PREFIX foaf: <' . $nsFoaf . '> ' . PHP_EOL;
+            $query.= 'SELECT ?image ?maker ?creation ?feed' . PHP_EOL;
+            $query.= 'WHERE { ' . PHP_EOL;
+            $query.= '   <' . $objectUri . '> aair:largerImage ?image ; ' . PHP_EOL;
+            $query.= '      foaf:maker ?maker ; ' . PHP_EOL;
+            $query.= '      sioc:created_at ?creation ; ' . PHP_EOL;
+            $query.= '      dssn:activityFeed ?feed . ' . PHP_EOL;
+            $query.= '} ' . PHP_EOL;
+
+            $properties = $model->sparqlQuery($query);
+
+            $activityController = $this->_app->getController('Xodx_ActivityController');
+            $activities = $activityController->getActivities($objectUri);
+
+            $template->activities = $activities;
+
+            $template->image = $properties[0]['image'];
+            $template->creation = $properties[0]['creation'];
+            $template->feed = $properties[0]['feed'];
+            $template->maker = $properties[0]['maker'];
+        }
+
+        return $template;
+    }
+
+    public function tagAction ($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+
+        $request = $bootstrap->getResource('request');
+        $imageUri = $request->getValue('image', 'post');
+        $personUri = $request->getValue('person', 'post');
+
+        // TODO add statements
+    }
+
     /**
      * This method uploads an image file after using an upload form
      * @param $fileName the name.ext of the file posted
