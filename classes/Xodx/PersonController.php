@@ -132,14 +132,12 @@ class Xodx_PersonController extends Xodx_ResourceController
         $request = $bootstrap->getResource('request');
 
         $objectId = $request->getValue('id', 'get');
-        $mime = $request->getValue('mime', 'get');
         $controller = $request->getValue('c', 'get');
         $personUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $objectId;
         $documentUri = new Saft_Url($request);
 
-        if ($mime === null) {
-            throw new Exception('Please specify a mime type');
-        }
+        $mimetypeHelper = $this->_app->getHelper('Saft_Helper_MimetypeHelper');
+        $mime = $mimetypeHelper->matchFromRequest($request, $this->rdfTypes);
 
         $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/>' . PHP_EOL;
         $query.= 'SELECT ?resourceUri ?p ?o' . PHP_EOL;

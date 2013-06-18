@@ -7,6 +7,21 @@
 
 class Xodx_ResourceController extends Saft_Controller
 {
+    // Array of Accept Header values (keys) for serialised view
+    // TODO: get this list from Erfurt
+    public $rdfTypes = array(
+        'application/sparql-results+xml',
+        'application/json',
+        'application/sparql-results+json',
+        'application/rdf+xml',
+        'text/rdf+n3',
+        'application/x-turtle',
+        'application/rdf+xml',
+        'text/turtle',
+        'rdf/turtle',
+        'rdf/json'
+    );
+
     /**
      *
      * indexAction decides to show a html or a serialized view of a resource if no action is given
@@ -19,46 +34,24 @@ class Xodx_ResourceController extends Saft_Controller
 
         // Array of Accept Header values
         $otherType = array(
-            'text/html' => 'html',
-            'image/jpg' => 'imagejpg'
+            '*/*' => 'show'
         );
 
-        // Array of Accept Header values (keys) for serialised view
-        // TODO: get this list from Erfurt
-        $rdfType = array(
-            'application/sparql-results+xml' => 'rdfxml',
-            'application/json' => 'rdfjson',
-            'application/sparql-results+json' => 'rdfjson',
-            'application/rdf+xml' => 'rdfxml',
-            'text/rdf+n3' => 'rdfn3',
-            'application/x-turtle' => 'turtle',
-            'application/rdf+xml' => 'rdfxml',
-            'text/turtle' => 'turtle',
-            'rdf/turtle' => 'turtle',
-            'rdf/json' => 'rdfjson'
-        );
-
-        $supportedTypes = array_merge($rdfType, $otherType);
+        $supportedTypes = array_merge($this->rdfTypes, array_keys($otherType));
 
         $mimetypeHelper = $this->_app->getHelper('Saft_Helper_MimetypeHelper');
-        $match = $mimetypeHelper->matchFromRequest($request, array_keys($supportedTypes));
+        $match = $mimetypeHelper->matchFromRequest($request, $supportedTypes);
 
         $template->disableLayout();
         $template->setRawContent('');
 
-        if ($match != '') {
-            $location = new Saft_Url($request);
+        $location = new Saft_Url($request);
 
-            if (array_key_exists($match, $rdfType)) {
-                $location->setParameter('a', 'rdf');
-                $location->setParameter('mime', $match);
-            } else if (strpos($match, 'image') !== false) {
-                $location->setParameter('a', 'img');
-            } else if (strpos($match, 'text') !== false) {
-                // TODO change name of showAction in ProfileController so it won't be overwritten
-                $location->setParameter('a', 'show');
-            }
-
+        if (in_array($match, $this->rdfTypes)) {
+            $location->setParameter('a', 'rdf');
+            $template->redirect($location);
+        } else if ($supportedTypes[$match] = 'show') {
+            $location->setParameter('a', 'show');
             $template->redirect($location);
         } else {
             $template->setResponseCode(404);
@@ -114,13 +107,11 @@ class Xodx_ResourceController extends Saft_Controller
         $request = $bootstrap->getResource('request');
 
         $objectId = $request->getValue('id', 'get');
-        $mime = $request->getValue('mime', 'get');
         $controller = $request->getValue('c', 'get');
         $objectUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $objectId;
 
-        if ($mime === null) {
-            throw new Exception('Please specify a mime type');
-        }
+        $mimetypeHelper = $this->_app->getHelper('Saft_Helper_MimetypeHelper');
+        $mime = $mimetypeHelper->matchFromRequest($request, $this->rdfTypes);
 
         $modelUri = $model->getModelIri();
         $format = Erfurt_Syntax_RdfSerializer::normalizeFormat($mime);
