@@ -62,6 +62,7 @@ class Xodx_MediaController extends Xodx_ResourceController
             $template->creation = $properties[0]['creation'];
             $template->feed = $properties[0]['feed'];
             $template->maker = $properties[0]['maker'];
+            $template->resourceUri = $objectUri;
         }
 
         return $template;
@@ -71,11 +72,17 @@ class Xodx_MediaController extends Xodx_ResourceController
     {
         $bootstrap = $this->_app->getBootstrap();
 
+        $model = $bootstrap->getResource('model');
         $request = $bootstrap->getResource('request');
         $imageUri = $request->getValue('image', 'post');
         $personUri = $request->getValue('person', 'post');
 
-        // TODO add statements
+        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+        $model->addStatement(
+            $imageUri, $nsFoaf . 'depicts', array('type' => 'uri', 'value' => $personUri)
+        );
+
+        return $template;
     }
 
     /**
