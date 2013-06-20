@@ -25,7 +25,7 @@ class Xodx_Activity
         $app = Application::getInstance();
         $baseUri = $app->getBaseUri();
         if ($uri === null) {
-            $this->_uri = $baseUri . '?c=resource&id=' . md5(rand());
+            $this->_uri = $baseUri . '?c=activity&id=' . md5(rand());
         } else {
             $this->_uri = $uri;
         }

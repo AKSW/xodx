@@ -10,7 +10,7 @@
  * TODO: @splattater could you please add documentation to this class
  * @deprecated this should be moved to lib-dssn-php
  */
-class Xodx_ActivityController extends Saft_Controller
+class Xodx_ActivityController extends Xodx_ResourceController
 {
     /**
      * Add a new activity after user action.
@@ -117,7 +117,7 @@ class Xodx_ActivityController extends Saft_Controller
         $postId = md5(rand());
         $postUri = $this->_app->getBaseUri() . '?c=resource&id=' . $postId;
         $pingbackServer = $this->_app->getBaseUri() . 'index.php?c=pingback&a=ping';
-        $activityUri = $this->_app->getBaseUri() . '?c=resource&id=' . md5(rand());
+        $activityUri = $this->_app->getBaseUri() . '?c=activity&id=' . md5(rand());
         $feedUri[$actorUri] = $this->_app->getBaseUri() .
             '?c=feed&a=getFeed&uri=' . urlencode($actorUri);
         $objectId = md5(rand());

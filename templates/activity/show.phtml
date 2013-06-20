@@ -1,0 +1,55 @@
+<h2>Resource</h2>
+<table>
+<?php foreach ($this->properties as $property) : ?>
+<tr>
+    <td><?= htmlentities($property['p']) ?></td>
+    <td><?= htmlentities($property['o']) ?></td>
+</tr>
+<?php
+    if ($property['p'] == 'http://xmlns.com/foaf/spec/#Image') {
+        $id = $property['o'];
+    }
+?>
+<?php endforeach; ?>
+</table>
+
+<?php if (isset($id)) :?>
+<img src="?c=resource&amp;id=<?= $id ?>" />
+<?php endif;?>
+
+<?php if (isset($this->activities)) : ?>
+<?php foreach ($this->activities as $activity) : ?>
+<div class="activity">
+    <p>
+        <a href="<?= htmlentities($activity['uri']) ?>"><strong><?= $activity['title'] ?></strong></a><br />
+        <em><?= $activity['pubDate'] ?></em>
+        <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['uri']) ?>">Show Activity Feed</a></em>
+    </p>
+    <div>
+        <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['authorUri']) ?></a>
+        <a href="<?= htmlentities($activity['verb']) ?>"><?= htmlentities(Saft_Tools::getSpokenWord($activity['verb'])) ?></a>
+
+        <?php if (isset($activity['objectType'])) : ?>
+
+            a <a href="<?= htmlentities($activity['object']) ?>"><?= Saft_Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
+
+            <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">Show Feed of Object</a></em>
+        <?php if(isset($activity['objectImage'])) : ?>
+
+            <div class="span10">
+                <img class="avatar img-polaroid" src="<?= htmlentities($activity['objectImage']) ?>" />
+            </div>
+        <?php endif; ?>
+        <?php else : ?>
+            <a href="<?= htmlentities($activity['object']) ?>"><?= ($activity['object']) ?></a>
+              at <?= $activity['pubDate'] ?>
+            <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
+              Show Feed of Object</a></em>
+        <?php endif; ?>
+
+    </div>
+</div>
+<?php endforeach; ?>
+<?php else: ?>
+<div class="well">There are not Activities of this person</div>
+<?php endif; ?>
