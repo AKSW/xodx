@@ -46,7 +46,8 @@ class Xodx_Application extends Saft_Application
             $user = $userController->getUser();
 
             $this->_layout->username = $user->getName();
-            $this->_layout->notifications = $userController->getNotifications($user->getUri());
+            $factory = new Xodx_NotificationFactory($this);
+            $this->_layout->notifications = $factory->getForUser($user->getUri());
 
             $config = $bootstrap->getResource('config');
             if (!isset($config['debug']) || $config['debug'] == true) {

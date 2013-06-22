@@ -39,11 +39,12 @@ class Xodx_NotificationFactory
         $query = 'PREFIX dssn: <' . $nsDssn . '>' . PHP_EOL;
         $query.= 'PREFIX sioc: <' . $nsSioc . '>' . PHP_EOL;
         $query.= 'PREFIX dct: <' . $nsDct . '>' . PHP_EOL;
-        $query.= 'SELECT ?user ?content ?attachment' . PHP_EOL;
+        $query.= 'SELECT ?user ?content ?attachment ?read' . PHP_EOL;
         $query.= 'WHERE {' . PHP_EOL;
         $query.= '  <' . $notificationUri . '> dssn:notify ?user;' . PHP_EOL;
         $query.= '      sioc:content ?content;' . PHP_EOL;
         $query.= '      dct:references ?attachment.' . PHP_EOL;
+        $query.= '  OPTIONAL {<' . $notificationUri . '> dssn:read ?read }' . PHP_EOL;
         $query.= '}' . PHP_EOL;
 
         $result = $model->sparqlQuery($query);
@@ -54,6 +55,7 @@ class Xodx_NotificationFactory
             $notification->setUserUri($result[0]['user']);
             $notification->setContent($result[0]['content']);
             $notification->setAttachment($result[0]['attachment']);
+            $notification->setRead($result[0]['read']);
 
             return $notification;
         } else {
@@ -100,4 +102,36 @@ class Xodx_NotificationFactory
 
         $model->addMultipleStatements($statements);
     }
+
+    /**
+     * Get notifications for a user
+     * @param $userUri the uri of the user whose notifications you want to get
+     * @return an Array of Xodx_Notification objects
+     */
+    public function getForUser ($userUri, $onlyNew = true)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
+        $query.= 'SELECT ?uri ' . PHP_EOL;
+        $query.= 'WHERE {' . PHP_EOL;
+        $query.= '  ?uri dssn:notify <' . $userUri . '> .' . PHP_EOL;
+        if ($onlyNew) {
+            $query.= '  OPTIONAL {?uri dssn:read ?read .}' . PHP_EOL;
+            $query.= '  FILTER (!BOUND(?read) || ?read = false)' . PHP_EOL;
+        }
+        $query.= '}' . PHP_EOL;
+
+        $result = $model->sparqlQuery($query);
+
+        $notifications = array();
+        foreach ($result as $notification) {
+            $notificationUri = $notification['uri'];
+            $notifications[$notificationUri] = $this->fromModel($notificationUri);
+        }
+
+        return $notifications;
+    }
+
 }

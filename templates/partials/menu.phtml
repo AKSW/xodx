@@ -2,7 +2,7 @@
     <li>
         <div class="btn-group">
             <?php if (count($this->notifications) > 0): ?>
-            <a href="?c=user&amp;a=getnotifications" class="btn">
+            <a href="?c=notification&amp;a=getnew" class="btn">
                 <span class="badge badge-info" title="<?php echo count($this->notifications) ?> Notifications"><?= count($this->notifications) ?></span>
             </a>
             <?php endif; ?>

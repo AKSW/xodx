@@ -28,6 +28,8 @@ class Xodx_Notification
 
     private $_content;
 
+    private $_read;
+
     /**
      * setter method for this objects uri
      */
@@ -60,6 +62,18 @@ class Xodx_Notification
         $this->_attachment = $attachment;
     }
 
+    /**
+     * setter method for this read status
+     */
+    public function setRead ($read)
+    {
+        if ($read) {
+            $this->_read = true;
+        } else {
+            $this->_read = false;
+        }
+    }
+
     public function getUri ()
     {
         return $this->_uri;
@@ -78,5 +92,23 @@ class Xodx_Notification
     public function getAttachment ()
     {
         return $this->_attachment;
+    }
+
+    public function isRead ()
+    {
+        return $this->_read;
+    }
+
+    public function toArray ()
+    {
+        $array = array(
+            'uri' => $this->_uri,
+            'userUri' => $this->_userUri,
+            'attachment' => $this->_attachment,
+            'content' => $this->_content,
+            'read' => $this->_read
+        );
+
+        return $array;
     }
 }

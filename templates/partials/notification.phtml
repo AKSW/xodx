@@ -1,4 +1,7 @@
 <div class="notification well well-small">
+    <?php if(!$this->notification->isRead()) : ?>
+    <p><span class="label label-info">new</span></p>
+    <?php endif; ?>
     <p><?= $this->notification->getContent() ?></p>
     Attachment: <a href="?c=resource&amp;uri=<?= urlencode($this->notification->getAttachment()) ?>"><?= $this->notification->getAttachment() ?></a>
 </div>

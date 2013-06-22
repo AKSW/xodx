@@ -22,32 +22,6 @@ class Xodx_UserController extends Xodx_ResourceController
     private $_users = array();
 
     /**
-     * This action gets the notifications for the specified user
-     * @param user (get) the uri of the user who wants to get its notifications
-     * @return json representation of the Xodx_Notification objects
-     */
-    public function getNotificationsAction ($template)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $request = $bootstrap->getResource('request');
-
-        $userUri = $request->getValue('user', 'get');
-
-        if ($userUri === null) {
-            $userUri = $this->getUser()->getUri();
-        }
-
-        $notifications = $this->getNotifications($userUri);
-
-        $template->disableLayout();
-
-        $notificationsJson = json_encode($notifications);
-        $template->setRawContent($notificationsJson);
-
-        return $template;
-    }
-
-    /**
      *
      * Enter description here ...
      * @param unknown_type $subscriberUri
@@ -154,34 +128,6 @@ class Xodx_UserController extends Xodx_ResourceController
             $store->addMultipleStatements($graphUri, $subscribeStatement);
             }
         }
-    }
-
-    /**
-     * Get notifications for a user
-     * @param $userUri the uri of the user whose notifications you want to get
-     * @return an Array of Xodx_Notification objects
-     */
-    public function getNotifications ($userUri)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $model = $bootstrap->getResource('model');
-
-        $query = 'PREFIX dssn: <http://purl.org/net/dssn/> ' . PHP_EOL;
-        $query.= 'SELECT ?uri' . PHP_EOL;
-        $query.= 'WHERE {' . PHP_EOL;
-        $query.= '  ?uri dssn:notify <' . $userUri . '> .' . PHP_EOL;
-        $query.= '}' . PHP_EOL;
-
-        $result = $model->sparqlQuery($query);
-
-        $notificationFactory = new Xodx_NotificationFactory($this->_app);
-        $notifications = array();
-        foreach ($result as $notification) {
-            $notificationUri = $notification['uri'];
-            $notifications[$notificationUri] = $notificationFactory->fromModel($notificationUri);
-        }
-
-        return $notifications;
     }
 
     /**
@@ -435,7 +381,8 @@ class Xodx_UserController extends Xodx_ResourceController
                 $knows = $model->sparqlQuery($contactsQuery);
 
                 $activities = $this->getActivityStream($user);
-                $news = $this->getNotifications($user->getUri());
+                $factory = new Xodx_NotificationFactory($this->_app);
+                $notifications = $factory->getForUser($user->getUri(), false);
 
                 $template->profileshowPersonUri = $personUri;
                 $template->profileshowDepiction = $profile[0]['depiction'];
@@ -443,7 +390,7 @@ class Xodx_UserController extends Xodx_ResourceController
                 $template->profileshowNick = $profile[0]['nick'];
                 $template->profileshowActivities = $activities;
                 $template->profileshowKnows = $knows;
-                $template->profileshowNews = $news;
+                $template->profileshowNews = $notifications;
                 $template->addContent('templates/usershow.phtml');
             }
         }
