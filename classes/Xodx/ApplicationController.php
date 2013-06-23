@@ -24,7 +24,7 @@ require_once('password_compat/lib/password.php');
 class Xodx_ApplicationController extends Saft_Controller
 {
     /**
-     * This is the username of the currently logedin user
+     * This is the username of the currently loggedin user
      */
     private $_user;
 
