@@ -299,27 +299,30 @@ class Xodx_PersonController extends Xodx_ResourceController
 
     public function profileeditorAction ($template)
     {
-        $bootstrap = $this->_app->getBootstrap();
-        $request = $bootstrap->getResource('request');
+            echo ("Test");
 
-        $username = $request->getValue('username', 'post');
-        $password = $request->getValue('password', 'post');
+        //$bootstrap = $this->_app->getBootstrap();
+        //$request = $bootstrap->getResource('request');
 
-        if ($this->login($username, $password)) {
-            $template->disableLayout();
-            $template->setRawContent('');
+        //$username = $request->getValue('username', 'post');
+        //$password = $request->getValue('password', 'post');
 
-            $location = new Saft_Url($this->_app->getBaseUri());
-            $location->setParameter('c', 'user');
-            $location->setParameter('a', 'home');
+        //if ($this->login($username, $password)) {
+            //$template->disableLayout();
+            //$template->setRawContent('');
 
-            $template->redirect($location);
-        } else {
-            $template->addContent('templates/login.phtml');
-        }
+            //$location = new Saft_Url($this->_app->getBaseUri());
+            //$location->setParameter('c', 'user');
+            //$location->setParameter('a', 'home');
+
+//            $template->redirect($location);
+        //} else {
+          //  $template->addContent('templates/login.phtml');
+        //}
 
         $template->addContent('templates/profileeditor.phtml');
         return $template;
+
     }
 
     /**
