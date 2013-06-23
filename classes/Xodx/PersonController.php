@@ -297,8 +297,6 @@ class Xodx_PersonController extends Xodx_ResourceController
         echo ("Test");
     }
 
-
-
     public function profileeditorAction ($template)
     {
         $bootstrap = $this->_app->getBootstrap();
