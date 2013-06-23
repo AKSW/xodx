@@ -289,4 +289,9 @@ class Xodx_ApplicationController extends Saft_Controller
     {
         return $this->_user;
     }
+
+
+    public function profileeditor ()
+    {
+        echo("Test");
 }
