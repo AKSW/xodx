@@ -13,7 +13,7 @@ require_once('password_compat/lib/password.php');
  * this includes:
  *  - subscribing to a feed
  *  - getting notifications
- *  - editing/changing profile information
+ *
  */
 class Xodx_UserController extends Xodx_ResourceController
 {
@@ -449,10 +449,5 @@ class Xodx_UserController extends Xodx_ResourceController
             }
         }
         return $template;
-    }
-
-    public function edit($template)
-    {
-        echo ("Test");
     }
 }
