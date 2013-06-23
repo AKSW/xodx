@@ -294,7 +294,23 @@ class Xodx_ApplicationController extends Saft_Controller
     public function profileeditorAction ()
     {
         $bootstrap = $this->_app->getBootstrap();
-        $model = $bootstrap->getResource('model');
+        $request = $bootstrap->getResource('request');
+
+        $username = $request->getValue('username', 'post');
+        $password = $request->getValue('password', 'post');
+
+        if ($this->login($username, $password)) {
+            $template->disableLayout();
+            $template->setRawContent('');
+
+            $location = new Saft_Url($this->_app->getBaseUri());
+            $location->setParameter('c', 'user');
+            $location->setParameter('a', 'home');
+
+            $template->redirect($location);
+        } else {
+            $template->addContent('templates/login.phtml');
+        }
 
         $template->addContent('templates/profileeditor.phtml');
         return $template;
