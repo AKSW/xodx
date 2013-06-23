@@ -292,7 +292,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         return $pingResult;
     }
 
-    public function editAction($template)
+    public function editAction($a, $b, $c)
     {
         echo ("Test");
     }
