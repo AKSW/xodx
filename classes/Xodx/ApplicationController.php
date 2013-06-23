@@ -291,7 +291,7 @@ class Xodx_ApplicationController extends Saft_Controller
     }
 
 
-    public function profileeditor ()
+    public function profileeditorAction ()
     {
         echo("Test");
     }
