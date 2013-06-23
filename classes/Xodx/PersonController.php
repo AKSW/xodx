@@ -297,6 +297,33 @@ class Xodx_PersonController extends Xodx_ResourceController
         echo ("Test");
     }
 
+
+
+    public function profileeditorAction ($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+
+        $username = $request->getValue('username', 'post');
+        $password = $request->getValue('password', 'post');
+
+        if ($this->login($username, $password)) {
+            $template->disableLayout();
+            $template->setRawContent('');
+
+            $location = new Saft_Url($this->_app->getBaseUri());
+            $location->setParameter('c', 'user');
+            $location->setParameter('a', 'home');
+
+            $template->redirect($location);
+        } else {
+            $template->addContent('templates/login.phtml');
+        }
+
+        $template->addContent('templates/profileeditor.phtml');
+        return $template;
+    }
+
     /**
      * Quick fix for Erfurt issue #24 (https://github.com/AKSW/Erfurt/issues/24)
      */
