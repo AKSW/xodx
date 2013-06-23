@@ -293,6 +293,7 @@ class Xodx_ApplicationController extends Saft_Controller
 
     public function profileeditorAction ()
     {
-        echo("Test");
+        $template->addContent('templates/login.phtml');
+        return $template;
     }
 }
