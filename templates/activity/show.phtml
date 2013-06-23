@@ -1,55 +1,30 @@
 <h2>Activity</h2>
-<table>
-<?php foreach ($this->properties as $property) : ?>
-<tr>
-    <td><?= htmlentities($property['p']) ?></td>
-    <td><?= htmlentities($property['o']) ?></td>
-</tr>
-<?php
-    if ($property['p'] == 'http://xmlns.com/foaf/spec/#Image') {
-        $id = $property['o'];
-    }
-?>
-<?php endforeach; ?>
-</table>
 
-<?php if (isset($id)) :?>
-<img src="?c=resource&amp;id=<?= $id ?>" />
-<?php endif;?>
-
-<?php if (isset($this->activities)) : ?>
-<?php foreach ($this->activities as $activity) : ?>
-<div class="activity">
-    <p>
-        <a href="<?= htmlentities($activity['uri']) ?>"><strong><?= $activity['title'] ?></strong></a><br />
-        <em><?= $activity['pubDate'] ?></em>
-        <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['uri']) ?>">Show Activity Feed</a></em>
-    </p>
-    <div>
-        <a href="<?= htmlentities($activity['authorUri']) ?>"><?= htmlentities($activity['authorUri']) ?></a>
-        <a href="<?= htmlentities($activity['verb']) ?>"><?= htmlentities(Saft_Tools::getSpokenWord($activity['verb'])) ?></a>
-
-        <?php if (isset($activity['objectType'])) : ?>
-
-            a <a href="<?= htmlentities($activity['object']) ?>"><?= Saft_Tools::getSpokenWord($activity['type']) ?></a> at <?= $activity['pubDate'] ?>
-
-            <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">Show Feed of Object</a></em>
-        <?php if(isset($activity['objectImage'])) : ?>
-
-            <div class="span10">
-                <img class="avatar img-polaroid" src="<?= htmlentities($activity['objectImage']) ?>" />
-            </div>
-        <?php endif; ?>
-        <?php else : ?>
-            <a href="<?= htmlentities($activity['object']) ?>"><?= ($activity['object']) ?></a>
-              at <?= $activity['pubDate'] ?>
-            <em><a href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($activity['object']) ?>">
-              Show Feed of Object</a></em>
-        <?php endif; ?>
-
-    </div>
+<div class="activity row-fluid">
+    <div class="span8">
+<dl>
+<dt>Date: </dt>
+<dd id="date"><?= $this->date ?></dd>
+<dt>Actor: </dt>
+<dd id="actor"><?= $this->actor ?></dd>
+<dt>Verb: </dt>
+<dd id="verb"><?= $this->verb ?></dd>
+<dt>Object: </dt>
+<dd id="object"><?= $this->object ?></dd>
+</dl>
 </div>
-<?php endforeach; ?>
-<?php else: ?>
-<div class="well">There are not Activities of this person</div>
-<?php endif; ?>
+<div class="span4">
+<a class="btn btn-block" href="<?= htmlentities($this->feed) ?>">Show Activity Feed</a>
+<hr />
+<?php
+$this->partial(
+    'activitystream.phtml',
+    array(
+        'activities' => $this->activities,
+        'personUri' => $this->maker, // This is a placeholder
+        'personName' => 'Activity', // This is a placeholder
+        'home' => false
+    )
+);
+?>
+</div>

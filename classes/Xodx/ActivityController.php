@@ -13,6 +13,55 @@
 class Xodx_ActivityController extends Xodx_ResourceController
 {
     /**
+     *
+     * Method returns all tuples of a resource to html template
+     * @param $template
+     */
+    public function showAction ($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        $request = $bootstrap->getResource('request');
+
+        $objectId = $request->getValue('id', 'get');
+        $controller = $request->getValue('c', 'get');
+        $objectUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $objectId;
+
+        $nsAair = 'http://xmlns.notu.be/aair#';
+        $nsDssn = 'http://purl.org/net/dssn/';
+        $nsAtom = 'http://www.w3.org/2005/Atom/';
+
+        $query = 'PREFIX aair: <' . $nsAair . '>' . PHP_EOL;
+        $query.= 'PREFIX dssn: <' . $nsDssn . '>' . PHP_EOL;
+        $query.= 'PREFIX atom: <' . $nsAtom . '>' . PHP_EOL;
+        $query.= 'SELECT ?actor ?verb ?object ?date ?feed ' . PHP_EOL;
+        $query.= 'WHERE { ' . PHP_EOL;
+        $query.= '   <' . $objectUri . '> aair:activityActor ?actor ; ' . PHP_EOL;
+        $query.= '       aair:activityVerb ?verb ; ' . PHP_EOL;
+        $query.= '       aair:activityObject ?object ; ' . PHP_EOL;
+        $query.= '       atom:published ?date ; ' . PHP_EOL;
+        $query.= '       dssn:activityFeed ?feed . ' . PHP_EOL;
+        $query.= '} ';
+
+        $properties = $model->sparqlQuery($query);
+
+        $activityController = $this->_app->getController('Xodx_ActivityController');
+        $activities = $activityController->getActivities($objectUri);
+
+        $template->addContent('templates/resourceshow.phtml');
+        $template->properties = $properties;
+        $template->actor = $properties[0]['actor'];
+        $template->verb = $properties[0]['verb'];
+        $template->object = $properties[0]['object'];
+        $template->date = $properties[0]['date'];
+        $template->feed = $properties[0]['feed'];
+
+        $template->activities = $activities;
+
+        return $template;
+    }
+
+    /**
      * Add a new activity after user action.
      * Activities are:  - Friendig
      *                  - Post a status note
