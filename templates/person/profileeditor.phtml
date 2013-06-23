@@ -2,9 +2,9 @@
 <form action="?c=person&amp;a=edit" method="post" class="form-horizontal">
 <fieldset>
 <div class="control-group">
-    <label class="control-label" for="Nick">A</label>
+    <label class="control-label" for="Nick">Nick</label>
     <div class="controls">
-        <input type="text" class="input-xlarge" name="Nick" id="nick" />
+        <input type="text" class="input-xlarge" name="Nick" id="nick" value="<?= htmlentities($this->profileshowLogInUri) ?>"/>
     </div>
 </div>
 <!-- <div class="control-group">
