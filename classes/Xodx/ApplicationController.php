@@ -293,7 +293,10 @@ class Xodx_ApplicationController extends Saft_Controller
 
     public function profileeditorAction ()
     {
-        $template->addContent('templates/login.phtml');
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+
+        $template->addContent('templates/profileeditor.phtml');
         return $template;
     }
 }
