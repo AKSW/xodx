@@ -252,7 +252,9 @@ class Xodx_PersonController extends Xodx_ResourceController
      */
     public function addFriend ($personUri, $contactUri)
     {
-        $model = $this->_app->getBootstrap()->getResource('model');
+        $bootstrap = $this->_app->getBootstrap();
+        $logger = $bootstrap->getResource('logger');
+        $model  = $bootstrap->getResource('model');
         $userController = $this->_app->getController('Xodx_UserController');
 
         $ldHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
@@ -282,9 +284,11 @@ class Xodx_PersonController extends Xodx_ResourceController
         $userUri = $userController->getUserUri($personUri);
         $feedUri = $this->getActivityFeedUri($contactUri);
         if ($feedUri !== null) {
+            $logger->debug('PersonController/addfriend: Found feed for newly added friend ("' . $contactUri . '"): "' . $feedUri . '"');
             $userController->subscribeToResource ($userUri, $contactUri, $feedUri);
+        } else {
+            $logger->error('PersonController/addfriend: Couldn\'t find feed for newly added friend ("' . $contactUri . '").');
         }
-        return;
     }
 
     /**
