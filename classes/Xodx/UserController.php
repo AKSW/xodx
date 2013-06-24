@@ -86,13 +86,17 @@ class Xodx_UserController extends Xodx_ResourceController
     /**
      *
      * Enter description here ...
-     * @param unknown_type $subscriberUri
-     * @param unknown_type $feedUri
+     * @param URI $subscriberUri
+     * @param URI $resourceUri
+     * @param URI $feedUri
+     * @param boolean $local specifies if the feed should not be subscribed at the hub
+     *                       (this is meant for local resources)
      */
-    public function subscribeToResource ($subscriberUri, $resourceUri, $feedUri = null)
+    public function subscribeToResource ($subscriberUri, $resourceUri, $feedUri = null, $local = false)
     {
+        $bootstrap = $this->_app->getBootstrap();
 
-        $model = $this->_app->getBootstrap()->getResource('model');
+        $model = $bootstrap->getResource('model');
 
         if ($feedUri === null) {
             $feedUri = $this->getActivityFeedUri($resourceUri);
@@ -106,7 +110,7 @@ class Xodx_UserController extends Xodx_ResourceController
         $nsDssn = 'http://purl.org/net/dssn/';
         $model->addStatement($resourceUri, $nsDssn . 'activityFeed', $feedObject);
 
-        $this->_subscribeToFeed($subscriberUri, $feedUri);
+        $this->_subscribeToFeed($subscriberUri, $feedUri, $local);
 
     }
 
@@ -115,14 +119,13 @@ class Xodx_UserController extends Xodx_ResourceController
      * @param $userUri the uri of the user who wants to be subscribed
      * @param $feedUri the uri of the feed where she wants to subscribe
      */
-    private function _subscribeToFeed ($subscriberUri, $feedUri)
+    private function _subscribeToFeed ($subscriberUri, $feedUri, $local = false)
     {
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
         $resourceController = $this->_app->getController('Xodx_ResourceController');
 
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
-        $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);
         $type = $resourceController->getType($subscriberUri);
 
         if ($type === $nsFoaf . 'Person') {
@@ -133,11 +136,9 @@ class Xodx_UserController extends Xodx_ResourceController
 
         if (!$this->_isSubscribed($subscriberUri, $feedUri)) {
             $pushController = $this->_app->getController('Xodx_PushController');
-            if ($pushController->subscribe($feedUri)) {
+            if ($local || $pushController->subscribe($feedUri)) {
 
-                $store    = $bootstrap->getResource('store');
                 $model    = $bootstrap->getResource('model');
-                $graphUri = $model->getModelIri();
 
                 $nsDssn = 'http://purl.org/net/dssn/';
                 $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
@@ -146,48 +147,37 @@ class Xodx_UserController extends Xodx_ResourceController
                 $cbUri  = $this->_app->getBaseUri() . '?c=push&a=callback';
 
                 $subscription = array(
-                $subUri => array(
-                    $nsRdf . 'type' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $nsDssn . 'Subscription'
-                        )
-                    ),
-                    $nsDssn . 'subscriptionCallback' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $cbUri
-                        )
-                    ),
-                    $nsDssn . 'subscriptionHub' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $feed->getLinkHub()
-                        )
-                    ),
-                    $nsDssn . 'subscriptionTopic' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $feed->getLinkSelf()
-                        )
-                    ),
-                )
-            );
-
-            $store->addMultipleStatements($graphUri, $subscription);
-
-            $subscribeStatement = array(
-                $subscriberUri => array(
-                    $nsDssn . 'subscribedTo' => array(
-                        array(
-                            'type' => 'uri',
-                            'value' => $subUri
+                    $subUri => array(
+                        $nsRdf . 'type' => array(
+                            array('type' => 'uri', 'value' => $nsDssn . 'Subscription')
+                        ),
+                        $nsDssn . 'subscriptionCallback' => array(
+                            array('type' => 'uri', 'value' => $cbUri)
+                        ),
+                        $nsDssn . 'subscriptionTopic' => array(
+                            array('type' => 'uri', 'value' => $feedUri)
                         )
                     )
-                )
-            );
+                );
 
-            $store->addMultipleStatements($graphUri, $subscribeStatement);
+                if (!$local) {
+                    $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);
+
+                    $subscription[$subUri][$nsDssn . 'subscriptionHub'][] = array(
+                        'type' => 'uri', 'value' => $feed->getLinkHub()
+                    );
+                }
+
+                $subscribeStatement = array(
+                    $subscriberUri => array(
+                        $nsDssn . 'subscribedTo' => array(
+                            array('type' => 'uri', 'value' => $subUri)
+                        )
+                    )
+                );
+
+                $model->addMultipleStatements($subscription);
+                $model->addMultipleStatements($subscribeStatement);
             }
         }
     }
