@@ -21,6 +21,68 @@ class Xodx_UserController extends Xodx_ResourceController
      */
     private $_users = array();
 
+    public function homeAction ($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        $request = $bootstrap->getResource('request');
+
+        $user = $this->getUser();
+
+        if ($user->getName() !== 'guest') {
+            $personUri = $user->getPerson();
+
+            $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+
+            $profileQuery = 'PREFIX foaf: <' . $nsFoaf . '>' . PHP_EOL;
+            $profileQuery.= 'SELECT ?depiction ?name ?nick' . PHP_EOL;
+            $profileQuery.= 'WHERE {' . PHP_EOL;
+            $profileQuery.= '   <' . $personUri . '> a foaf:Person .' . PHP_EOL;
+            $profileQuery.= '   OPTIONAL {<' . $personUri . '> foaf:depiction ?depiction .}' . PHP_EOL;
+            $profileQuery.= '   OPTIONAL {<' . $personUri . '> foaf:name ?name .}' . PHP_EOL;
+            $profileQuery.= '   OPTIONAL {<' . $personUri . '> foaf:nick ?nick .}' . PHP_EOL;
+            $profileQuery.= '}';
+
+            // TODO deal with language tags
+            $contactsQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' . PHP_EOL;
+            $contactsQuery.= 'SELECT ?contactUri ?name ?nick ' . PHP_EOL;
+            $contactsQuery.= 'WHERE { ' . PHP_EOL;
+            $contactsQuery.= '   <' . $personUri . '> foaf:knows ?contactUri . ' . PHP_EOL;
+            $contactsQuery.= '   OPTIONAL {?contactUri foaf:name ?name .} ' . PHP_EOL;
+            $contactsQuery.= '   OPTIONAL {?contactUri foaf:nick ?nick .} ' . PHP_EOL;
+            $contactsQuery.= '}';
+
+            $profile = $model->sparqlQuery($profileQuery);
+
+            if (count($profile) > 0) {
+                $knows = $model->sparqlQuery($contactsQuery);
+
+                $activities = $this->getActivityStream($user);
+                $factory = new Xodx_NotificationFactory($this->_app);
+                $notifications = $factory->getForUser($user->getUri(), false);
+
+                $template->profileshowPersonUri = $personUri;
+                $template->profileshowDepiction = $profile[0]['depiction'];
+                $template->profileshowName = $profile[0]['name'];
+                $template->profileshowNick = $profile[0]['nick'];
+                $template->profileshowActivities = $activities;
+                $template->profileshowKnows = $knows;
+                $template->profileshowNews = $notifications;
+            }
+        }
+        return $template;
+    }
+
+    public function getPersonUriAction ($template)
+    {
+        $personUri = $this->getUser()->getPerson();
+
+        $template->disableLayout();
+        $template->setRawContent($personUri);
+
+        return $template;
+    }
+
     /**
      *
      * Enter description here ...
@@ -342,58 +404,5 @@ class Xodx_UserController extends Xodx_ResourceController
         }
 
         return $subscribedResources;
-    }
-
-    public function homeAction ($template)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $model = $bootstrap->getResource('model');
-        $request = $bootstrap->getResource('request');
-
-        $user = $this->getUser();
-
-        if ($user->getName() !== 'guest') {
-            $personUri = $user->getPerson();
-
-            $nsFoaf = 'http://xmlns.com/foaf/0.1/';
-
-            $profileQuery = 'PREFIX foaf: <' . $nsFoaf . '>' . PHP_EOL;
-            $profileQuery.= 'SELECT ?depiction ?name ?nick' . PHP_EOL;
-            $profileQuery.= 'WHERE {' . PHP_EOL;
-            $profileQuery.= '   <' . $personUri . '> a foaf:Person .' . PHP_EOL;
-            $profileQuery.= '   OPTIONAL {<' . $personUri . '> foaf:depiction ?depiction .}' . PHP_EOL;
-            $profileQuery.= '   OPTIONAL {<' . $personUri . '> foaf:name ?name .}' . PHP_EOL;
-            $profileQuery.= '   OPTIONAL {<' . $personUri . '> foaf:nick ?nick .}' . PHP_EOL;
-            $profileQuery.= '}';
-
-            // TODO deal with language tags
-            $contactsQuery = 'PREFIX foaf: <' . $nsFoaf . '> ' . PHP_EOL;
-            $contactsQuery.= 'SELECT ?contactUri ?name ?nick ' . PHP_EOL;
-            $contactsQuery.= 'WHERE { ' . PHP_EOL;
-            $contactsQuery.= '   <' . $personUri . '> foaf:knows ?contactUri . ' . PHP_EOL;
-            $contactsQuery.= '   OPTIONAL {?contactUri foaf:name ?name .} ' . PHP_EOL;
-            $contactsQuery.= '   OPTIONAL {?contactUri foaf:nick ?nick .} ' . PHP_EOL;
-            $contactsQuery.= '}';
-
-            $profile = $model->sparqlQuery($profileQuery);
-
-            if (count($profile) > 0) {
-                $knows = $model->sparqlQuery($contactsQuery);
-
-                $activities = $this->getActivityStream($user);
-                $factory = new Xodx_NotificationFactory($this->_app);
-                $notifications = $factory->getForUser($user->getUri(), false);
-
-                $template->profileshowPersonUri = $personUri;
-                $template->profileshowDepiction = $profile[0]['depiction'];
-                $template->profileshowName = $profile[0]['name'];
-                $template->profileshowNick = $profile[0]['nick'];
-                $template->profileshowActivities = $activities;
-                $template->profileshowKnows = $knows;
-                $template->profileshowNews = $notifications;
-                $template->addContent('templates/usershow.phtml');
-            }
-        }
-        return $template;
     }
 }
