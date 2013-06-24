@@ -12,14 +12,14 @@ class Xodx_ResourceController extends Saft_Controller
     public $rdfTypes = array(
         'application/sparql-results+xml',
         'application/json',
+        'rdf/json',
         'application/sparql-results+json',
-        'application/rdf+xml',
-        'text/rdf+n3',
         'application/x-turtle',
         'application/rdf+xml',
         'text/turtle',
+        'text/rdf+n3',
+        'text/n3',
         'rdf/turtle',
-        'rdf/json'
     );
 
     /**
