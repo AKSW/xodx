@@ -175,9 +175,14 @@ class Xodx_ApplicationController extends Saft_Controller
                     )
                 );
                 $model->addMultipleStatements($newUser);
+
+                $location = new Saft_Url($this->_app->getBaseUri());
+                $location->setParameter('c', 'application');
+                $location->setParameter('a', 'login');
+
+                $template->redirect($location);
             } else {
                 $template->formError = $formError;
-                $template->addContent('templates/newuser.phtml');
             }
         }
 
