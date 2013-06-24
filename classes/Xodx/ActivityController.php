@@ -87,57 +87,44 @@ class Xodx_ActivityController extends Xodx_ResourceController
 
         $logger->debug('Actor URI is: ' . $actorUri);
 
-        if ($replyObject == null || empty($replyObject)) {
-            $replyObject = false;
+        $object = array('content' => $actContent);
+
+        if (Erfurt_Uri::check($replyObject)) {
+            $object['replyObject'] = $replyObject;
         }
 
         switch ($actType) {
             case 'post';
             case 'note';
                 $verbUri = $nsAair . 'Post';
-                $object = array(
-                    'type' => 'note',
-                    'content' => $actContent,
-                    'replyObject' => $replyObject,
-                );
-                $this->addActivity($actorUri, $verbUri, $object);
+                $object['type'] = 'note';
             break;
             case 'comment';
-                $object = array(
-                    'type' => $actType,
-                    'content' => $actContent,
-                    'replyObject' => $replyObject,
-                );
                 $verbUri = $nsAair . 'Post';
-                $this->addActivity($actorUri, $verbUri, $object);
+                $object['type'] = 'comment';
             break;
             case 'bookmark';
-                $object = array(
-                    'type' => 'Uri',
-                    'content' => $actContent,
-                    'replyObject' => $replyObject,
-                );
                 $verbUri = $nsAair . 'Share';
-                $this->addActivity($actorUri, $verbUri, $object);
+                $object['type'] = 'uri';
             break;
             case 'photo';
                 $fieldName = 'content';
                 $mediaController = $this->_app->getController('Xodx_MediaController');
                 $fileInfo = $mediaController->uploadImage($fieldName);
-                $object = array(
-                    'type' => $actType,
-                    'content' => $actContent,
-                    'fileName' => $fileInfo['fileId'],
-                    'mime' => $fileInfo['mimeType'],
-                    'replyObject' => $replyObject,
-                );
+
                 $verbUri = $nsAair . 'Post';
-                $this->addActivity($actorUri, $verbUri, $object);
+                $object['type'] = 'photo';
+                $object['fileName'] = $fileInfo['fileId'];
+                $object['mime'] = $fileInfo['mimeType'];
             break;
             default:
-                $logger->info('The given activity type ("' . $actType . '") is unknown.');
+                $message = 'The given activity type ("' . $actType . '") is unknown.';
+                $logger->error($message);
+                throw new Exception($message);
             break;
         }
+
+        $this->addActivity($actorUri, $verbUri, $object);
 
         return $template;
     }
@@ -148,14 +135,14 @@ class Xodx_ActivityController extends Xodx_ResourceController
      */
     public function addActivity ($actorUri, $verbUri, $object)
     {
-
         $bootstrap = $this->_app->getBootstrap();
 
-        $store = $bootstrap->getResource('store');
         $model = $bootstrap->getResource('model');
         $config = $bootstrap->getResource('config');
         $logger = $bootstrap->getResource('logger');
-        $graphUri = $model->getModelIri();
+
+        $baseUri = $this->_app->getBaseUri();
+
         $nsXsd =      'http://www.w3.org/2001/XMLSchema#';
         $nsRdf =      'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
         $nsSioc =     'http://rdfs.org/sioc/ns#';
@@ -168,16 +155,19 @@ class Xodx_ActivityController extends Xodx_ResourceController
         $nsDssn =     'http://purl.org/net/dssn/';
 
         $now = date('c');
-        $postId = md5(rand());
-        $postUri = $this->_app->getBaseUri() . '?c=resource&id=' . $postId;
-        $pingbackServer = $this->_app->getBaseUri() . 'index.php?c=pingback&a=ping';
-        $activityUri = $this->_app->getBaseUri() . '?c=activity&id=' . md5(rand());
-        $feedUri[$actorUri] = $this->_app->getBaseUri() .
-            '?c=feed&a=getFeed&uri=' . urlencode($actorUri);
-        $objectId = md5(rand());
-        $objectUri = $this->_app->getBaseUri() . '?c=resource&id=' . $objectId;
-        // TODO: Notice: Undefined index: replyObject
-        $replyUri = $object['replyObject'];
+        $pingbackServer = $baseUri . '?c=pingback&a=ping';
+
+        // Generate URIs for the post, activity, actorFeed and object
+        $postUri = $baseUri . '?c=resource&id=' . md5(rand());
+        $objectUri = $baseUri . '?c=resource&id=' . md5(rand());
+        $activityUri = $baseUri . '?c=activity&id=' . md5(rand());
+        $actorFeedUri = $baseUri .  '?c=feed&a=getFeed&uri=' . urlencode($actorUri);
+        $activityFeedUri = $baseUri . '?c=feed&a=getFeed&uri=' .  urlencode($activityUri);
+
+        $publishFeeds = array(
+            $actorUri => $actorFeedUri
+        );
+        $subscribeFeeds = array();
 
         $object['type'] = strtolower($object['type']);
 
@@ -206,24 +196,24 @@ class Xodx_ActivityController extends Xodx_ResourceController
             $object['aairType'] = $nsAair . 'Comment';
             $type               = 'Comment';
             $content            = $object['content'];
-
-            if (!($object['replyObject'])) {
-                $replyUri = $object['replyObject'];
-            }
         }
-
-        $pingbackController = $this->_app->getController('Xodx_PingbackController');
 
         // Creating resources
         // I. activity resource
         // contains all triples activities have in common (e.g. date of publish)
-        $activity = array(
+        $activityTriples = array(
             $activityUri => array(
                 $nsRdf . 'type' => array(
-                    array(
-                        'type' =>  'uri',
-                        'value' => $nsAair . 'Activity'
-                    )
+                    array('type' => 'uri', 'value' => $nsAair . 'Activity')
+                ),
+                $nsAair . 'activityActor' => array(
+                    array('type' => 'uri', 'value' => $actorUri)
+                ),
+                $nsAair . 'activityVerb' => array(
+                    array('type' => 'uri', 'value' => $verbUri)
+                ),
+                $nsAair . 'activityObject' => array(
+                    array('type' => 'uri', 'value' => $objectUri)
                 ),
                 $nsAtom . 'published' => array(
                     array(
@@ -232,168 +222,135 @@ class Xodx_ActivityController extends Xodx_ResourceController
                         'datatype' => $nsXsd . 'dateTime'
                     )
                 ),
-                $nsAair . 'activityActor' => array(
-                    array(
-                        'type' =>     'uri',
-                        'value' =>    $actorUri
-                    )
-                ),
-                $nsAair . 'activityVerb' => array(
-                    array(
-                        'type' =>     'uri',
-                        'value' =>    $verbUri
-                    )
-                ),
-                $nsAair . 'activityObject' => array(
-                    array(
-                        'type' =>     'uri',
-                        'value' =>    $objectUri
-                    )
-                ),
                 $nsPingback . 'to' => array(
-                    array(
-                        'type' =>     'uri',
-                        'value' =>    $pingbackServer
-                    )
+                    array('type' => 'uri', 'value' => $pingbackServer)
                 ),
                 $nsDssn . 'activityFeed' => array(
-                    array(
-                        'type' =>     'uri',
-                        'value' =>    $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
-                            urlencode($activityUri)
-                    )
+                    array('type' => 'uri', 'value' => $activityFeedUri)
                 )
             )
         );
-        $feedUri[$activityUri] = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
-            urlencode($activityUri);
 
         // If this activity contains a reply, add this statement, too
-        if ($replyUri !== null && !empty($replyUri) && $replyUri !== 'false') {
-            $activity[$activityUri][$nsAair . 'activityContext'][] = array(
+        if (isset($object['replyObject']) && Erfurt_Uri::check($object['replyObject'])) {
+            $replyUri = $object['replyObject'];
+
+            $activityTriples[$activityUri][$nsAair . 'activityContext'][] = array(
                 'type' => 'uri', 'value' => $replyUri
             );
 
-            $feedUri[$replyUri] = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
-                urlencode($replyUri);
+            $subscribeFeeds[$replyUri] = null;
         }
+
+        $model->addMultipleStatements($activityTriples);
+        $publishFeeds[$activityUri] = $activityFeedUri;
+        $subscribeFeeds[$activityUri] = $activityFeedUri;
 
         // II. general statements of object resource
         // if $type == 'Uri' the ressource of aair:activityObject statement allready exists
         // e.g. 'Sharing a Bookmark (URI)' and 'Friending'
         if ($type != 'Uri') {
-            $activity[$objectUri][$nsRdf . 'type'][] = array(
-                'type' => 'uri', 'value' => $object['type']
-            );
+            $objectFeedUri = $baseUri . '?c=feed&a=getFeed&uri=' . urlencode($objectUri);
+            $feedUri[$objectUri] = $objectFeedUri;
 
-            $activity[$objectUri][$nsRdf . 'type'][] = array(
-                'type' => 'uri', 'value' => $object['aairType']
-            );
-
-            $activity[$objectUri][$nsSioc . 'created_at'][] = array(
-                'type' => 'literal', 'value' => $now, 'datatype' => $nsXsd . 'dateTime'
-            );
-
-            $activity[$objectUri][$nsFoaf . 'maker'][] = array(
-                'type' => 'uri', 'value' => $actorUri
-            );
-
-            $activity[$objectUri][$nsPingback . 'to'][] = array(
-                'type' => 'uri', 'value' => $pingbackServer
-            );
-
-            $activity[$objectUri][$nsDssn . 'activityFeed'][] = array(
-                'type' => 'uri', 'value' => $this->_app->getBaseUri()
-                . '?c=feed&a=getFeed&uri=' . urlencode($objectUri)
+            $objectTriples = array(
+                $objectUri => array(
+                    $nsRdf . 'type' => array(
+                        array('type' => 'uri', 'value' => $object['type']),
+                        array('type' => 'uri', 'value' => $object['aairType'])
+                    ),
+                    $nsSioc . 'created_at' => array(
+                        array(
+                            'type' => 'literal',
+                            'value' => $now,
+                            'datatype' => $nsXsd . 'dateTime'
+                        ),
+                    ),
+                    $nsFoaf . 'maker' => array(
+                        array('type' => 'uri', 'value' => $actorUri)
+                    ),
+                    $nsPingback . 'to' => array(
+                        array('type' => 'uri', 'value' => $pingbackServer)
+                    ),
+                    $nsDssn . 'activityFeed' => array(
+                        array('type' => 'uri', 'value' => $objectFeedUri)
+                    )
+                )
             );
 
             // Triples of note resource
-            if ($type == 'Note') {
-                $activity[$objectUri][$nsSioc . 'content'][] = array(
+            if ($type == 'Note' || $type == 'Comment') {
+                $objectTriples[$objectUri][$nsSioc . 'content'][] = array(
                     'type' => 'literal', 'value' => $object['content']
                 );
 
-                $activity[$objectUri][$nsAair . 'content'][] = array(
+                $objectTriples[$objectUri][$nsAair . 'content'][] = array(
                     'type' => 'literal', 'value' => $object['content']
                 );
             }
 
             // Triples of comment resource
             if ($type == 'Comment') {
-                $activity[$objectUri][$nsSioc . 'content'][] = array(
-                    'type' => 'literal', 'value' => $object['content']
-                );
-
-                $activity[$objectUri][$nsAair . 'content'][] = array(
-                    'type' => 'literal', 'value' => $object['content']
-                );
-
-                $activity[$objectUri][$nsAair . 'commenter'][] = array(
+                $objectTriples[$objectUri][$nsAair . 'commenter'][] = array(
                     'type' => 'uri', 'value' => $actorUri
                 );
 
-                if ($replyUri !== false) {
-                    $activity[$objectUri][$nsSioc . 'reply_of'][] = array(
-                        'type' => 'uri', 'value' => $replyUri
+                if (isset($object['replyObject']) && Erfurt_Uri::check($object['replyObject'])) {
+                    $objectTriples[$objectUri][$nsSioc . 'reply_of'][] = array(
+                        'type' => 'uri', 'value' => $object['replyObject']
                     );
                 }
             }
 
             // Triples of photo resource
             if ($type == 'Photo') {
-                $activity[$objectUri][$nsOv .   'hasContentType'][] = array(
+                $objectTriples[$objectUri][$nsOv .   'hasContentType'][] = array(
                     'type' => 'literal', 'value' => $object['mime']
                 );
 
-                $activity[$objectUri][$nsAair . 'largerImage'][] = array(
+                $objectTriples[$objectUri][$nsAair . 'largerImage'][] = array(
                     'type' => 'uri', 'value' => $imageUri
                 );
             }
 
-            $feedUri[$objectUri] = $this->_app->getBaseUri() . '?c=feed&a=getFeed&uri=' .
-                urlencode($objectUri);
+            $model->addMultipleStatements($objectTriples);
+            $publishFeeds[$objectUri] = $objectFeedUri;
+            $subscribeFeeds[$objectUri] = $objectFeedUri;
         } else {
-            // processes to perform if activityObject is a given ressource
-            // try to add the activity feed of the ressource to the feeds we want to subscribe
-            $resourceController = $this->_app->getController('Xodx_ResourceController');
-            $foundFeedUri = $resourceController->getActivityFeedUri($objectUri);
-
-            if ($foundFeedUri !== null) {
-                $feedUri[$objectUri] = $foundFeedUri;
-            }
-        }
-
-        // proceed and subsribe to feed
-        $store->addMultipleStatements($graphUri, $activity);
-
-        if ($replyUri !== null) {
-            // Ping the object we commented
-            $pingbackController->sendPing(
-                $activityUri, $replyUri, 'You were pinged from an Activity with verb: ' . $verbUri
-            );
-        }
-
-        if ($type == 'Uri') {
-            // try to ping the ressource
+            // If the object is a URI send a ping
+            $pingbackController = $this->_app->getController('Xodx_PingbackController');
             $pingbackController->sendPing(
                 $activityUri, $objectUri,
                 'You were pinged from an' .  ' Activity with verb: ' . $verbUri
             );
+
+            // maybe we should also subscribe to this resource
         }
 
-        // Subscribe user to activity feeds
+        // III. send a ping if it was a reply
+        if (isset($object['replyObject']) && Erfurt_Uri::check($object['replyObject'])) {
+            $pingbackController = $this->_app->getController('Xodx_PingbackController');
+            $pingbackController->sendPing(
+                $activityUri, $object['replyObject'], 'You were pinged from an Activity with verb: ' . $verbUri
+            );
+        }
+
+        // IV. Subscribe user to activity feeds
         $userController = $this->_app->getController('Xodx_UserController');
         $pushController = $this->_app->getController('Xodx_PushController');
-        $actorUri = urldecode($actorUri);
 
-        foreach ($feedUri as $feed) {
-            if ($config['push.enable'] == true) {
+        foreach ($publishFeeds as $resource => $feed) {
+            if ($config['push.enable']) {
                 $pushController->publish($feed);
             }
         }
 
-        foreach ($feedUri as $resourceUri => $feedUri) {
-            $userController->subscribeToResource($actorUri, $resourceUri, $feedUri);
+        foreach ($subscribeFeeds as $resourceUri => $feedUri) {
+            if ($feedUri == null) {
+                $userController->subscribeToResource($actorUri, $resourceUri);
+            } else {
+                $userController->subscribeToResource($actorUri, $resourceUri, $feedUri, true);
+            }
         }
     }
 
@@ -405,13 +362,10 @@ class Xodx_ActivityController extends Xodx_ResourceController
     public function addActivities (array $activities)
     {
         $bootstrap = $this->_app->getBootstrap();
-
-        $store = $bootstrap->getResource('store');
         $model = $bootstrap->getResource('model');
-        $graphUri = $model->getModelIri();
 
         foreach ($activities as $activity) {
-            $store->addMultipleStatements($graphUri, $activity->toGraphArray());
+            $mode->addMultipleStatements($activity->toGraphArray());
         }
     }
 
