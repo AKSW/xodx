@@ -197,23 +197,23 @@ class Xodx_ResourceController extends Saft_Controller
      */
     public function getActivityFeedUri($resourceUri)
     {
+        $bootstrap = $this->_app->getBootstrap();
+        $logger = $bootstrap->getResource('logger');
+
         $linkeddataHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
         $statements = $linkeddataHelper->getResource($resourceUri);
 
-        if ($statements !== null) {
+        if ($statements !== null && !empty($statements)) {
             $memModel = new Erfurt_Rdf_MemoryModel($statements);
 
-            // get pingback:service or pingback:to from resource
+            // get dssn:activityFeed for resource
             $feedUri = $memModel->getValue($resourceUri, 'http://purl.org/net/dssn/activityFeed');
-
-            if ($feedUri !== null) {
-                return $feedUri;
-            }
+            return $feedUri;
         } else {
+            $logger->debug('ResourceController/getActivityFeedUri: no statements found for resource: "' . $resourceUri . '"');
             return null;
         }
     }
-
 
     /**
      * method imports a resource into the own model
