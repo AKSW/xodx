@@ -262,7 +262,7 @@ class Xodx_PersonController extends Xodx_ResourceController
 
         // Add Activity to activity Stream
         $object = array(
-            'type' => 'Uri',
+            'type' => 'uri',
             'content' => $contactUri,
             'replyObject' => 'false'
         );

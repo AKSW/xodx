@@ -179,6 +179,8 @@ class Xodx_ActivityController extends Xodx_ResourceController
         // TODO: Notice: Undefined index: replyObject
         $replyUri = $object['replyObject'];
 
+        $object['type'] = strtolower($object['type']);
+
         if ($object['type'] == 'photo') {
             $object['type'] = $nsFoaf . 'Image';
             $object['aairType'] = $nsAair . 'Photo';
