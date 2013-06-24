@@ -24,9 +24,7 @@
             <div class="tab-pane active" id="status">
                 <form method="post" action="?c=activity&amp;a=addactivity">
                     <textarea placeholder="Write a status note" class="input-block-level" name="content"></textarea>
-                    <input type="hidden" name="verb" value="Post"  >
                     <input type="hidden" name="type" value="Note" />
-                    <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
                     <input type="hidden" name="reply" value=false />
                     <button class="btn btn-primary" type="submit">Post</button>
                 </form>
@@ -34,9 +32,7 @@
             <div class="tab-pane" id="link">
                 <form method="post" action="?c=activity&amp;a=addactivity">
                     <input placeholder="Share a link" class="input-block-level" type="text" name="content" />
-                    <input type="hidden" name="verb" value="Share" />
                     <input type="hidden" name="type" value="Bookmark" />
-                    <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
                     <input type="hidden" name="reply" value="false" />
                     <button class="btn btn-primary" type="submit">Share</button>
                 </form>
@@ -44,9 +40,7 @@
             <div class="tab-pane" id="photo">
                 <form enctype="multipart/form-data" method="post" action="?c=activity&amp;a=addactivity">
                     <input type="file" name="content"/>
-                    <input type="hidden" name="verb" value="Post" />
                     <input type="hidden" name="type" value="Photo" />
-                    <input type="hidden" name="actor" value="<?= $this->profileshowPersonUri ?>" />
                     <input type="hidden" name="reply" value=false />
                     <button class="btn btn-primary" type="submit">Share</button>
                 </form>

@@ -74,49 +74,53 @@ class Xodx_ActivityController extends Xodx_ResourceController
 
         $logger = $bootstrap->getResource('logger');
         $request = $bootstrap->getResource('request');
-        $actorUri = $request->getValue('actor', 'post');
-        $verb = $request->getValue('verb', 'post');
-        $actType = $request->getValue('type', 'post');
+
+        $actType = strtolower($request->getValue('type', 'post'));
         $actContent = $request->getValue('content', 'post');
         $replyObject = $request->getValue('reply', 'post');
 
         $nsAair = 'http://xmlns.notu.be/aair#';
 
-        switch (strtolower($verb)) {
-            case 'post':
-                $verbUri = $nsAair . 'Post';
-                break;
-            case 'share':
-                $verbUri = $nsAair . 'Share';
-                break;
+        // Get Person of current User
+        $userController = $this->_app->getController('Xodx_UserController');
+        $actorUri = $userController->getUser()->getPerson();
+
+        $logger->debug('Actor URI is: ' . $actorUri);
+
+        if ($replyObject == null || empty($replyObject)) {
+            $replyObject = false;
         }
 
         switch ($actType) {
-            case 'Note';
+            case 'post';
+            case 'note';
+                $verbUri = $nsAair . 'Post';
                 $object = array(
-                    'type' => $actType,
+                    'type' => 'note',
                     'content' => $actContent,
                     'replyObject' => $replyObject,
                 );
                 $this->addActivity($actorUri, $verbUri, $object);
             break;
-            case 'Comment';
+            case 'comment';
                 $object = array(
                     'type' => $actType,
                     'content' => $actContent,
                     'replyObject' => $replyObject,
                 );
+                $verbUri = $nsAair . 'Post';
                 $this->addActivity($actorUri, $verbUri, $object);
             break;
-            case 'Bookmark';
+            case 'bookmark';
                 $object = array(
                     'type' => 'Uri',
                     'content' => $actContent,
                     'replyObject' => $replyObject,
                 );
+                $verbUri = $nsAair . 'Share';
                 $this->addActivity($actorUri, $verbUri, $object);
             break;
-            case 'Photo';
+            case 'photo';
                 $fieldName = 'content';
                 $mediaController = $this->_app->getController('Xodx_MediaController');
                 $fileInfo = $mediaController->uploadImage($fieldName);
@@ -127,6 +131,7 @@ class Xodx_ActivityController extends Xodx_ResourceController
                     'mime' => $fileInfo['mimeType'],
                     'replyObject' => $replyObject,
                 );
+                $verbUri = $nsAair . 'Post';
                 $this->addActivity($actorUri, $verbUri, $object);
             break;
             default:
@@ -174,7 +179,7 @@ class Xodx_ActivityController extends Xodx_ResourceController
         // TODO: Notice: Undefined index: replyObject
         $replyUri = $object['replyObject'];
 
-        if ($object['type'] == 'Photo') {
+        if ($object['type'] == 'photo') {
             $object['type'] = $nsFoaf . 'Image';
             $object['aairType'] = $nsAair . 'Photo';
             $type = 'Photo';
@@ -184,17 +189,17 @@ class Xodx_ActivityController extends Xodx_ResourceController
             $objectUri = $this->_app->getBaseUri() . '?c=media&id=' . $objectId;
             $imageUri =  $this->_app->getBaseUri() . '?c=media&a=img&id=' . $objectId;
 
-        } else if ($object['type'] == 'Uri') {
+        } else if ($object['type'] == 'uri') {
             $type =      'Uri';
             $objectUri = $object['content'];
 
-        } else if ($object['type'] == 'Note') {
+        } else if ($object['type'] == 'note') {
             $type               = 'Note';
             $object['type']     = $nsSioc . 'Post';
             $object['aairType'] = $nsAair . 'Note';
             $content            = $object['content'];
 
-        } else if ($object['type'] == 'Comment') {
+        } else if ($object['type'] == 'comment') {
             $object['type']     = $nsSioct . 'Comment';
             $object['aairType'] = $nsAair . 'Comment';
             $type               = 'Comment';
@@ -262,7 +267,7 @@ class Xodx_ActivityController extends Xodx_ResourceController
             urlencode($activityUri);
 
         // If this activity contains a reply, add this statement, too
-        if ($replyUri !== 'false') {
+        if ($replyUri !== null && !empty($replyUri) && $replyUri !== 'false') {
             $activity[$activityUri][$nsAair . 'activityContext'][] = array(
                 'type' => 'uri', 'value' => $replyUri
             );
