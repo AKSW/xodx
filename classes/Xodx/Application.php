@@ -65,6 +65,14 @@ class Xodx_Application extends Saft_Application
             );
             $errorPlaceholder = new Saft_Template('error.phtml', $options);
             $this->_layout->setPlaceholder('error', $errorPlaceholder);
+
+            $config = $bootstrap->getResource('config');
+            if (!isset($config['debug']) || $config['debug'] == true) {
+                $debug = new Saft_Template(
+                    'debug.phtml', array('log' => $bootstrap->getResource('logger')->getLastLog())
+                );
+                $this->_layout->setPlaceholder('debug', $debug);
+            }
         }
         $this->_layout->render();
     }
