@@ -158,12 +158,18 @@ class Xodx_PersonController extends Xodx_ResourceController
         $queryObject = Erfurt_Sparql_SimpleQuery::initWithString($query);
 
         $modelUri = $model->getModelIri();
-        $format = Erfurt_Syntax_RdfSerializer::normalizeFormat($mime);
-        $serializer = Erfurt_Syntax_RdfSerializer::rdfSerializerWithFormat($format);
-        $rdfData = $serializer->serializeQueryResultToString($queryObject, $modelUri);
-        $template->setHeader('Content-type', $mime);
 
-        $template->setRawContent($rdfData);
+        try {
+            $format = Erfurt_Syntax_RdfSerializer::normalizeFormat($mime);
+            $serializer = Erfurt_Syntax_RdfSerializer::rdfSerializerWithFormat($format);
+            $rdfData = $serializer->serializeQueryResultToString($queryObject, $modelUri);
+            $template->setHeader('Content-type', $mime);
+
+            $template->setRawContent($rdfData);
+        } catch (Exception $e) {
+            $template->setResponseCode(404);
+            $template->setRawContent($e);
+        }
 
         return $template;
     }
