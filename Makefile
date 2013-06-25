@@ -32,6 +32,7 @@ help:
 	@echo "	make submodules     to get the git submodules"
 	@echo "	make submodules-dev to get the git submodules (if you have write permission)"
 	@echo "	make submodules-zip to get the git submodules as ZIP (faster)"
+	@echo "	make copy           to create a copy of xodx in a different location"
 	@echo ""
 	@echo "pro:"
 	@echo "	for all other options you have to read the Makefile ..."
@@ -112,3 +113,17 @@ zend:
 
 dirs:
 	mkdir raw
+
+copy:
+	mkdir ${copy}
+	cp config.ini-dist ${copy}
+	ln index.php ${copy}
+	ln -s $(CURDIR)/classes ${copy}
+	ln -s $(CURDIR)/libraries ${copy}
+	ln -s $(CURDIR)/resources ${copy}
+	ln -s $(CURDIR)/templates ${copy}
+	touch ${copy}/xodx.log
+	chmod a+w ${copy}/xodx.log
+	mkdir ${copy}/cache
+	chmod a+rw ${copy}/cache
+
