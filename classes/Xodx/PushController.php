@@ -37,12 +37,12 @@ class Xodx_PushController extends Saft_Controller
         $logger = $bootstrap->getResource('logger');
         $store = $bootstrap->getResource('store');
         $model = $bootstrap->getResource('model');
+        $config = $bootstrap->getResource('config');
         $graphUri = $model->getModelIri();
 
         // TODO implement events
         // TODO check if we are already subscribed to this feed
-
-        if (!$this->_isSubscribed($feedUri)) {
+        if (!$this->_isSubscribed($feedUri) && $config['push.enable']) {
 
             // else fetch feed, get hub url, subscribe to the hub
             $curlHandler = curl_init();
