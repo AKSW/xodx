@@ -83,6 +83,42 @@ class Xodx_UserController extends Xodx_ResourceController
         return $template;
     }
 
+    public function getActivityStreamAction ($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $activities = $this->getActivityStream();
+        $request = $bootstrap->getResource('request');
+
+        $num = $request->getValue('num');
+        $own = $request->getValue('own');
+
+        if ($own === null || $own == 'true') {
+            $own = true;
+        } else if ($own == 'false') {
+            $own = false;
+            $personUri = $this->getUser()->getPerson();
+        }
+
+        $stream = '';
+        foreach ($activities as $activity) {
+            if (!$own && $activity['authorUri'] == $personUri) {
+                continue;
+            }
+            if ($num !== null) {
+                if ($num < 1) {
+                    break;
+                } else {
+                    $num--;
+                }
+            }
+            $stream .= $activity['uri'] . PHP_EOL;
+        }
+
+        $template->disableLayout();
+        $template->setRawContent($stream);
+        return $template;
+    }
+
     /**
      *
      * Enter description here ...
@@ -344,6 +380,10 @@ class Xodx_UserController extends Xodx_ResourceController
      */
     public function getActivityStream (Xodx_User $user = null)
     {
+        if ($user === null) {
+            $user = $this->getUser();
+        }
+
         $subscribedResources = $this->getSubscribedResources($user);
 
         $activityController = $this->_app->getController('Xodx_ActivityController');
