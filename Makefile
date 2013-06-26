@@ -126,4 +126,6 @@ copy:
 	chmod a+w ${copy}/xodx.log
 	mkdir ${copy}/cache
 	chmod a+rw ${copy}/cache
+	mkdir ${copy}/raw
+	chmod a+rw ${copy}/raw
 
