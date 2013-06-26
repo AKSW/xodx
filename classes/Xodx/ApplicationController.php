@@ -46,7 +46,6 @@ class Xodx_ApplicationController extends Saft_Controller
 
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
-        $store = $bootstrap->getResource('store');
         $request = $bootstrap->getResource('request');
         $logger = $bootstrap->getResource('logger');
 
@@ -233,6 +232,29 @@ class Xodx_ApplicationController extends Saft_Controller
         $location->setParameter('a', 'login');
 
         $template->redirect($location);
+
+        return $template;
+    }
+
+    public function statsAction ($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        $store = $bootstrap->getResource('store');
+
+        $query = new Erfurt_Sparql_Query2();
+
+        $s = $query->getVar('s');
+        $p = $query->getVar('p');
+        $o = $query->getVar('o');
+        $triple = new Erfurt_Sparql_Query2_Triple($s, $p, $o);
+        $ggp = new Erfurt_Sparql_Query2_GroupGraphPattern($triple);
+        $query->setCountStar()->setWhere($ggp);
+
+        $result = $model->sparqlQuery($query);
+
+        $template->disableLayout();
+        $template->setRawContent($result[0]['callret-0']);
 
         return $template;
     }
