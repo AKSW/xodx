@@ -1,16 +1,15 @@
-<h2>Add Reply to "<?= $this->replyObject ?>"</h2>
+<h2>Add Reply to "<?= htmlentities($this->replyObject) ?>"</h2>
 <strong>Actor</strong>
-<?= $this->replyActor ?>
-<input type="hidden" name="actor" value="<?= $this->replyActor ?>" />
+<?= htmlentities($this->replyActor) ?>
 <ul class="nav nav-pills">
     <li class="active"><a href="#status" data-toggle="tab">Kommentar</a></li>
 </ul>
 <div class="tab-content">
     <div class="tab-pane active" id="status">
-        <form method="post" action="?c=activity&a=addactivity">
+        <form method="post" action="?c=activity&amp;a=addactivity">
             <textarea name="content"></textarea>
-            <input type="hidden" name="type" value="Comment" />
-            <input type="hidden" name="reply" value="<?= $this->replyObject ?>" />
+            <input type="hidden" name="type" value="comment" />
+            <input type="hidden" name="reply" value="<?= htmlentities($this->replyObject) ?>" />
             <button class="btn btn-primary" type="submit">Post</button>
         </form>
     </div>
