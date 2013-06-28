@@ -181,6 +181,13 @@ class Xodx_PingbackController extends Saft_Controller
         $bootstrap = $this->_app->getBootstrap();
         $logger    = $bootstrap->getResource('logger');
 
+        if (!Erfurt_Uri::check($source) || !Erfurt_Uri::check($target)) {
+            throw new Exception(
+                'Pingback/sendping: At least one of source: "' . $source . '"' .
+                ' or target: "' . $target . '" is empty!'
+            );
+        }
+
         $linkeddataHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
         $targetStatements = $linkeddataHelper->getResource($target);
 
