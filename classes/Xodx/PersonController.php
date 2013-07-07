@@ -258,7 +258,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         $userController = $this->_app->getController('Xodx_UserController');
 
         $ldHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
-        if (!$ldHelper->resourceExists($contactUri)) {
+        if (!$ldHelper->resourceDescriptionExists($contactUri)) {
             throw new Exception('The WebID of your friend does not exist.');
         }
 
