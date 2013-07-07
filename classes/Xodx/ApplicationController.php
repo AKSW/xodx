@@ -253,8 +253,22 @@ class Xodx_ApplicationController extends Saft_Controller
 
         $result = $model->sparqlQuery($query);
 
+        $triples = $result[0]['callret-0'];
+
+        $query = new Erfurt_Sparql_Query2();
+
+        $s = $query->getVar('s');
+        $p = new Erfurt_Sparql_Query2_IriRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
+        $o = new Erfurt_Sparql_Query2_IriRef('http://xmlns.notu.be/aair#Activity');
+        $triple = new Erfurt_Sparql_Query2_Triple($s, $p, $o);
+        $ggp = new Erfurt_Sparql_Query2_GroupGraphPattern($triple);
+        $query->setCountStar()->setWhere($ggp);
+
+        $result = $model->sparqlQuery($query);
+        $activities = $result[0]['callret-0'];
+
         $template->disableLayout();
-        $template->setRawContent($result[0]['callret-0']);
+        $template->setRawContent($triples . ' ' . $activities);
 
         return $template;
     }
