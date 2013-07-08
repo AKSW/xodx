@@ -5,7 +5,7 @@
 <div class="control-group">
     <label class="control-label" for="Nick">Nick</label>
     <div class="controls">
-        <input type="text" class="input-xlarge" name="Nick" id="nick" value=""/>
+        <input type="text" class="input-xlarge" name="Nick" id="nick" value="<?= getUser($this->profileshowPersonUri) -> getName() ?>"/>
     </div>
 </div>
 
@@ -52,7 +52,7 @@
 
 <p>Ein paar Tests:<br><?php echo("test") ?> <br>
 
-Peron Uri: <?= $this->profileshowPersonUri ?>
+Person Uri: <?= $this->profileshowPersonUri ?>
 </p>
 
 </fieldset>
