@@ -300,6 +300,7 @@ class Xodx_PersonController extends Xodx_ResourceController
     public function profileeditorAction ($template)
     {
         $template->addContent('templates/profileeditor.phtml');
+        //$this$_GET["url"];
         return $template;
     }
 
