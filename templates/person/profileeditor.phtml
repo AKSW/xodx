@@ -4,9 +4,32 @@
 <div class="control-group">
     <label class="control-label" for="Nick">Nick</label>
     <div class="controls">
-        <input type="text" class="input-xlarge" name="Nick" id="nick" value="FooBar"/>
+        <input type="text" class="input-xlarge" name="Nick" id="nick" value=""/>
     </div>
 </div>
+
+<div class="control-group">
+    <label class="control-label" for="Nick">First Name</label>
+    <div class="controls">
+        <input type="text" class="input-xlarge" name="firstName" id="firstName" value=""/>
+    </div>
+</div>
+
+<div class="control-group">
+    <label class="control-label" for="Nick">Last Name</label>
+    <div class="controls">
+        <input type="text" class="input-xlarge" name="lastName" id="lastName" value=""/>
+    </div>
+</div>
+
+<!-- For Dev-Purposes at the moment only:
+- Nick
+- First Name
+- Last Name
+- Profile Pic? Linkable?
+ All other stuff can be easily implemented. afterwards.
+ -->
+
 <!-- <div class="control-group">
     <label class="control-label" for="username">B</label>
     <div class="controls">
@@ -26,7 +49,9 @@
 
 <p>Dies ist die Seite für den Profileditor.</p>
 
-<p>Ein paar Tests:<br><?php echo("test") ?> <br> <?php echo(getUser()) ?></p>
+<p>Ein paar Tests:<br><?php echo("test";) ?> <br> <?php ?></p>
+
+<?php echo ((string)$this;)?>
 
 </fieldset>
 </form>
