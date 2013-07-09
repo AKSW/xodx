@@ -295,12 +295,12 @@ class Xodx_PersonController extends Xodx_ResourceController
     public function editAction($nick, $firstName, $lastName, $url)
     {
         echo ("Test");
-        echo $nick;
-        echo "<br>";
-        echo $firstName;
-        echo "<br>";
-        echo $lastName;
-        echo "<br>";
+        echo ($nick);
+        echo ("<br>");
+        echo ($firstName);
+        echo ("<br>");
+        echo ($lastName);
+        echo ("<br>");
     }
 
     public function profileeditorAction ($template)
