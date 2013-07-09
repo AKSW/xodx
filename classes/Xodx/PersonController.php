@@ -292,8 +292,11 @@ class Xodx_PersonController extends Xodx_ResourceController
         return $pingResult;
     }
 
-    public function editAction($nick, $firstName, $lastName, $url)
+    public function editAction()
     {
+        $nick = $_POST["nick"];
+        $firstName = $_POST["firstName"];
+        $lastName = $_POST["lastName"];
         echo ("Test");
         echo ($nick);
         echo ("<br>");
