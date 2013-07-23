@@ -339,11 +339,11 @@ class Xodx_PersonController extends Xodx_ResourceController
         $template->addContent('templates/profileeditor.phtml');
         //$template->profile = $profile;
 
-    foreach ($profile as $element)
-    {
-        var_dump($element);
-        echo ("<hr>");
-    }
+    //foreach ($profile as $element)
+    //{
+        //var_dump($element);
+        //echo ("<hr>");
+    //}
 
         //$this$_GET["url"];
         return $template;
