@@ -320,6 +320,23 @@ class Xodx_PersonController extends Xodx_ResourceController
 
     public function profileeditorAction ($template)
     {
+
+        $model = $this->_app->getBootstrap()->getResource('Model');
+
+        //TODO: Make this of course dynamic...
+
+        $profiles = $model->sparqlQuery(
+            'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
+            'SELECT *' .
+            'WHERE { ' .
+            '   ?person foaf:account ?test1 . ' .
+            '}'
+        );
+
+        var_dump($profiles);
+
+        echo ("<hr>");
+
         $template->addContent('templates/profileeditor.phtml');
         //$this$_GET["url"];
         return $template;
