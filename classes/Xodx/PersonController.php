@@ -309,11 +309,11 @@ class Xodx_PersonController extends Xodx_ResourceController
         echo ($lastName);
         echo ("<br>");
 
-        $bootstrap = $this->_app->getBootstrap();
-        $model = $bootstrap->getResource('model');
-        $store = $bootstrap->getResource('store');
-        $request = $bootstrap->getResource('request');
-        $logger = $bootstrap->getResource('logger');
+//        $bootstrap = $this->_app->getBootstrap();
+//        $model = $bootstrap->getResource('model');
+//        $store = $bootstrap->getResource('store');
+//        $request = $bootstrap->getResource('request');
+//        $logger = $bootstrap->getResource('logger');
 
     }
 
