@@ -9,16 +9,13 @@ if (isset($this->profile))
     var_dump($this->profile);
    foreach ($this->profile as $key => $element)
     {
-        var_dump($element);
-        echo ("<hr>");
+        //var_dump($element);
+        //echo ("<hr>");
 
-        echo ("<label class=\"control-label\" for=\"");
-        echo ($key);
-        echo ("\" id=\"");
-        echo ($key);
-        echo ("\"value=\"");
-        echo ($element);
-        echo ("\"/></div></div>");
+echo ("<div class=\"control-group\">    <label class=\"control-label\" for=\"
+$key\">$key</label>    <div class=\"controls\">        <input type=\"text\"
+class=\"input-xlarge\" name=\"$key\" id=\"§key\" value=\"$element\"/>
+</div></div>");
     }
 }
 else
