@@ -294,10 +294,11 @@ class Xodx_PersonController extends Xodx_ResourceController
 
     public function editAction()
     {
-        $url = getValue('url', 'post');
-        $nick = getValue('nick', 'post');
-        $firstName = getValue('firstName', 'post');
-        $lastName =getValue('lastName', 'post');
+        $nick = $_POST["nick"];
+        $firstName = $_POST["firstName"];
+        $lastName = $_POST["lastName"];
+        $url = $_POST["url"];
+
         echo ("Test");
         echo ("<br>URL: ");
         echo ($url);
