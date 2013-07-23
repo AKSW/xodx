@@ -6,17 +6,17 @@
 
 if (isset($this->profile))
 {
-
+    var_dump($this->profile);
    foreach ($this->profile as $key => $element)
     {
         var_dump($element);
         echo ("<hr>");
 
-        echo ("<label class=\"control-label\" for=\"")
-        echo ($key)
+        echo ("<label class=\"control-label\" for=\"");
+        echo ($key);
         echo ("\" id=\"");
-        echo ($key)
-        echo ("\"value=\"")
+        echo ($key);
+        echo ("\"value=\"");
         echo ($element);
         echo ("\"/></div></div>");
     }
@@ -24,7 +24,7 @@ if (isset($this->profile))
 else
 {
     echo ("Damn, profile not set...");
-    }
+}
 
 ?>
 
