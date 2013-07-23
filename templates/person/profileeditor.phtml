@@ -7,15 +7,13 @@
 if (isset($this->profile))
 {
     var_dump($this->profile);
-   foreach ($this->profile as $key => $element)
+
+    foreach ($this->profile as $key => $element)
     {
         //var_dump($element);
         //echo ("<hr>");
 
-echo ("<div class=\"control-group\">    <label class=\"control-label\" for=\"
-$key\">$key</label>    <div class=\"controls\">        <input type=\"text\"
-class=\"input-xlarge\" name=\"$key\" id=\"§key\" value=\"$element\"/>
-</div></div>");
+echo ("<div class=\"control-group\">    <label class=\"control-label\" for=\"$key\">$key</label>    <div class=\"controls\">        <input type=\"text\"class=\"input-xlarge\" name=\"$key\" id=\"§key\" value=\"$element\"/></div></div>");
     }
 }
 else
@@ -78,13 +76,6 @@ else
 <div class="form-actions">
     <button class="btn btn-primary" type="submit">Edit</button>
 </div>
-
-<p>Dies ist die Seite für den Profileditor.</p>
-
-<p>Ein paar Tests:<br><?php echo("test") ?> <br>
-
-Person Uri: <?= $this->profileshowPersonUri ?>
-</p>
 
 </fieldset>
 
