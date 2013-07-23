@@ -333,7 +333,10 @@ class Xodx_PersonController extends Xodx_ResourceController
             '}'
         );
 
-        var_dump($profiles);
+
+        $profile = $profiles[0];
+
+        var_dump($profile);
 
         echo ("<hr>");
 
