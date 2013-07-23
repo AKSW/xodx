@@ -332,21 +332,10 @@ class Xodx_PersonController extends Xodx_ResourceController
             '   ?person foaf:account ?test1 . ' .
             '}'
         );
-
-
         $profile = $profiles[0];
 
-        var_dump($profile);
-
-        echo ("<hr>");
-
-
-
-        foreach ($profile as $element)
-
-        var_dump($element);
-        echo ("<hr>");
-
+        //var_dump($profile);
+        //echo ("<hr>");
         $template->addContent('templates/profileeditor.phtml');
         //$this$_GET["url"];
         return $template;
