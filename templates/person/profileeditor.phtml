@@ -2,6 +2,16 @@
 <form action="?c=person&amp;a=edit" method="post" class="form-horizontal">
 <fieldset>
 
+<?
+foreach ($profile as $element)
+
+var_dump($element);
+echo ("<hr>");
+
+
+
+?>
+<!--
 <div class="control-group">
     <div class="controls">
         <input type="hidden" class="input-xlarge" name="url" id="url" value="<?= $this->profileshowPersonUri ?>"/>
@@ -28,6 +38,7 @@
         <input type="text" class="input-xlarge" name="lastName" id="lastName" value=""/>
     </div>
 </div>
+-->
 
 <!-- For Dev-Purposes at the moment only:
 - Nick
