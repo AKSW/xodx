@@ -294,21 +294,24 @@ class Xodx_PersonController extends Xodx_ResourceController
 
     public function editAction()
     {
-        $nick = $_POST["nick"];
-        $firstName = $_POST["firstName"];
-        $lastName = $_POST["lastName"];
-        $url = $_POST["url"];
+        echo ("You sent me this:<br>");
+        var_dump($POST);
 
-        echo ("Test");
-        echo ("<br>URL: ");
-        echo ($url);
-        echo ("<br>Nick: ");
-        echo ($nick);
-        echo ("<br>FirstName: ");
-        echo ($firstName);
-        echo ("<br>LastName: ");
-        echo ($lastName);
-        echo ("<br>");
+        //~ $nick = $_POST["nick"];
+        //~ $firstName = $_POST["firstName"];
+        //~ $lastName = $_POST["lastName"];
+        //~ $url = $_POST["url"];
+//~
+        //~ echo ("Test");
+        //~ echo ("<br>URL: ");
+        //~ echo ($url);
+        //~ echo ("<br>Nick: ");
+        //~ echo ($nick);
+        //~ echo ("<br>FirstName: ");
+        //~ echo ($firstName);
+        //~ echo ("<br>LastName: ");
+        //~ echo ($lastName);
+        //~ echo ("<br>");
 
 //        $bootstrap = $this->_app->getBootstrap();
 //        $model = $bootstrap->getResource('model');
