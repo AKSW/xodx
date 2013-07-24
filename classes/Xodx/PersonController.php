@@ -295,7 +295,7 @@ class Xodx_PersonController extends Xodx_ResourceController
     public function editAction()
     {
         echo ("You sent me this:<br>");
-        var_dump($POST);
+        var_dump($_POST);
 
         //~ $nick = $_POST["nick"];
         //~ $firstName = $_POST["firstName"];
