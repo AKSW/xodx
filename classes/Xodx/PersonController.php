@@ -196,7 +196,7 @@ class Xodx_PersonController extends Xodx_ResourceController
     }
 
     /**
-     * Add a new contact to the list of freinds of a person
+     * Add a new contact to the list of friends of a person
      * This is a one-way connection, the contact doesn't has to approve it
      *
      * @param $personUri the URI of the person to whome the contact should be added
@@ -294,47 +294,78 @@ class Xodx_PersonController extends Xodx_ResourceController
 
     public function editAction()
     {
+//This is stuff for Debugging
         echo ("You sent me this:<br>");
         var_dump($_POST);
+        echo ("<br>Lenght:");
+        echo (count($_POST));
+        echo ("ArrayForEach<br><br>");
+        foreach ($_POST as $key => $value)
+        {
+            echo ($key);
+            echo ("->");
+            echo ($value);
+            echo ("<br>");
+        }
 
-        //~ $nick = $_POST["nick"];
-        //~ $firstName = $_POST["firstName"];
-        //~ $lastName = $_POST["lastName"];
-        //~ $url = $_POST["url"];
-//~
-        //~ echo ("Test");
-        //~ echo ("<br>URL: ");
-        //~ echo ($url);
-        //~ echo ("<br>Nick: ");
-        //~ echo ($nick);
-        //~ echo ("<br>FirstName: ");
-        //~ echo ($firstName);
-        //~ echo ("<br>LastName: ");
-        //~ echo ($lastName);
-        //~ echo ("<br>");
+        echo ("<hr>");
+//This is real sourcecode!
+        $model = $this->_app->getBootstrap()->getResource('model');
+        $old = false;
+        $newKey;
+        $newValue;
+        $changed = array();
+        foreach ($_POST as $key => $value)
+        {
+            if (!$old)
+            {
+                $newKey = $key;
+                $newValue =  $value;
+                $old = true;
+            }
+            else
+            {
+                if ($value != $newValue)
+                {
+                    $changed[$newKey] = $newValue;
+                }
+                $old = false;
+            }
+        }
+        echo("Debug: ");
+        var_dump($changed);
 
-//        $bootstrap = $this->_app->getBootstrap();
-//        $model = $bootstrap->getResource('model');
-//        $store = $bootstrap->getResource('store');
-//        $request = $bootstrap->getResource('request');
-//        $logger = $bootstrap->getResource('logger');
-
+        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+        foreach ($changed as $key => $value)
+        {
+            echo ("<br>Writing $key --- $value");
+            $model->addStatement($key, $nsFoaf . 'Account', $value);
+        }
     }
 
     public function profileeditorAction ($template)
     {
-
         $model = $this->_app->getBootstrap()->getResource('Model');
 
         //TODO: Make this of course dynamic...
 
-        $profiles = $model->sparqlQuery(
-            'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
-            'SELECT *' .
-            'WHERE { ' .
-            '   ?person foaf:account ?test1 . ' .
-            '}'
-        );
+        $name = "test1";
+
+        $applicationController = $this->_app->getController('Xodx_ApplicationController');
+        $userId = $applicationController->getUser();
+        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
+        //echo ($userUri);
+        //(getPerson($userUri));
+        //$name = $userUri;
+        $stringArray = explode("id=", $userUri);
+        //var_dump($stringArray);
+        $name = $stringArray[1];
+        echo ("Name: ");
+        echo ($name);
+
+        $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT * WHERE { ?person a foaf:Person. ?person foaf:nick '$name' }";
+
+        $profiles = $model->sparqlQuery( $query);
         $template->profile = $profiles[0];
 
         $template->addContent('templates/profileeditor.phtml');

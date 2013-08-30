@@ -13,7 +13,13 @@ if (isset($this->profile))
         //var_dump($element);
         //echo ("<hr>");
 
-echo ("<div class=\"control-group\">    <label class=\"control-label\" for=\"$key\">$key</label>    <div class=\"controls\">        <input type=\"text\"class=\"input-xlarge\" name=\"$key\" id=\"§key\" value=\"$element\"/></div></div>");
+echo ("<div class=\"control-group\">
+<label class=\"control-label\" for=\"$key\">$key</label>
+<div class=\"controls\">
+<input type=\"text\"class=\"input-xlarge\" name=\"$key\" id=\"§key\" value=\"$element\"/>
+<input type=\"hidden\"class=\"input-xlarge\" name=\"$key-old\" id=\"§key-old\" value=\"$element\"/>
+</div>
+</div>");
     }
 }
 else
@@ -23,56 +29,6 @@ else
 
 ?>
 
-<!--
-<div class="control-group">
-    <div class="controls">
-        <input type="hidden" class="input-xlarge" name="url" id="url" value="<?= $this->profileshowPersonUri ?>"/>
-    </div>
-</div>
-
-<div class="control-group">
-    <label class="control-label" for="Nick">Nick</label>
-    <div class="controls">
-        <input type="text" class="input-xlarge" name="nick" id="nick" value="<?= $this->profileshowLogInUri ?>"/>
-    </div>
-</div>
-
-<div class="control-group">
-    <label class="control-label" for="Nick">First Name</label>
-    <div class="controls">
-        <input type="text" class="input-xlarge" name="firstName" id="firstName" value=""/>
-    </div>
-</div>
-
-<div class="control-group">
-    <label class="control-label" for="Nick">Last Name</label>
-    <div class="controls">
-        <input type="text" class="input-xlarge" name="lastName" id="lastName" value=""/>
-    </div>
-</div>
--->
-
-<!-- For Dev-Purposes at the moment only:
-- Nick
-- First Name
-- Last Name
-- Profile Pic? Linkable?
- All other stuff can be easily implemented. afterwards.
- -->
-
-<!-- <div class="control-group">
-    <label class="control-label" for="username">B</label>
-    <div class="controls">
-        <input type="text" class="input-xlarge" name="b" id="b" /><br />
-    </div>
-</div>
-<div class="control-group">
-    <label class="control-label" for="username">C</label>
-    <div class="controls">
-        <input type="text" class="input-xlarge" name="c" id="c" /><br />
-    </div>
-</div>
--->
 <div class="form-actions">
     <button class="btn btn-primary" type="submit">Edit</button>
 </div>
