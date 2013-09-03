@@ -363,7 +363,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         echo ("Name: ");
         echo ($name);
 
-        $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT * WHERE { ?person a foaf:Person. ?person foaf:nick '$name' }";
+        $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
 
         $profiles = $model->sparqlQuery( $query);
         $template->profile = $profiles[0];

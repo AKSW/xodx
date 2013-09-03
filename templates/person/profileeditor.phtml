@@ -1,4 +1,4 @@
-<h2>Profil Editor</h2>
+﻿<h2>Profil Editor</h2>
 <form action="?c=person&amp;a=edit" method="post" class="form-horizontal">
 <fieldset>
 
@@ -10,6 +10,18 @@ if (isset($this->profile))
 
     foreach ($this->profile as $key => $element)
     {
+	//TODO: Filtern von z.B. foaf:knows
+	//Ressourcen gar nicht zeigen.	
+	//Array für erwünschte Prädikate definieren --> Was darf editiert werden?
+	//und danach filtern.
+	//Unterscheidung zwischen Single und Multiple-Prädikaten
+	//Diff: Alte Werte löschen!
+
+	//if (!$allowedfields.contains($key))
+	//{
+	//	break;
+	//}
+
         //var_dump($element);
         //echo ("<hr>");
 
