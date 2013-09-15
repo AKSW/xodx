@@ -366,7 +366,10 @@ class Xodx_PersonController extends Xodx_ResourceController
         $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
 
         $profiles = $model->sparqlQuery( $query);
-        $template->profile = $profiles[0];
+        //echo("Result: <br>");
+        //var_dump($profiles);
+        //echo("<hr>");
+        $template->profile = $profiles;
 
         $template->addContent('templates/profileeditor.phtml');
 

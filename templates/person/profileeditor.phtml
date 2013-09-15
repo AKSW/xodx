@@ -6,30 +6,29 @@
 
 if (isset($this->profile))
 {
-    var_dump($this->profile);
+//    var_dump($this->profile);
 
     foreach ($this->profile as $key => $element)
     {
-	//TODO: Filtern von z.B. foaf:knows
-	//Ressourcen gar nicht zeigen.	
-	//Array für erwünschte Prädikate definieren --> Was darf editiert werden?
-	//und danach filtern.
-	//Unterscheidung zwischen Single und Multiple-Prädikaten
-	//Diff: Alte Werte löschen!
+    //TODO: Filtern von z.B. foaf:knows
+    //Ressourcen gar nicht zeigen.
+    //Array für erwünschte Prädikate definieren --> Was darf editiert werden?
+    //und danach filtern.
+    //Unterscheidung zwischen Single und Multiple-Prädikaten
+    //Diff: Alte Werte löschen!
 
-	//if (!$allowedfields.contains($key))
-	//{
-	//	break;
-	//}
+    //if (!$allowedfields.contains($key))
+    //{
+    //  break;
+    //}
 
-        //var_dump($element);
-        //echo ("<hr>");
-
+    $keyX = $element["p"];
+    $elementX = $element["o"];
 echo ("<div class=\"control-group\">
-<label class=\"control-label\" for=\"$key\">$key</label>
+<label class=\"control-label\" for=\"$keyX\">$keyX</label>
 <div class=\"controls\">
-<input type=\"text\"class=\"input-xlarge\" name=\"$key\" id=\"§key\" value=\"$element\"/>
-<input type=\"hidden\"class=\"input-xlarge\" name=\"$key-old\" id=\"§key-old\" value=\"$element\"/>
+<input type=\"text\" class=\"input-xlarge\" name=\"$keyX\" id=\"$key\" value=\"$elementX\"/>
+<input type=\"hidden\" class=\"input-xlarge\" name=\"$keyX-old\" id=\"$key-old\" value=\"$elementX\"/>
 </div>
 </div>");
     }
