@@ -314,7 +314,8 @@ class Xodx_PersonController extends Xodx_ResourceController
         $old = false;
         $newKey;
         $newValue;
-        $changed = array();
+        $changedADD = array();
+        $changedDELETE = array();
         foreach ($_POST as $key => $value)
         {
             if (!$old)
@@ -327,16 +328,19 @@ class Xodx_PersonController extends Xodx_ResourceController
             {
                 if ($value != $newValue)
                 {
-                    $changed[$newKey] = $newValue;
+                    $changedADD[$newKey] = $newValue;
+                    $changedDELETE[$newKey] = $value;
                 }
                 $old = false;
             }
         }
-        echo("Debug: ");
-        var_dump($changed);
+        echo("Debug Add: ");
+        var_dump($changedADD);
+        echo("<br>Debug Delete: ");
+        var_dump($changedDELETE);
 
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
-        foreach ($changed as $key => $value)
+        foreach ($changedADD as $key => $value)
         {
             echo ("<br>Writing $key --- $value");
             $model->addStatement($key, $nsFoaf . 'Account', $value);
