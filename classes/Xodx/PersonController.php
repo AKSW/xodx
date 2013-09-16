@@ -311,6 +311,9 @@ class Xodx_PersonController extends Xodx_ResourceController
         echo ("<hr>");
 //This is real sourcecode!
         $model = $this->_app->getBootstrap()->getResource('model');
+        $applicationController = $this->_app->getController('Xodx_ApplicationController');
+        $userId = $applicationController->getUser();
+        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
         $old = false;
         $newKey;
         $newValue;
@@ -340,10 +343,19 @@ class Xodx_PersonController extends Xodx_ResourceController
         var_dump($changedDELETE);
 
         $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+        foreach ($changedDELETE as $key => $value)
+        {
+            //$keyArray = array('value' => );
+            $valueArray = array('type' => $value);
+            echo ("<br>Writing $key --- $value");
+            $model->deleteStatement($userUri, $key, $valueArray);
+        }
         foreach ($changedADD as $key => $value)
         {
+            //$keyArray = array('value' => );
+            $valueArray = array('type' => $value);
             echo ("<br>Writing $key --- $value");
-            $model->addStatement($key, $nsFoaf . 'Account', $value);
+            $model->addStatement($userUri, $key, $valueArray);
         }
     }
 
@@ -368,6 +380,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         echo ($name);
 
         $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
+        //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";
 
         $profiles = $model->sparqlQuery( $query);
         //echo("Result: <br>");
