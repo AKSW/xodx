@@ -319,44 +319,56 @@ class Xodx_PersonController extends Xodx_ResourceController
         $newValue;
         $changedADD = array();
         $changedDELETE = array();
-        foreach ($_POST as $key => $value)
-        {
-            if (!$old)
-            {
-                $newKey = $key;
-                $newValue =  $value;
-                $old = true;
-            }
-            else
-            {
-                if ($value != $newValue)
-                {
-                    $changedADD[$newKey] = $newValue;
-                    $changedDELETE[$newKey] = $value;
-                }
-                $old = false;
-            }
-        }
-        echo("Debug Add: ");
-        var_dump($changedADD);
-        echo("<br>Debug Delete: ");
-        var_dump($changedDELETE);
+        $multiple = $_POST["multiple"];
+        unset($_POST["multiple"]);
 
-        $nsFoaf = 'http://xmlns.com/foaf/0.1/';
-        foreach ($changedDELETE as $key => $value)
+        if ($multiple)
         {
-            //$keyArray = array('value' => );
-            $valueArray = array('type' => $value);
-            echo ("<br>Writing $key --- $value");
-            $model->deleteStatement($userUri, $key, $valueArray);
+            //Multiple Stuff
+            echo ("Multiple.");
         }
-        foreach ($changedADD as $key => $value)
+        else
         {
-            //$keyArray = array('value' => );
-            $valueArray = array('type' => $value);
-            echo ("<br>Writing $key --- $value");
-            $model->addStatement($userUri, $key, $valueArray);
-        }
+            echo ("Single.");
+            foreach ($_POST as $key => $value)
+            {
+                if (!$old)
+                {
+                    $newKey = $key;
+                    $newValue =  $value;
+                    $old = true;
+                }
+                else
+                {
+                    if ($value != $newValue)
+                    {
+                        $changedADD[$newKey] = $newValue;
+                        $changedDELETE[$newKey] = $value;
+                    }
+                    $old = false;
+                }
+            }
+            echo("Debug Add: ");
+            var_dump($changedADD);
+            echo("<br>Debug Delete: ");
+            var_dump($changedDELETE);
+
+            $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+            foreach ($changedDELETE as $key => $value)
+            {
+                //$keyArray = array('value' => );
+                $valueArray = array('type' => $value);
+                echo ("<br>Writing $key --- $value");
+                $model->deleteStatement($userUri, $key, $valueArray);
+            }
+            foreach ($changedADD as $key => $value)
+            {
+                //$keyArray = array('value' => );
+                $valueArray = array('type' => $value);
+                echo ("<br>Writing $key --- $value");
+                $model->addStatement($userUri, $key, $valueArray);
+            }
+    }
     }
 
     public function profileeditorAction ($template)
@@ -381,8 +393,8 @@ class Xodx_PersonController extends Xodx_ResourceController
         $stringArray = explode("id=", $userUri);
         //var_dump($stringArray);
         $name = $stringArray[1];
-        echo ("Name: ");
-        echo ($name);
+        //echo ("Name: ");
+        //echo ($name);
 
         $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
         //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";

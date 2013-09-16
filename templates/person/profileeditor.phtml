@@ -8,7 +8,8 @@ if (isset($this->profile))
 {
     $multiple = $this->multiple;
     //var_dump($multiple);
-    echo ("<div><input type=\"hidden\" class=\"input-xlarge\" name=\"multiple\" id=\"multiple\" value=\"$multiple\"/></div>");
+    $stringMultiple=(string)$multiple;
+    echo ("<div><input type=\"hidden\" class=\"input-xlarge\" name=\"multiple\" id=\"multiple\" value=\"$stringMultiple\"/></div>");
     foreach ($this->profile as $key => $element)
     {
         //DONE: Filtern von z.B. foaf:knows
