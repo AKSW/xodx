@@ -6,9 +6,6 @@
 
 if (isset($this->profile))
 {
-    $allowedPrefixes = array();
-    $allowedPrefixes[] = "http://xmlns.com/foaf/0.1/nick";
-
     foreach ($this->profile as $key => $element)
     {
         //DONE: Filtern von z.B. foaf:knows
@@ -25,7 +22,7 @@ if (isset($this->profile))
 
         $keyX = $element["p"];
         $elementX = $element["o"];
-        if (in_array($keyX, $allowedPrefixes))
+        if (in_array($keyX, $this->allowedPrefixes))
         {
             echo ("<div class=\"control-group\">
             <label class=\"control-label\" for=\"$keyX\">$keyX</label>
