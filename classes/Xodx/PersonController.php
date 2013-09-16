@@ -363,8 +363,10 @@ class Xodx_PersonController extends Xodx_ResourceController
     {
         $model = $this->_app->getBootstrap()->getResource('Model');
 
+        //The following Stuff has to be passed through somehow.
         $allowedPrefixes = array();
         $allowedPrefixes[] = "http://xmlns.com/foaf/0.1/nick";
+        $multiple = false;
 
         //TODO: Make this of course dynamic...
 
@@ -391,6 +393,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         //echo("<hr>");
         $template->allowedPrefixes = $allowedPrefixes;
         $template->profile = $profiles;
+        $template->multiple = $multiple;
         //var_dump($allowedPrefixes);
 
         $template->addContent('templates/profileeditor.phtml');

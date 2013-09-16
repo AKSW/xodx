@@ -6,31 +6,36 @@
 
 if (isset($this->profile))
 {
+    $multiple = $this->multiple;
+    //var_dump($multiple);
+    echo ("<div><input type=\"hidden\" class=\"input-xlarge\" name=\"multiple\" id=\"multiple\" value=\"$multiple\"/></div>");
     foreach ($this->profile as $key => $element)
     {
         //DONE: Filtern von z.B. foaf:knows
         //DONE: Ressourcen gar nicht zeigen.
         //DONE: Array für erwünschte Prädikate definieren --> Was darf editiert werden?
         //DONE: und danach filtern.
-        //TODO: Unterscheidung zwischen Single und Multiple-Prädikaten
+        //PARTLY DONE: Unterscheidung zwischen Single und Multiple-Prädikaten
         //PARTLY DONE: Diff: Alte Werte löschen!
-
-        //if (!$allowedfields.contains($key))
-        //{
-        //  break;
-        //}
 
         $keyX = $element["p"];
         $elementX = $element["o"];
         if (in_array($keyX, $this->allowedPrefixes))
         {
-            echo ("<div class=\"control-group\">
-            <label class=\"control-label\" for=\"$keyX\">$keyX</label>
-            <div class=\"controls\">
-            <input type=\"text\" class=\"input-xlarge\" name=\"$keyX\" id=\"$key\" value=\"$elementX\"/>
-            <input type=\"hidden\" class=\"input-xlarge\" name=\"$keyX-old\" id=\"$key-old\" value=\"$elementX\"/>
-            </div>
-            </div>");
+            if ($multiple)
+            {
+                echo ("Multiple Stuff not supperted. Yet.");
+            }
+            else
+            {
+                echo ("<div class=\"control-group\">
+                <label class=\"control-label\" for=\"$keyX\">$keyX</label>
+                <div class=\"controls\">
+                <input type=\"text\" class=\"input-xlarge\" name=\"$keyX\" id=\"$key\" value=\"$elementX\"/>
+                <input type=\"hidden\" class=\"input-xlarge\" name=\"$keyX-old\" id=\"$key-old\" value=\"$elementX\"/>
+                </div>
+                </div>");
+            }
         }
     }
 }
