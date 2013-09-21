@@ -406,6 +406,8 @@ class Xodx_PersonController extends Xodx_ResourceController
             //$model->addStatement($userUri, $key, $valueArray);
         }
 
+    $this->loadPropertyRegex();
+
     }
 
     public function profileeditorAction ($template)
@@ -461,5 +463,44 @@ class Xodx_PersonController extends Xodx_ResourceController
         } else {
             return $date;
         }
+    }
+
+    public function loadPropertyRegex()
+    {
+        $properties = array();
+        $config = $this->_app->getBootstrap()->getResource('Config');
+        $bothConfigs = explode(",",$config["editor.single"].",".$config["editor.multiple"]);
+        //$multiple = explode(",",$config["editor.multiple"]);
+        $skip = false;
+
+        foreach($bothConfigs as $key => $element)
+        {
+            if (!$skip)
+            {
+                $property = $element;
+                $skip = true;
+            }
+            else
+            {
+                $skip = false;
+                $properties[$property] = $this->propertyRegex($element);
+            }
+        }
+
+        //echo("Dump:<br>");
+        //var_dump($properties);
+        //var_dump($single);
+        //var_dump($multiple);
+        //var_dump($config["editor.single"]);
+        //var_dump($config["editor.multiple"]);
+
+        return $properties;
+    }
+
+    public function propertyRegex($regexName)
+    {
+        $config = $this->_app->getBootstrap()->getResource('Config');
+        $regexString = "regex.".$regexName;
+        return $config[$regexString];
     }
 }
