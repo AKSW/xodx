@@ -9,35 +9,26 @@ if (isset($this->profile))
     $multiple = $this->multiple;
     //var_dump($multiple);
     $stringMultiple=(string)$multiple;
+    var_dump($this->profile);
     echo ("<div><input type=\"hidden\" class=\"input-xlarge\" name=\"multiple\" id=\"multiple\" value=\"$stringMultiple\"/></div>");
-    foreach ($this->profile as $key => $element)
+    foreach ($this->allowedPrefixes as $prefix)
     {
-        //DONE: Filtern von z.B. foaf:knows
-        //DONE: Ressourcen gar nicht zeigen.
-        //DONE: Array für erwünschte Prädikate definieren --> Was darf editiert werden?
-        //DONE: und danach filtern.
-        //PARTLY DONE: Unterscheidung zwischen Single und Multiple-Prädikaten
-        //PARTLY DONE: Diff: Alte Werte löschen!
-
-        $keyX = $element["p"];
-        $elementX = $element["o"];
-        if (in_array($keyX, $this->allowedPrefixes))
+        $elementX = "";
+        //HACK: Do we have LINQ or at least something to make this better?
+        foreach ($this->profile as $key => $element)
         {
-            if ($multiple)
+            if ($element["p"] == $prefix)
             {
-                echo ("Multiple Stuff not supperted. Yet.");
-            }
-            else
-            {
-                echo ("<div class=\"control-group\">
-                <label class=\"control-label\" for=\"$keyX\">$keyX</label>
-                <div class=\"controls\">
-                <input type=\"text\" class=\"input-xlarge\" name=\"$keyX\" id=\"$key\" value=\"$elementX\"/>
-                <input type=\"hidden\" class=\"input-xlarge\" name=\"$keyX-old\" id=\"$key-old\" value=\"$elementX\"/>
-                </div>
-                </div>");
+                $elementX = $element["o"];
             }
         }
+
+        echo ("<div class=\"control-group\">
+        <label class=\"control-label\" for=\"$prefix\">$prefix</label>
+        <div class=\"controls\">
+        <input type=\"text\" class=\"input-xlarge\" name=\"$prefix\" id=\"$prefix\" value=\"$elementX\"/>
+        </div>
+        </div>");
     }
 }
 else
@@ -48,7 +39,7 @@ else
 ?>
 
 <div class="form-actions">
-    <button class="btn btn-primary" type="submit">Edit</button>
+    <button class="btn btn-primary" type="submit">Save</button>
 </div>
 
 </fieldset>
@@ -56,3 +47,10 @@ else
 
 </form>
 
+
+<?php
+
+echo ("<hr>");
+var_dump($this -> config);
+
+?>

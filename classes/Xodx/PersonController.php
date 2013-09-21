@@ -374,15 +374,13 @@ class Xodx_PersonController extends Xodx_ResourceController
     public function profileeditorAction ($template)
     {
         $model = $this->_app->getBootstrap()->getResource('Model');
+        $config = $this->_app->getBootstrap()->getResource('Config');
 
-        //The following Stuff has to be passed through somehow.
+        //TODO: Pass this.
         $allowedPrefixes = array();
         $allowedPrefixes[] = "http://xmlns.com/foaf/0.1/nick";
+        $allowedPrefixes[] = "http://xmlns.com/foaf/0.1/depiction";
         $multiple = false;
-
-        //TODO: Make this of course dynamic...
-
-        $name = "test1";
 
         $applicationController = $this->_app->getController('Xodx_ApplicationController');
         $userId = $applicationController->getUser();
@@ -406,6 +404,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         $template->allowedPrefixes = $allowedPrefixes;
         $template->profile = $profiles;
         $template->multiple = $multiple;
+        $template->config = $config;
         //var_dump($allowedPrefixes);
 
         $template->addContent('templates/profileeditor.phtml');
