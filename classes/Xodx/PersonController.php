@@ -314,61 +314,98 @@ class Xodx_PersonController extends Xodx_ResourceController
         $applicationController = $this->_app->getController('Xodx_ApplicationController');
         $userId = $applicationController->getUser();
         $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
-        $old = false;
+        $stringArray = explode("id=", $userUri);
+        $name = $stringArray[1];
+
+        $prefixesPrepare = array();
+        $valuesPrepare = array();
+        $valuesNew = array();
         $newKey;
         $newValue;
+        $oldValue;
         $changedADD = array();
         $changedDELETE = array();
         $multiple = $_POST["multiple"];
         unset($_POST["multiple"]);
 
-        if ($multiple)
-        {
-            //Multiple Stuff
-            echo ("Multiple.");
-        }
-        else
-        {
-            echo ("Single.");
-            foreach ($_POST as $key => $value)
-            {
-                if (!$old)
-                {
-                    $newKey = $key;
-                    $newValue =  $value;
-                    $old = true;
-                }
-                else
-                {
-                    if ($value != $newValue)
-                    {
-                        $changedADD[$newKey] = $newValue;
-                        $changedDELETE[$newKey] = $value;
-                    }
-                    $old = false;
-                }
-            }
-            echo("Debug Add: ");
-            var_dump($changedADD);
-            echo("<br>Debug Delete: ");
-            var_dump($changedDELETE);
+        //TODO: GET NAME
 
-            $nsFoaf = 'http://xmlns.com/foaf/0.1/';
-            foreach ($changedDELETE as $key => $value)
+        $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
+        $databaseValues = $model->sparqlQuery($query);
+
+        //prepare $_POST into prefix --> value
+        foreach ($_POST as $key => $value)
+        {
+            $keyArray = explode("_", $key);
+            $number = (int)$keyArray[0];
+            if ($keyArray[1] == "value")
             {
-                //$keyArray = array('value' => );
-                $valueArray = array('type' => $value);
-                echo ("<br>Writing $key --- $value");
-                $model->deleteStatement($userUri, $key, $valueArray);
+                $valuesPrepare[$number] = $value;
             }
-            foreach ($changedADD as $key => $value)
+
+            if ($keyArray[1] == "prefix")
             {
-                //$keyArray = array('value' => );
-                $valueArray = array('type' => $value);
-                echo ("<br>Writing $key --- $value");
-                $model->addStatement($userUri, $key, $valueArray);
+                $prefixesPrepare[$number] = $value;
             }
-    }
+        }
+
+        foreach ($prefixesPrepare as $key => $value)
+        {
+            $valuesNew[$value] = $valuesPrepare[(int)$key];
+        }
+
+        echo("Debug valuesNew: ");
+        var_dump($valuesNew);
+        //echo("<br>Debug prefixesPrepare: ");
+        //var_dump($prefixesPrepare);
+        echo("<br>");
+
+        foreach ($valuesNew as $key => $value)
+        {
+            //Reset old values
+            $oldValue = "";
+            $newKey = $key;
+
+            //find corresponding value in query
+            //Searches for equivalent of $newKey
+            foreach ($databaseValues as $key => $element)
+            {
+                $p = $element["p"];
+                $o = $element["o"];
+                //echo "<br>$p -- $o";
+                if (strcmp ($element["p"],  $newKey) == 0)
+                {
+                    $oldValue = $element["o"];
+                }
+            }
+
+            if ($value != $oldValue)
+            {
+                $changedADD[$newKey] = $value;
+                $changedDELETE[$newKey] = $oldValue;
+            }
+        }
+
+        echo("Debug Delete: ");
+        var_dump($changedDELETE);
+        echo("<br>Debug Add: ");
+        var_dump($changedADD);
+
+        foreach ($changedDELETE as $key => $value)
+        {
+            //$keyArray = array('value' => );
+            $valueArray = array('type' => $value);
+            echo ("<br>Delete $key --- $value");
+            //$model->deleteStatement($userUri, $key, $valueArray);
+        }
+        foreach ($changedADD as $key => $value)
+        {
+            //$keyArray = array('value' => );
+            $valueArray = array('type' => $value);
+            echo ("<br>Writing $key --- $value");
+            //$model->addStatement($userUri, $key, $valueArray);
+        }
+
     }
 
     public function profileeditorAction ($template)

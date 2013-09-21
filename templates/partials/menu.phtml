@@ -17,7 +17,12 @@
     <li><a href="?c=profile&amp;a=list">List All Profiles</a></li>
 </ul>
 <ul class="nav pull-right">
-    <li><a href="?c=person&amp;a=profileeditor">Profile Editor</a></li>
+    <?php
+    if ($this->username != "guest")
+    {
+        echo ("<li><a href=\"?c=person&amp;a=profileeditor\">Profile Editor</a></li>");
+    }
+    ?>
     <li><a href="?c=application&amp;a=login">Login</a></li>
     <li><a href="?c=application&amp;a=logout">Logout</a></li>
 </ul>

@@ -9,8 +9,9 @@ if (isset($this->profile))
     $multiple = $this->multiple;
     //var_dump($multiple);
     $stringMultiple=(string)$multiple;
-    var_dump($this->profile);
-    echo ("<div><input type=\"hidden\" class=\"input-xlarge\" name=\"multiple\" id=\"multiple\" value=\"$stringMultiple\"/></div>");
+    //var_dump($this->profile);
+    //echo ("<div><input type=\"hidden\" class=\"input-xlarge\" name=\"multiple\" id=\"multiple\" value=\"$stringMultiple\"/></div>");
+    $counter = 0;
     foreach ($this->allowedPrefixes as $prefix)
     {
         $elementX = "";
@@ -22,13 +23,17 @@ if (isset($this->profile))
                 $elementX = $element["o"];
             }
         }
-
+        $counterText = (string)$counter;
+        $prefixText = $counterText ."_prefix";
+        $valueText = $counterText . "_value";
         echo ("<div class=\"control-group\">
         <label class=\"control-label\" for=\"$prefix\">$prefix</label>
         <div class=\"controls\">
-        <input type=\"text\" class=\"input-xlarge\" name=\"$prefix\" id=\"$prefix\" value=\"$elementX\"/>
+        <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+        <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
         </div>
         </div>");
+        $counter = $counter + 1;
     }
 }
 else
