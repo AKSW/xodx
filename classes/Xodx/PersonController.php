@@ -394,16 +394,17 @@ class Xodx_PersonController extends Xodx_ResourceController
         foreach ($changedDELETE as $key => $value)
         {
             //$keyArray = array('value' => );
-            $valueArray = array('type' => $value);
-            echo ("<br>Delete $key --- $value");
-            //$model->deleteStatement($userUri, $key, $valueArray);
+            $valueArray = array('type' => 'uri', 'value' => $value);
+            echo ("<br>Delete: $userUri, $key, $value");
+            $model->deleteStatement($userUri, $key, $valueArray);
         }
         foreach ($changedADD as $key => $value)
         {
             //$keyArray = array('value' => );
-            $valueArray = array('type' => $value);
-            echo ("<br>Writing $key --- $value");
-            //$model->addStatement($userUri, $key, $valueArray);
+            //array('type' => 'uri', 'value' => $newPersonUri)
+            $valueArray = array('type' => 'uri', 'value' => $value);
+            echo ("<br>Writing: $userUri, $key, $value");
+            $model->addStatement($userUri, $key, $valueArray);
         }
     }
 
