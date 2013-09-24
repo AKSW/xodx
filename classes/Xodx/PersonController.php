@@ -316,6 +316,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
         $stringArray = explode("id=", $userUri);
         $name = $stringArray[1];
+        $propertyRegex = $this -> loadPropertyRegex();
 
         $prefixesPrepare = array();
         $valuesPrepare = array();
@@ -325,6 +326,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         $oldValue;
         $changedADD = array();
         $changedDELETE = array();
+        $wrong = array();
         $multiple = $_POST["multiple"];
         unset($_POST["multiple"]);
 
@@ -381,8 +383,23 @@ class Xodx_PersonController extends Xodx_ResourceController
 
             if ($value != $oldValue)
             {
-                $changedADD[$newKey] = $value;
-                $changedDELETE[$newKey] = $oldValue;
+                //echo ("$value != $oldValue <br>");
+
+                $rString = $propertyRegex[$newKey];
+                //echo ("Regex for $newKey: $rString<br>");
+                //$fooo = preg_match($String, $value);
+                //var_dump($fooo);
+                if (preg_match($String, $value) === true)
+                {
+                    echo ("Match: $value for $newKey");
+                    $changedADD[$newKey] = $value;
+                    $changedDELETE[$newKey] = $oldValue;
+                }
+                else
+                {
+                    echo ("Wrong Format: $value for $newKey<br>");
+                    $wrong[$newKey] == $value;
+                }
             }
         }
 
@@ -394,7 +411,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         foreach ($changedDELETE as $key => $value)
         {
             //$keyArray = array('value' => );
-            $valueArray = array('type' => 'uri', 'value' => $value);
+            $valueArray = array('type' => 'literal', 'value' => $value);
             echo ("<br>Delete: $userUri, $key, $value");
             $model->deleteStatement($userUri, $key, $valueArray);
         }
@@ -402,7 +419,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         {
             //$keyArray = array('value' => );
             //array('type' => 'uri', 'value' => $newPersonUri)
-            $valueArray = array('type' => 'uri', 'value' => $value);
+            $valueArray = array('type' => 'literal', 'value' => $value);
             echo ("<br>Writing: $userUri, $key, $value");
             $model->addStatement($userUri, $key, $valueArray);
         }
@@ -469,8 +486,8 @@ class Xodx_PersonController extends Xodx_ResourceController
             }
         }
 
-        echo("Dump:<br>");
-        var_dump($properties);
+        //echo("Dump:<br>");
+        //var_dump($properties);
         //var_dump($single);
         //var_dump($multiple);
         //var_dump($config["editor.single"]);
@@ -481,6 +498,7 @@ class Xodx_PersonController extends Xodx_ResourceController
 
     public function propertyRegex($regexName)
     {
+        //echo "propertyRegex: $regexName <br>";
         $config = $this->_app->getBootstrap()->getResource('Config');
         $regexString = "regex.".$regexName;
         return $config[$regexString];
