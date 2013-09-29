@@ -295,13 +295,12 @@ class Xodx_PersonController extends Xodx_ResourceController
     public function profileeditorAction ($template)
     {
         $model = $this->_app->getBootstrap()->getResource('Model');
+        $allowedSinglePrefixes = $this->loadPropertiesSingle();
+        $allowedMultiplePrefixes = $this->loadPropertiesMultiple();
 
         if (count ($_POST) == 0)
         {
             // Show editor with data from database
-            $allowedSinglePrefixes = $this->loadPropertiesSingle();
-            $allowedMultiplePrefixes = $this->loadPropertiesMultiple();
-
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
@@ -333,7 +332,7 @@ class Xodx_PersonController extends Xodx_ResourceController
             var_dump($_POST);
             echo ("<br>Lenght:");
             echo (count($_POST));
-            echo ("ArrayForEach<br><br>");
+            echo ("<br>ArrayForEach<br>");
             foreach ($_POST as $key => $value)
             {
                 echo ($key);
@@ -345,7 +344,6 @@ class Xodx_PersonController extends Xodx_ResourceController
             echo ("<hr>");
 
             //This is real sourcecode!
-            $model = $this->_app->getBootstrap()->getResource('model');
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
@@ -357,7 +355,8 @@ class Xodx_PersonController extends Xodx_ResourceController
             $valuesSinglePrepare = array();
             $prefixesMultiplePrepare = array();
             $valuesMultiplePrepare = array();
-            $valuesNew = array();
+            $valuesSingleNew = array();
+            $valuesMultipleNew = array();
             $newKey;
             $newValue;
             $oldValue;
@@ -370,11 +369,16 @@ class Xodx_PersonController extends Xodx_ResourceController
             $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
             $databaseValues = $model->sparqlQuery($query);
 
+            echo ("Database Values:<br>");
+            var_dump($databaseValues);
+            echo ("<hr>");
+
             //prepare $_POST into prefix --> value
             foreach ($_POST as $key => $value)
             {
                 $keyArray = explode("_", $key);
                 $number = (int)$keyArray[0];
+
                 //single
                 if ($keyArray[1] == "value")
                 {
@@ -387,20 +391,35 @@ class Xodx_PersonController extends Xodx_ResourceController
                 }
 
                 //multiple
+                //$numberInKey is only needed if Property is multiple, so it is put inside the if statements.
+                if ($keyArray[1] == "Mvalue")
+                {
+                    $numberInKey = (int)$keyArray[count($keyArray)-1];
+                    $valuesMultiplePrepare[$number][$numberInKey] = $value;
+                }
+
+                if ($keyArray[1] == "Mprefix")
+                {
+                    $numberInKey = (int)$keyArray[count($keyArray)-1];
+                    $prefixesMultiplePrepare[$number] = $value;
+                }
             }
 
             foreach ($prefixesSinglePrepare as $key => $value)
             {
-                $valuesNew[$value] = $valuesSinglePrepare[(int)$key];
+                $valuesSingleNew[$value] = $valuesSinglePrepare[(int)$key];
             }
 
-            echo("Debug valuesNew: ");
-            var_dump($valuesNew);
-            //echo("<br>Debug prefixesPrepare: ");
-            //var_dump($prefixesSinglePrepare);
-            echo("<br>");
+            ////echo("Debug valuesNew: ");
+            ////var_dump($valuesSingleNew);
+            //echo("<br>Debug prefixesMultiplePrepare: ");
+            //var_dump($prefixesMultiplePrepare);
+            //echo("<br>Debug valuesMultiplePrepare: ");
+            //var_dump($valuesMultiplePrepare);
+            //echo("<br>");
 
-            foreach ($valuesNew as $key => $value)
+            //Single
+            foreach ($valuesSingleNew as $key => $value)
             {
                 //Reset old values
                 $oldValue = "";
@@ -421,22 +440,80 @@ class Xodx_PersonController extends Xodx_ResourceController
 
                 if ($value != $oldValue)
                 {
-                    //echo ("$value != $oldValue <br>");
-
                     $rString = $propertyRegex[$newKey];
-                    //echo ("Regex for $newKey: $rString<br>");
-                    //$fooo = preg_match($String, $value);
-                    //var_dump($fooo);
-                    if (preg_match($String, $value) === true)
+                    if (preg_match($rString, $value) === true)
                     {
                         echo ("Match: $value for $newKey");
-                        $changedADD[$newKey] = $value;
-                        $changedDELETE[$newKey] = $oldValue;
+                        $temp = array();
+                        $temp['p'] = $newKey;
+                        $temp['o'] = $value;
+                        $changedADD[] = $temp;
+                        $temp = array();
+                        $temp['p'] = $newKey;
+                        $temp['o'] = $oldValue;
+                        $changedDELETE[] = $temp;
                     }
                     else
                     {
                         echo ("Wrong Format: $value for $newKey<br>");
                         $wrong[$newKey] = $value;
+                    }
+                }
+            }
+
+            //Multiple
+            echo ("Multiple<br>");
+            foreach ($prefixesMultiplePrepare as $prefixKey => $prefix)
+            {
+                $values = $valuesMultiplePrepare[$prefixKey];
+                foreach ($values as $valueKey => $value)
+                {
+                    // 1. Forall key->value in newValues
+                    // 1.1 Find corresponding value.
+                    if ($value == "")
+                    {
+                        break;
+                    }
+                    $found = false;
+                    //echo ("Looking for $prefix -> $value<br>");
+                    foreach ($databaseValues as $key => $element)
+                    {
+                        //only for MultipleStatements
+                        $p = $element["p"];
+                        $o = $element["o"];
+                        if (in_array($p, $allowedMultiplePrefixes))
+                        {
+                            if (strcmp ($p,  $prefix) == 0)
+                            {
+                                if (strcmp ($o,  $value) == 0)
+                                {
+                                    //1.2 Delete this pair from $oldValues
+                                    //TODO: Implement this.
+                                    $found = true;
+                                }
+                            }
+                        }
+                    }
+                    if (!$found)
+                    {
+                        echo ("Not found: $prefix -> $value<br>");
+                        $rString = $propertyRegex[$prefix];
+                        if (preg_match($rString, $value) === true)
+                        {
+                            echo ("Match: $value for $newKey");
+                            $temp = array();
+                            $temp['p'] = $prefix;
+                            $temp['o'] = $value;
+                            $changedADD[] = $temp;
+                        }
+                        else
+                        {
+                            echo ("Wrong Format: $value for $prefix<br>");
+                            $temp = array();
+                            $temp['p'] = $prefix;
+                            $temp['o'] = $value;
+                            $wrong[] = $temp;
+                        }
                     }
                 }
             }
@@ -462,17 +539,21 @@ class Xodx_PersonController extends Xodx_ResourceController
                 foreach ($changedDELETE as $key => $value)
                 {
                     //$keyArray = array('value' => );
-                    $valueArray = array('type' => 'literal', 'value' => $value);
-                    echo ("<br>Delete: $userUri, $key, $value");
-                    $model->deleteStatement($userUri, $key, $valueArray);
+                    $valueArray = array('type' => 'literal', 'value' => $value['o']);
+                    $keyToWrite = $value['p'];
+                    $valueToWrite = $value['o'];
+                    echo ("<br>Delete: $userUri, $keyToWrite, $valueToWrite");
+                    //$model->deleteStatement($userUri, $keyToWrite, $valueArray);
                 }
                 foreach ($changedADD as $key => $value)
                 {
                     //$keyArray = array('value' => );
                     //array('type' => 'uri', 'value' => $newPersonUri)
-                    $valueArray = array('type' => 'literal', 'value' => $value);
-                    echo ("<br>Writing: $userUri, $key, $value");
-                    $model->addStatement($userUri, $key, $valueArray);
+                    $valueArray = array('type' => 'literal', 'value' => $value['o']);
+                    $keyToDelete = $value['p'];
+                    $valueToDelete = $value['o'];
+                    echo ("<br>Writing: $userUri, $keyToDelete, $valueToDelete");
+                    //$model->addStatement($userUri, $keyToDelete, $valueArray);
                 }
 
                 //Show Profileeditor with Values from Database.
