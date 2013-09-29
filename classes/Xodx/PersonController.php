@@ -292,9 +292,39 @@ class Xodx_PersonController extends Xodx_ResourceController
         return $pingResult;
     }
 
-    public function editAction()
+    public function profileeditorAction ($template)
     {
-//This is stuff for Debugging
+        $model = $this->_app->getBootstrap()->getResource('Model');
+
+        if (count ($_POST) == 0)
+        {
+
+        $allowedSinglePrefixes = $this->loadPropertiesSingle();
+        $allowedMultiplePrefixes = $this->loadPropertiesMultiple();
+
+        $applicationController = $this->_app->getController('Xodx_ApplicationController');
+        $userId = $applicationController->getUser();
+        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
+        $stringArray = explode("id=", $userUri);
+        $name = $stringArray[1];
+
+        $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
+        //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";
+
+        $profiles = $model->sparqlQuery( $query);
+        $template->allowedSinglePrefixes = $allowedSinglePrefixes;
+        $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
+        $template->profile = $profiles;
+        $template->config = $config;
+
+        $template->addContent('templates/profileeditor.phtml');
+
+        return $template;
+
+        }
+        else
+        {
+            //This is stuff for Debugging
         echo ("You sent me this:<br>");
         var_dump($_POST);
         echo ("<br>Lenght:");
@@ -423,33 +453,10 @@ class Xodx_PersonController extends Xodx_ResourceController
             echo ("<br>Writing: $userUri, $key, $value");
             $model->addStatement($userUri, $key, $valueArray);
         }
-    }
-
-    public function profileeditorAction ($template)
-    {
-        $model = $this->_app->getBootstrap()->getResource('Model');
-        $allowedPrefixes = $this->loadPropertiesSingle();
-
-        $multiple = false;
-
-        $applicationController = $this->_app->getController('Xodx_ApplicationController');
-        $userId = $applicationController->getUser();
-        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
-        $stringArray = explode("id=", $userUri);
-        $name = $stringArray[1];
-
-        $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
-        //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";
-
-        $profiles = $model->sparqlQuery( $query);
-        $template->allowedPrefixes = $allowedPrefixes;
-        $template->profile = $profiles;
-        $template->multiple = $multiple;
-        $template->config = $config;
 
         $template->addContent('templates/profileeditor.phtml');
-
         return $template;
+        }
     }
 
     /**
@@ -485,14 +492,6 @@ class Xodx_PersonController extends Xodx_ResourceController
                 $properties[$property] = $this->propertyRegex($element);
             }
         }
-
-        //echo("Dump:<br>");
-        //var_dump($properties);
-        //var_dump($single);
-        //var_dump($multiple);
-        //var_dump($config["editor.single"]);
-        //var_dump($config["editor.multiple"]);
-
         return $properties;
     }
 
@@ -509,6 +508,28 @@ class Xodx_PersonController extends Xodx_ResourceController
         $properties = array();
         $config = $this->_app->getBootstrap()->getResource('Config');
         $single = explode(",",$config["editor.single"]);
+        $skip = false;
+
+        foreach($single as $key => $element)
+        {
+            if (!$skip)
+            {
+                $properties[] = $element;
+                $skip = true;
+            }
+            else
+            {
+                $skip = false;
+            }
+        }
+        return $properties;
+    }
+
+        public function loadPropertiesMultiple()
+    {
+        $properties = array();
+        $config = $this->_app->getBootstrap()->getResource('Config');
+        $single = explode(",",$config["editor.multiple"]);
         $skip = false;
 
         foreach($single as $key => $element)

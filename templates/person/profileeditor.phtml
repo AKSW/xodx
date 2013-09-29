@@ -1,18 +1,14 @@
 ﻿<h2>Profil Editor</h2>
-<form action="?c=person&amp;a=edit" method="post" class="form-horizontal">
+
+<form action="?c=person&amp;a=profileeditor" method="post" class="form-horizontal">
 <fieldset>
 
 <?php
-
 if (isset($this->profile))
-{
-    $multiple = $this->multiple;
-    //var_dump($multiple);
-    $stringMultiple=(string)$multiple;
-    //var_dump($this->profile);
-    //echo ("<div><input type=\"hidden\" class=\"input-xlarge\" name=\"multiple\" id=\"multiple\" value=\"$stringMultiple\"/></div>");
+    {
     $counter = 0;
-    foreach ($this->allowedPrefixes as $prefix)
+    echo ("Single <hr>");
+    foreach ($this->allowedSinglePrefixes as $prefix)
     {
         $elementX = "";
         //HACK: Do we have LINQ or at least something to make this better?
@@ -34,6 +30,32 @@ if (isset($this->profile))
         </div>
         </div>");
         $counter = $counter + 1;
+    }
+
+    echo ("Multiple <hr>");
+    foreach ($this->allowedMultiplePrefixes as $prefix)
+    {
+        //$elementX = "";
+        ////HACK: Do we have LINQ or at least something to make this better?
+        //foreach ($this->profile as $key => $element)
+        //{
+            //if ($element["p"] == $prefix)
+            //{
+                //$elementX = $element["o"];
+            //}
+        //}
+        //$counterText = (string)$counter;
+        //$prefixText = $counterText ."_prefix";
+        //$valueText = $counterText . "_value";
+        //echo ("<div class=\"control-group\">
+        //<label class=\"control-label\" for=\"$prefix\">$prefix</label>
+        //<div class=\"controls\">
+        //<input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+        //<input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+        //</div>
+        //</div>");
+        //$counter = $counter + 1;
+        echo ("Prefix: $prefix <br>");
     }
 }
 else
