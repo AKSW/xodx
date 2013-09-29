@@ -7,7 +7,12 @@
 if (isset($this->profile))
     {
     $counter = 0;
-    //echo ("Single <hr>");
+
+    if (count($this -> wrong) > 0)
+    {
+        echo ("Please correct the <font color=\"#FF0000\">red</font> Properties!<br><br>");
+    }
+
     foreach ($this->allowedSinglePrefixes as $prefix)
     {
         $elementX = "";
@@ -33,7 +38,6 @@ if (isset($this->profile))
     }
 
     $counter = 0;
-    //echo ("Multiple <hr>");
     foreach ($this->allowedMultiplePrefixes as $prefix)
     {
         $elementX = "";
@@ -48,14 +52,38 @@ if (isset($this->profile))
 
                 $prefixText = $counterText ."_Mprefix";
                 $valueText = $counterText . "_Mvalue_$i";
-                echo ("<div class=\"control-group\">
-                <label class=\"control-label\" for=\"$prefix\">$prefix</label>
-                <div class=\"controls\">
-                <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
-                <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
-                </div>
-                </div>");
 
+                $thisIsWrong = false;
+
+                foreach($this->wrong as $key => $array)
+                {
+                    if ($array['p'] == $prefix && $array['o'] == $elementX)
+                    {
+                        $thisIsWrong = true;
+                        break;
+                    }
+                }
+
+                if ($thisIsWrong)
+                {
+                    echo ("<div class=\"control-group\">
+                    <label class=\"control-label\" for=\"$prefix\"><font color=\"#FF0000\">$prefix</font></label>
+                    <div class=\"controls\">
+                    <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+                    <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+                    </div>
+                    </div>");
+                }
+                else
+                {
+                    echo ("<div class=\"control-group\">
+                    <label class=\"control-label\" for=\"$prefix\">$prefix</label>
+                    <div class=\"controls\">
+                    <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+                    <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+                    </div>
+                    </div>");
+                }
                 $i=$i+1;
             }
         }

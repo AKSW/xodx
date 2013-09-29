@@ -328,20 +328,20 @@ class Xodx_PersonController extends Xodx_ResourceController
         //  b) Data from Database if everything was fine so the new data in the DB can be viewed.
 
         //This is stuff for Debugging
-            echo ("You sent me this:<br>");
-            var_dump($_POST);
-            echo ("<br>Lenght:");
-            echo (count($_POST));
-            echo ("<br>ArrayForEach<br>");
-            foreach ($_POST as $key => $value)
-            {
-                echo ($key);
-                echo ("->");
-                echo ($value);
-                echo ("<br>");
-            }
+            //echo ("You sent me this:<br>");
+            //var_dump($_POST);
+            //echo ("<br>Lenght:");
+            //echo (count($_POST));
+            //echo ("<br>ArrayForEach<br>");
+            //foreach ($_POST as $key => $value)
+            //{
+                //echo ($key);
+                //echo ("->");
+                //echo ($value);
+                //echo ("<br>");
+            //}
 
-            echo ("<hr>");
+            //echo ("<hr>");
 
             //This is real sourcecode!
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
@@ -369,9 +369,9 @@ class Xodx_PersonController extends Xodx_ResourceController
             $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
             $databaseValues = $model->sparqlQuery($query);
 
-            echo ("Database Values:<br>");
-            var_dump($databaseValues);
-            echo ("<hr>");
+            //echo ("Database Values:<br>");
+            //var_dump($databaseValues);
+            //echo ("<hr>");
 
             //prepare $_POST into prefix --> value
             foreach ($_POST as $key => $value)
@@ -443,7 +443,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                     $rString = $propertyRegex[$newKey];
                     if (preg_match($rString, $value) === true)
                     {
-                        echo ("Match: $value for $newKey");
+                        //echo ("Match: $value for $newKey");
                         $temp = array();
                         $temp['p'] = $newKey;
                         $temp['o'] = $value;
@@ -455,14 +455,13 @@ class Xodx_PersonController extends Xodx_ResourceController
                     }
                     else
                     {
-                        echo ("Wrong Format: $value for $newKey<br>");
+                        //echo ("Wrong Format: $value for $newKey<br>");
                         $wrong[$newKey] = $value;
                     }
                 }
             }
 
             //Multiple
-            echo ("Multiple<br>");
             foreach ($prefixesMultiplePrepare as $prefixKey => $prefix)
             {
                 $values = $valuesMultiplePrepare[$prefixKey];
@@ -509,7 +508,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                         }
                         else
                         {
-                            echo ("Wrong Format: $value for $prefix<br>");
+                            //echo ("Wrong Format: $value for $prefix<br>");
                             $temp = array();
                             $temp['p'] = $prefix;
                             $temp['o'] = $value;
@@ -519,10 +518,10 @@ class Xodx_PersonController extends Xodx_ResourceController
                 }
             }
 
-            echo("Debug Delete: ");
-            var_dump($changedDELETE);
-            echo("<br>Debug Add: ");
-            var_dump($changedADD);
+            //echo("Debug Delete: ");
+            //var_dump($changedDELETE);
+            //echo("<br>Debug Add: ");
+            //var_dump($changedADD);
             //echo("<br>Wrong: ");
             //echo(count($wrong));
             //echo("<br>");
@@ -531,8 +530,19 @@ class Xodx_PersonController extends Xodx_ResourceController
             if (count($wrong) > 0)
             {
                 //Allow wrong Properties to be corrected
-                //TODO
+                //TODO: Mark the wrong keys.
+                foreach ($wrong as $key => $value)
+                {
+                    $databaseValues[] = $value;
+                }
 
+                $template->allowedSinglePrefixes = $allowedSinglePrefixes;
+                $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
+                $template->profile = $databaseValues;
+                $template->config = $config;
+                $template->wrong = $wrong;
+                $template->addContent('templates/profileeditor.phtml');
+                return $template;
             }
             else
             {
@@ -562,9 +572,6 @@ class Xodx_PersonController extends Xodx_ResourceController
                 $template = $this -> profileeditorAction($template);
                 return $template;
             }
-
-            $template->addContent('templates/profileeditor.phtml');
-            return $template;
         }
     }
 
