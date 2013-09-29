@@ -298,164 +298,191 @@ class Xodx_PersonController extends Xodx_ResourceController
 
         if (count ($_POST) == 0)
         {
+            // Show editor with data from database
+            $allowedSinglePrefixes = $this->loadPropertiesSingle();
+            $allowedMultiplePrefixes = $this->loadPropertiesMultiple();
 
-        $allowedSinglePrefixes = $this->loadPropertiesSingle();
-        $allowedMultiplePrefixes = $this->loadPropertiesMultiple();
+            $applicationController = $this->_app->getController('Xodx_ApplicationController');
+            $userId = $applicationController->getUser();
+            $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
+            $stringArray = explode("id=", $userUri);
+            $name = $stringArray[1];
 
-        $applicationController = $this->_app->getController('Xodx_ApplicationController');
-        $userId = $applicationController->getUser();
-        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
-        $stringArray = explode("id=", $userUri);
-        $name = $stringArray[1];
+            $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
+            //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";
 
-        $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
-        //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";
+            $profiles = $model->sparqlQuery( $query);
+            $template->allowedSinglePrefixes = $allowedSinglePrefixes;
+            $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
+            $template->profile = $profiles;
+            $template->config = $config;
 
-        $profiles = $model->sparqlQuery( $query);
-        $template->allowedSinglePrefixes = $allowedSinglePrefixes;
-        $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
-        $template->profile = $profiles;
-        $template->config = $config;
+            $template->addContent('templates/profileeditor.phtml');
 
-        $template->addContent('templates/profileeditor.phtml');
-
-        return $template;
-
+            return $template;
         }
         else
         {
-            //This is stuff for Debugging
-        echo ("You sent me this:<br>");
-        var_dump($_POST);
-        echo ("<br>Lenght:");
-        echo (count($_POST));
-        echo ("ArrayForEach<br><br>");
-        foreach ($_POST as $key => $value)
-        {
-            echo ($key);
-            echo ("->");
-            echo ($value);
-            echo ("<br>");
-        }
+        //Process POSTed values an show ProfileEditor with
+        //  a) Data from POST if it needs to be corrected
+        //     TODO: Indicated that data...
+        //  b) Data from Database if everything was fine so the new data in the DB can be viewed.
 
-        echo ("<hr>");
-//This is real sourcecode!
-        $model = $this->_app->getBootstrap()->getResource('model');
-        $applicationController = $this->_app->getController('Xodx_ApplicationController');
-        $userId = $applicationController->getUser();
-        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
-        $stringArray = explode("id=", $userUri);
-        $name = $stringArray[1];
-        $propertyRegex = $this -> loadPropertyRegex();
-
-        $prefixesPrepare = array();
-        $valuesPrepare = array();
-        $valuesNew = array();
-        $newKey;
-        $newValue;
-        $oldValue;
-        $changedADD = array();
-        $changedDELETE = array();
-        $wrong = array();
-        $multiple = $_POST["multiple"];
-        unset($_POST["multiple"]);
-
-        //TODO: GET NAME
-
-        $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
-        $databaseValues = $model->sparqlQuery($query);
-
-        //prepare $_POST into prefix --> value
-        foreach ($_POST as $key => $value)
-        {
-            $keyArray = explode("_", $key);
-            $number = (int)$keyArray[0];
-            if ($keyArray[1] == "value")
+        //This is stuff for Debugging
+            echo ("You sent me this:<br>");
+            var_dump($_POST);
+            echo ("<br>Lenght:");
+            echo (count($_POST));
+            echo ("ArrayForEach<br><br>");
+            foreach ($_POST as $key => $value)
             {
-                $valuesPrepare[$number] = $value;
+                echo ($key);
+                echo ("->");
+                echo ($value);
+                echo ("<br>");
             }
 
-            if ($keyArray[1] == "prefix")
+            echo ("<hr>");
+
+            //This is real sourcecode!
+            $model = $this->_app->getBootstrap()->getResource('model');
+            $applicationController = $this->_app->getController('Xodx_ApplicationController');
+            $userId = $applicationController->getUser();
+            $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
+            $stringArray = explode("id=", $userUri);
+            $name = $stringArray[1];
+            $propertyRegex = $this -> loadPropertyRegex();
+
+            $prefixesSinglePrepare = array();
+            $valuesSinglePrepare = array();
+            $prefixesMultiplePrepare = array();
+            $valuesMultiplePrepare = array();
+            $valuesNew = array();
+            $newKey;
+            $newValue;
+            $oldValue;
+            $changedADD = array();
+            $changedDELETE = array();
+            $wrong = array();
+
+            //TODO: GET NAME
+
+            $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
+            $databaseValues = $model->sparqlQuery($query);
+
+            //prepare $_POST into prefix --> value
+            foreach ($_POST as $key => $value)
             {
-                $prefixesPrepare[$number] = $value;
-            }
-        }
-
-        foreach ($prefixesPrepare as $key => $value)
-        {
-            $valuesNew[$value] = $valuesPrepare[(int)$key];
-        }
-
-        echo("Debug valuesNew: ");
-        var_dump($valuesNew);
-        //echo("<br>Debug prefixesPrepare: ");
-        //var_dump($prefixesPrepare);
-        echo("<br>");
-
-        foreach ($valuesNew as $key => $value)
-        {
-            //Reset old values
-            $oldValue = "";
-            $newKey = $key;
-
-            //find corresponding value in query
-            //Searches for equivalent of $newKey
-            foreach ($databaseValues as $key => $element)
-            {
-                $p = $element["p"];
-                $o = $element["o"];
-                //echo "<br>$p -- $o";
-                if (strcmp ($element["p"],  $newKey) == 0)
+                $keyArray = explode("_", $key);
+                $number = (int)$keyArray[0];
+                //single
+                if ($keyArray[1] == "value")
                 {
-                    $oldValue = $element["o"];
+                    $valuesSinglePrepare[$number] = $value;
+                }
+
+                if ($keyArray[1] == "prefix")
+                {
+                    $prefixesSinglePrepare[$number] = $value;
+                }
+
+                //multiple
+            }
+
+            foreach ($prefixesSinglePrepare as $key => $value)
+            {
+                $valuesNew[$value] = $valuesSinglePrepare[(int)$key];
+            }
+
+            echo("Debug valuesNew: ");
+            var_dump($valuesNew);
+            //echo("<br>Debug prefixesPrepare: ");
+            //var_dump($prefixesSinglePrepare);
+            echo("<br>");
+
+            foreach ($valuesNew as $key => $value)
+            {
+                //Reset old values
+                $oldValue = "";
+                $newKey = $key;
+
+                //find corresponding value in query
+                //Searches for equivalent of $newKey
+                foreach ($databaseValues as $key => $element)
+                {
+                    $p = $element["p"];
+                    $o = $element["o"];
+                    //echo "<br>$p -- $o";
+                    if (strcmp ($element["p"],  $newKey) == 0)
+                    {
+                        $oldValue = $element["o"];
+                    }
+                }
+
+                if ($value != $oldValue)
+                {
+                    //echo ("$value != $oldValue <br>");
+
+                    $rString = $propertyRegex[$newKey];
+                    //echo ("Regex for $newKey: $rString<br>");
+                    //$fooo = preg_match($String, $value);
+                    //var_dump($fooo);
+                    if (preg_match($String, $value) === true)
+                    {
+                        echo ("Match: $value for $newKey");
+                        $changedADD[$newKey] = $value;
+                        $changedDELETE[$newKey] = $oldValue;
+                    }
+                    else
+                    {
+                        echo ("Wrong Format: $value for $newKey<br>");
+                        $wrong[$newKey] = $value;
+                    }
                 }
             }
 
-            if ($value != $oldValue)
+            echo("Debug Delete: ");
+            var_dump($changedDELETE);
+            echo("<br>Debug Add: ");
+            var_dump($changedADD);
+            echo("<br>Wrong: ");
+            echo(count($wrong));
+            echo("<br>");
+            var_dump($wrong);
+
+            if (count($wrong) > 0)
             {
-                //echo ("$value != $oldValue <br>");
+                //Allow wrong Properties to be corrected
 
-                $rString = $propertyRegex[$newKey];
-                //echo ("Regex for $newKey: $rString<br>");
-                //$fooo = preg_match($String, $value);
-                //var_dump($fooo);
-                if (preg_match($String, $value) === true)
-                {
-                    echo ("Match: $value for $newKey");
-                    $changedADD[$newKey] = $value;
-                    $changedDELETE[$newKey] = $oldValue;
-                }
-                else
-                {
-                    echo ("Wrong Format: $value for $newKey<br>");
-                    $wrong[$newKey] == $value;
-                }
+
             }
-        }
+            else
+            {
+                //Write Properties to Database
+                foreach ($changedDELETE as $key => $value)
+                {
+                    //$keyArray = array('value' => );
+                    $valueArray = array('type' => 'literal', 'value' => $value);
+                    echo ("<br>Delete: $userUri, $key, $value");
+                    $model->deleteStatement($userUri, $key, $valueArray);
+                }
+                foreach ($changedADD as $key => $value)
+                {
+                    //$keyArray = array('value' => );
+                    //array('type' => 'uri', 'value' => $newPersonUri)
+                    $valueArray = array('type' => 'literal', 'value' => $value);
+                    echo ("<br>Writing: $userUri, $key, $value");
+                    $model->addStatement($userUri, $key, $valueArray);
+                }
 
-        echo("Debug Delete: ");
-        var_dump($changedDELETE);
-        echo("<br>Debug Add: ");
-        var_dump($changedADD);
+                //Show Profileeditor with Values from Database.
+                $_POST = NULL;
+                $template = $this -> profileeditorAction($template);
+                return $template;
+            }
 
-        foreach ($changedDELETE as $key => $value)
-        {
-            //$keyArray = array('value' => );
-            $valueArray = array('type' => 'literal', 'value' => $value);
-            echo ("<br>Delete: $userUri, $key, $value");
-            $model->deleteStatement($userUri, $key, $valueArray);
-        }
-        foreach ($changedADD as $key => $value)
-        {
-            //$keyArray = array('value' => );
-            //array('type' => 'uri', 'value' => $newPersonUri)
-            $valueArray = array('type' => 'literal', 'value' => $value);
-            echo ("<br>Writing: $userUri, $key, $value");
-            $model->addStatement($userUri, $key, $valueArray);
-        }
-
-        $template->addContent('templates/profileeditor.phtml');
-        return $template;
+            $template->addContent('templates/profileeditor.phtml');
+            return $template;
         }
     }
 

@@ -7,7 +7,7 @@
 if (isset($this->profile))
     {
     $counter = 0;
-    echo ("Single <hr>");
+    //echo ("Single <hr>");
     foreach ($this->allowedSinglePrefixes as $prefix)
     {
         $elementX = "";
@@ -32,30 +32,46 @@ if (isset($this->profile))
         $counter = $counter + 1;
     }
 
-    echo ("Multiple <hr>");
+    $counter = 0;
+    //echo ("Multiple <hr>");
     foreach ($this->allowedMultiplePrefixes as $prefix)
     {
-        //$elementX = "";
-        ////HACK: Do we have LINQ or at least something to make this better?
-        //foreach ($this->profile as $key => $element)
-        //{
-            //if ($element["p"] == $prefix)
-            //{
-                //$elementX = $element["o"];
-            //}
-        //}
-        //$counterText = (string)$counter;
-        //$prefixText = $counterText ."_prefix";
-        //$valueText = $counterText . "_value";
-        //echo ("<div class=\"control-group\">
-        //<label class=\"control-label\" for=\"$prefix\">$prefix</label>
-        //<div class=\"controls\">
-        //<input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
-        //<input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
-        //</div>
-        //</div>");
-        //$counter = $counter + 1;
-        echo ("Prefix: $prefix <br>");
+        $elementX = "";
+        $i = 0;
+        $counterText = (string)$counter;
+        //HACK: Do we have LINQ or at least something to make this better?
+        foreach ($this->profile as $key => $element)
+        {
+            if ($element["p"] == $prefix)
+            {
+                $elementX = $element["o"];
+
+                $prefixText = $counterText ."_Mprefix_$i";
+                $valueText = $counterText . "_Mvalue_$i";
+                echo ("<div class=\"control-group\">
+                <label class=\"control-label\" for=\"$prefix\">$prefix</label>
+                <div class=\"controls\">
+                <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+                <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+                </div>
+                </div>");
+
+                $i=$i+1;
+            }
+        }
+
+        $prefixText = $counterText ."_Mprefix_$i";
+        $valueText = $counterText . "_Mvalue_$i";
+        echo ("<div class=\"control-group\">
+        <label class=\"control-label\" for=\"$prefix\">$prefix</label>
+        <div class=\"controls\">
+        <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"\"/>
+        <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+        </div>
+        </div>");
+
+        $counter = $counter + 1;
+        //echo ("Prefix: $prefix <br>");
     }
 }
 else
