@@ -496,11 +496,12 @@ class Xodx_PersonController extends Xodx_ResourceController
                     }
                     if (!$found)
                     {
-                        echo ("Not found: $prefix -> $value<br>");
+                        //echo ("Not found: $prefix -> $value<br>");
                         $rString = $propertyRegex[$prefix];
-                        if (preg_match($rString, $value) === true)
+                        //echo ("$rString");
+                        if (preg_match($rString, $value) == true)
                         {
-                            echo ("Match: $value for $newKey");
+                            //echo ("Match: $value for $newKey");
                             $temp = array();
                             $temp['p'] = $prefix;
                             $temp['o'] = $value;
@@ -522,15 +523,15 @@ class Xodx_PersonController extends Xodx_ResourceController
             var_dump($changedDELETE);
             echo("<br>Debug Add: ");
             var_dump($changedADD);
-            echo("<br>Wrong: ");
-            echo(count($wrong));
-            echo("<br>");
-            var_dump($wrong);
+            //echo("<br>Wrong: ");
+            //echo(count($wrong));
+            //echo("<br>");
+            //var_dump($wrong);
 
             if (count($wrong) > 0)
             {
                 //Allow wrong Properties to be corrected
-
+                //TODO
 
             }
             else
@@ -543,7 +544,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                     $keyToWrite = $value['p'];
                     $valueToWrite = $value['o'];
                     echo ("<br>Delete: $userUri, $keyToWrite, $valueToWrite");
-                    //$model->deleteStatement($userUri, $keyToWrite, $valueArray);
+                    $model->deleteStatement($userUri, $keyToWrite, $valueArray);
                 }
                 foreach ($changedADD as $key => $value)
                 {
@@ -553,7 +554,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                     $keyToDelete = $value['p'];
                     $valueToDelete = $value['o'];
                     echo ("<br>Writing: $userUri, $keyToDelete, $valueToDelete");
-                    //$model->addStatement($userUri, $keyToDelete, $valueArray);
+                    $model->addStatement($userUri, $keyToDelete, $valueArray);
                 }
 
                 //Show Profileeditor with Values from Database.
