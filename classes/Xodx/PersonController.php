@@ -419,7 +419,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                     $rString = $propertyRegex[$newKey];
                     if (preg_match($rString, $value) == true)
                     {
-                        echo ("Match: $value for $newKey with $rString");
+                        //echo ("Match: $value for $newKey with $rString");
                         $temp = array();
                         $temp['p'] = $newKey;
                         $temp['o'] = $value;
@@ -431,7 +431,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                     }
                     else
                     {
-                        echo ("Wrong Format: $value for $newKey with $rString<br>");
+                        //echo ("Wrong Format: $value for $newKey with $rString<br>");
                         $wrong[$newKey] = $value;
                     }
                 }
@@ -494,6 +494,8 @@ class Xodx_PersonController extends Xodx_ResourceController
                 }
             }
 
+            var_dump($databaseValues);
+
             if (count($wrong) > 0 && !is_null($wrong))
             {
                 //Allow wrong Properties to be corrected
@@ -520,7 +522,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                     $valueArray = array('type' => 'literal', 'value' => $value['o']);
                     $keyToDelete = $value['p'];
                     $valueToDelete = $value['o'];
-                    echo ("<br>Delete: $userUri, $keyToDelete, $valueToDelete");
+                    //echo ("<br>Delete: $userUri, $keyToDelete, $valueToDelete");
                     $model->deleteStatement($userUri, $keyToDelete, $valueArray);
                 }
                 foreach ($changedADD as $key => $value)
@@ -530,7 +532,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                     $valueArray = array('type' => 'literal', 'value' => $value['o']);
                     $keyToWrite = $value['p'];
                     $valueToWrite = $value['o'];
-                    echo ("<br>Writing: $userUri, $keyToWrite, $valueToWrite");
+                    //echo ("<br>Writing: $userUri, $keyToWrite, $valueToWrite");
                     $model->addStatement($userUri, $keyToWrite, $valueArray);
                 }
 
