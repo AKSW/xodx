@@ -8,9 +8,10 @@ if (isset($this->profile))
     {
     $counter = 0;
 
-    if (count($this -> wrong) > 0)
+    if (count($this -> wrong) > 0 && !is_null($this -> wrong))
     {
         echo ("Please correct the <font color=\"#FF0000\">red</font> Properties!<br><br>");
+        //var_dump($this -> wrong);
     }
 
     foreach ($this->allowedSinglePrefixes as $prefix)
@@ -27,13 +28,38 @@ if (isset($this->profile))
         $counterText = (string)$counter;
         $prefixText = $counterText ."_prefix";
         $valueText = $counterText . "_value";
-        echo ("<div class=\"control-group\">
-        <label class=\"control-label\" for=\"$prefix\">$prefix</label>
-        <div class=\"controls\">
-        <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
-        <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
-        </div>
-        </div>");
+        $thisIsWrong = false;
+
+        foreach($this->wrong as $keyX => $array)
+        {
+            if ($keyX == $prefix)
+            {
+                //echo ("Wrong: $prefix");
+                $thisIsWrong = true;
+                break;
+            }
+        }
+
+        if ($thisIsWrong)
+        {
+            echo ("<div class=\"control-group\">
+            <label class=\"control-label\" for=\"$prefix\"><font color=\"#FF0000\">$prefix</font></label>
+            <div class=\"controls\">
+            <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+            <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+            </div>
+            </div>");
+        }
+        else
+        {
+            echo ("<div class=\"control-group\">
+            <label class=\"control-label\" for=\"$prefix\">$prefix</label>
+            <div class=\"controls\">
+            <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+            <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+            </div>
+            </div>");
+        }
         $counter = $counter + 1;
     }
 

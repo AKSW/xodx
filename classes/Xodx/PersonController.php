@@ -327,42 +327,26 @@ class Xodx_PersonController extends Xodx_ResourceController
         //     TODO: Indicated that data...
         //  b) Data from Database if everything was fine so the new data in the DB can be viewed.
 
-        //This is stuff for Debugging
-            //echo ("You sent me this:<br>");
-            //var_dump($_POST);
-            //echo ("<br>Lenght:");
-            //echo (count($_POST));
-            //echo ("<br>ArrayForEach<br>");
-            //foreach ($_POST as $key => $value)
-            //{
-                //echo ($key);
-                //echo ("->");
-                //echo ($value);
-                //echo ("<br>");
-            //}
+        //This is real sourcecode!
+        $applicationController = $this->_app->getController('Xodx_ApplicationController');
+        $userId = $applicationController->getUser();
+        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
+        $stringArray = explode("id=", $userUri);
+        $name = $stringArray[1];
+        $propertyRegex = $this -> loadPropertyRegex();
 
-            //echo ("<hr>");
-
-            //This is real sourcecode!
-            $applicationController = $this->_app->getController('Xodx_ApplicationController');
-            $userId = $applicationController->getUser();
-            $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
-            $stringArray = explode("id=", $userUri);
-            $name = $stringArray[1];
-            $propertyRegex = $this -> loadPropertyRegex();
-
-            $prefixesSinglePrepare = array();
-            $valuesSinglePrepare = array();
-            $prefixesMultiplePrepare = array();
-            $valuesMultiplePrepare = array();
-            $valuesSingleNew = array();
-            $valuesMultipleNew = array();
-            $newKey;
-            $newValue;
-            $oldValue;
-            $changedADD = array();
-            $changedDELETE = array();
-            $wrong = array();
+        $prefixesSinglePrepare = array();
+        $valuesSinglePrepare = array();
+        $prefixesMultiplePrepare = array();
+        $valuesMultiplePrepare = array();
+        $valuesSingleNew = array();
+        $valuesMultipleNew = array();
+        $newKey;
+        $newValue;
+        $oldValue;
+        $changedADD = array();
+        $changedDELETE = array();
+        $wrong = array();
 
             //TODO: GET NAME
 
@@ -410,14 +394,6 @@ class Xodx_PersonController extends Xodx_ResourceController
                 $valuesSingleNew[$value] = $valuesSinglePrepare[(int)$key];
             }
 
-            ////echo("Debug valuesNew: ");
-            ////var_dump($valuesSingleNew);
-            //echo("<br>Debug prefixesMultiplePrepare: ");
-            //var_dump($prefixesMultiplePrepare);
-            //echo("<br>Debug valuesMultiplePrepare: ");
-            //var_dump($valuesMultiplePrepare);
-            //echo("<br>");
-
             //Single
             foreach ($valuesSingleNew as $key => $value)
             {
@@ -427,7 +403,7 @@ class Xodx_PersonController extends Xodx_ResourceController
 
                 //find corresponding value in query
                 //Searches for equivalent of $newKey
-                foreach ($databaseValues as $key => $element)
+                foreach ($databaseValues as $dbkey => $element)
                 {
                     $p = $element["p"];
                     $o = $element["o"];
@@ -441,9 +417,9 @@ class Xodx_PersonController extends Xodx_ResourceController
                 if ($value != $oldValue)
                 {
                     $rString = $propertyRegex[$newKey];
-                    if (preg_match($rString, $value) === true)
+                    if (preg_match($rString, $value) == true)
                     {
-                        //echo ("Match: $value for $newKey");
+                        echo ("Match: $value for $newKey with $rString");
                         $temp = array();
                         $temp['p'] = $newKey;
                         $temp['o'] = $value;
@@ -455,7 +431,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                     }
                     else
                     {
-                        //echo ("Wrong Format: $value for $newKey<br>");
+                        echo ("Wrong Format: $value for $newKey with $rString<br>");
                         $wrong[$newKey] = $value;
                     }
                 }
@@ -518,16 +494,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                 }
             }
 
-            //echo("Debug Delete: ");
-            //var_dump($changedDELETE);
-            //echo("<br>Debug Add: ");
-            //var_dump($changedADD);
-            //echo("<br>Wrong: ");
-            //echo(count($wrong));
-            //echo("<br>");
-            //var_dump($wrong);
-
-            if (count($wrong) > 0)
+            if (count($wrong) > 0 && !is_null($wrong))
             {
                 //Allow wrong Properties to be corrected
                 //TODO: Mark the wrong keys.
@@ -551,20 +518,20 @@ class Xodx_PersonController extends Xodx_ResourceController
                 {
                     //$keyArray = array('value' => );
                     $valueArray = array('type' => 'literal', 'value' => $value['o']);
-                    $keyToWrite = $value['p'];
-                    $valueToWrite = $value['o'];
-                    echo ("<br>Delete: $userUri, $keyToWrite, $valueToWrite");
-                    $model->deleteStatement($userUri, $keyToWrite, $valueArray);
+                    $keyToDelete = $value['p'];
+                    $valueToDelete = $value['o'];
+                    echo ("<br>Delete: $userUri, $keyToDelete, $valueToDelete");
+                    $model->deleteStatement($userUri, $keyToDelete, $valueArray);
                 }
                 foreach ($changedADD as $key => $value)
                 {
                     //$keyArray = array('value' => );
                     //array('type' => 'uri', 'value' => $newPersonUri)
                     $valueArray = array('type' => 'literal', 'value' => $value['o']);
-                    $keyToDelete = $value['p'];
-                    $valueToDelete = $value['o'];
-                    echo ("<br>Writing: $userUri, $keyToDelete, $valueToDelete");
-                    $model->addStatement($userUri, $keyToDelete, $valueArray);
+                    $keyToWrite = $value['p'];
+                    $valueToWrite = $value['o'];
+                    echo ("<br>Writing: $userUri, $keyToWrite, $valueToWrite");
+                    $model->addStatement($userUri, $keyToWrite, $valueArray);
                 }
 
                 //Show Profileeditor with Values from Database.
