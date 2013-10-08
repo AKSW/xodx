@@ -303,11 +303,11 @@ class Xodx_PersonController extends Xodx_ResourceController
             // Show editor with data from database
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
-            $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
+            $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
             $stringArray = explode("id=", $userUri);
             $name = $stringArray[1];
 
-            $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
+            $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { <" . $userUri . "> a foaf:Person. <" . $userUri . "> ?p ?o }";
             //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";
 
             $profiles = $model->sparqlQuery( $query);
@@ -330,7 +330,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         //This is real sourcecode!
         $applicationController = $this->_app->getController('Xodx_ApplicationController');
         $userId = $applicationController->getUser();
-        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;
+        $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
         $stringArray = explode("id=", $userUri);
         $name = $stringArray[1];
         $propertyRegex = $this -> loadPropertyRegex();
@@ -350,7 +350,7 @@ class Xodx_PersonController extends Xodx_ResourceController
 
             //TODO: GET NAME
 
-            $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:nick '$name'. ?person ?p ?o }";
+            $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { <" . $userUri . "> a foaf:Person. <" . $userUri . "> ?p ?o }";
             $databaseValues = $model->sparqlQuery($query);
 
             //echo ("Database Values:<br>");
@@ -417,7 +417,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                 if ($value != $oldValue)
                 {
                     $rString = $propertyRegex[$newKey];
-                    if (preg_match($rString, $value) == true)
+                    if (ereg($rString, $value) == true)
                     {
                         //echo ("Match: $value for $newKey with $rString");
                         $temp = array();
@@ -474,7 +474,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                         //echo ("Not found: $prefix -> $value<br>");
                         $rString = $propertyRegex[$prefix];
                         //echo ("$rString");
-                        if (preg_match($rString, $value) == true)
+                        if (ereg($rString, $value) == true)
                         {
                             //echo ("Match: $value for $newKey");
                             $temp = array();
@@ -494,7 +494,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                 }
             }
 
-            var_dump($databaseValues);
+//            var_dump($databaseValues);
 
             if (count($wrong) > 0 && !is_null($wrong))
             {
