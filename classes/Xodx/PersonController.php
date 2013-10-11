@@ -295,8 +295,9 @@ class Xodx_PersonController extends Xodx_ResourceController
     public function profileeditorAction ($template)
     {
         $model = $this->_app->getBootstrap()->getResource('Model');
-        $allowedSinglePrefixes = $this->loadPropertiesSingle("person");
-        $allowedMultiplePrefixes = $this->loadPropertiesMultiple("person");
+        $configHelper = new Xodx_ConfigHelper($this->_app);
+        $allowedSinglePrefixes = $configHelper->loadPropertiesSingle("person");
+        $allowedMultiplePrefixes = $configHelper->loadPropertiesMultiple("person");
 
         if (count ($_POST) == 0)
         {
@@ -560,116 +561,21 @@ class Xodx_PersonController extends Xodx_ResourceController
         }
     }
 
-    public function loadPropertyRegex()
-    {
-        $properties = array();
-        $config = $this->_app->getBootstrap()->getResource('Config');
-        $bothConfigs = explode(",",$config["editor.single"].",".$config["editor.multiple"]);
-        $skip = false;
-
-        foreach($bothConfigs as $key => $element)
-        {
-            if (!$skip)
-            {
-                $property = $element;
-                $skip = true;
-            }
-            else
-            {
-                $skip = false;
-                $properties[$property] = $this->propertyRegex($element);
-            }
-        }
-        return $properties;
-    }
-
-    public function propertyRegex($regexName)
-    {
-        //echo "propertyRegex: $regexName <br>";
-        $config = $this->_app->getBootstrap()->getResource('Config');
-        $regexString = "regex.".$regexName;
-        return $config[$regexString];
-    }
-
-    public function loadProperties($editorType)
-    {
-        $propertiesPrepared = array();
-        $config = $this->_app->getBootstrap()->getResource('Config');
-        //$single = explode(",",$config["editor.single"]);
-        //var_dump($config["editor.single"]);
-        //var_dump($config);
-        foreach ($config as $key => $value)
-        {
-            //editor.person.property.1.uri
-            $keySplit = explode(".",$key);
-            if ($keySplit[0] == "editor")
-            {
-                if ($keySplit[1] == $editorType)
-                {
-                    if ($keySplit[2] == "property")
-                    {
-                        $propertiesPrepared[$keySplit[3]][$keySplit[4]] = $value;
-                        //var_dump($keySplit);
-                        //echo ("<br>");
-                    }
-                }
-            }
-        }
-        //echo ("<hr>");
-        //var_dump($propertiesPrepared);
-        $properties = array();
-        foreach ($propertiesPrepared as $key => $value)
-        {
-            $properties[$value["uri"]]["type"] = $value["type"];
-            $properties[$value["uri"]]["cardinality"] = $value["cardinality"];
-            $properties[$value["uri"]]["regex"] = $this -> propertyRegex($value["type"]);
-        }
-        //echo ("<hr>");
-        //var_dump($properties);
-        return $properties;
-    }
     public function loadPropertiesAction()
     {
-        return $this -> loadProperties();
+        $configHelper = new Xodx_ConfigHelper($this->_app);
+        return $configHelper -> loadProperties();
     }
 
     public function loadPropertiesSingleAction()
     {
-        var_dump($this -> loadPropertiesSingle("conference"));
+        $configHelper = new Xodx_ConfigHelper($this->_app);
+        var_dump($configHelper -> loadPropertiesSingle("conference"));
     }
 
     public function loadPropertiesMultipleAction()
     {
-        var_dump($this -> loadPropertiesMultiple("person"));
-    }
-
-    public function loadPropertiesSingle($editorType)
-    {
-        $properties = $this -> loadProperties($editorType);
-        $single = array();
-
-        foreach($properties as $key => $element)
-        {
-            if ($element["cardinality"] == "single")
-            {
-                $single[$key] = $element;
-            }
-        }
-        return $single;
-    }
-
-    public function loadPropertiesMultiple($editorType)
-    {
-        $properties = $this -> loadProperties($editorType);
-        $multiple = array();
-
-        foreach($properties as $key => $element)
-        {
-            if ($element["cardinality"] == "multiple")
-            {
-                $multiple[$key] = $element;
-            }
-        }
-        return $multiple;
+        $configHelper = new Xodx_ConfigHelper($this->_app);
+        var_dump($configHelper -> loadPropertiesMultiple("person"));
     }
 }
