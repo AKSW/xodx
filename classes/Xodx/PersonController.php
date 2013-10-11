@@ -295,8 +295,8 @@ class Xodx_PersonController extends Xodx_ResourceController
     public function profileeditorAction ($template)
     {
         $model = $this->_app->getBootstrap()->getResource('Model');
-        $allowedSinglePrefixes = $this->loadPropertiesSingle();
-        $allowedMultiplePrefixes = $this->loadPropertiesMultiple();
+        $allowedSinglePrefixes = $this->loadPropertiesSingle("person");
+        $allowedMultiplePrefixes = $this->loadPropertiesMultiple("person");
 
         if (count ($_POST) == 0)
         {
@@ -499,8 +499,6 @@ class Xodx_PersonController extends Xodx_ResourceController
                 }
             }
 
-    //            var_dump($databaseValues);
-
             if (count($wrong) > 0 && !is_null($wrong))
             {
                 //Allow wrong Properties to be corrected
@@ -593,7 +591,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         return $config[$regexString];
     }
 
-    public function loadProperties()
+    public function loadProperties($editorType)
     {
         $propertiesPrepared = array();
         $config = $this->_app->getBootstrap()->getResource('Config');
@@ -606,7 +604,7 @@ class Xodx_PersonController extends Xodx_ResourceController
             $keySplit = explode(".",$key);
             if ($keySplit[0] == "editor")
             {
-                if ($keySplit[1] == "person")
+                if ($keySplit[1] == $editorType)
                 {
                     if ($keySplit[2] == "property")
                     {
@@ -637,17 +635,17 @@ class Xodx_PersonController extends Xodx_ResourceController
 
     public function loadPropertiesSingleAction()
     {
-        var_dump($this -> loadPropertiesSingle());
+        var_dump($this -> loadPropertiesSingle("conference"));
     }
 
     public function loadPropertiesMultipleAction()
     {
-        var_dump($this -> loadPropertiesMultiple());
+        var_dump($this -> loadPropertiesMultiple("person"));
     }
 
-    public function loadPropertiesSingle()
+    public function loadPropertiesSingle($editorType)
     {
-        $properties = $this -> loadProperties();
+        $properties = $this -> loadProperties($editorType);
         $single = array();
 
         foreach($properties as $key => $element)
@@ -660,9 +658,9 @@ class Xodx_PersonController extends Xodx_ResourceController
         return $single;
     }
 
-    public function loadPropertiesMultiple()
+    public function loadPropertiesMultiple($editorType)
     {
-        $properties = $this -> loadProperties();
+        $properties = $this -> loadProperties($editorType);
         $multiple = array();
 
         foreach($properties as $key => $element)
