@@ -322,33 +322,31 @@ class Xodx_PersonController extends Xodx_ResourceController
         }
         else
         {
-        //Process POSTed values an show ProfileEditor with
-        //  a) Data from POST if it needs to be corrected
-        //     TODO: Indicated that data...
-        //  b) Data from Database if everything was fine so the new data in the DB can be viewed.
+            //Process POSTed values an show ProfileEditor with
+            //  a) Data from POST if it needs to be corrected
+            //     TODO: Indicated that data...
+            //  b) Data from Database if everything was fine so the new data in the DB can be viewed.
 
-        //This is real sourcecode!
-        $applicationController = $this->_app->getController('Xodx_ApplicationController');
-        $userId = $applicationController->getUser();
-        $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
-        $stringArray = explode("id=", $userUri);
-        $name = $stringArray[1];
-        $propertyRegex = $this -> loadPropertyRegex();
+            //This is real sourcecode!
+            $applicationController = $this->_app->getController('Xodx_ApplicationController');
+            $userId = $applicationController->getUser();
+            $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
+            $stringArray = explode("id=", $userUri);
+            $name = $stringArray[1];
+            $propertyRegex = $this -> loadPropertyRegex();
 
-        $prefixesSinglePrepare = array();
-        $valuesSinglePrepare = array();
-        $prefixesMultiplePrepare = array();
-        $valuesMultiplePrepare = array();
-        $valuesSingleNew = array();
-        $valuesMultipleNew = array();
-        $newKey;
-        $newValue;
-        $oldValue;
-        $changedADD = array();
-        $changedDELETE = array();
-        $wrong = array();
-
-            //TODO: GET NAME
+            $prefixesSinglePrepare = array();
+            $valuesSinglePrepare = array();
+            $prefixesMultiplePrepare = array();
+            $valuesMultiplePrepare = array();
+            $valuesSingleNew = array();
+            $valuesMultipleNew = array();
+            $newKey;
+            $newValue;
+            $oldValue;
+            $changedADD = array();
+            $changedDELETE = array();
+            $wrong = array();
 
             $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { <" . $userUri . "> a foaf:Person. <" . $userUri . "> ?p ?o }";
             $databaseValues = $model->sparqlQuery($query);
@@ -414,9 +412,9 @@ class Xodx_PersonController extends Xodx_ResourceController
                     }
                 }
 
-                if ($value != $oldValue)
+                if ($value != $oldValue )
                 {
-                    $rString = $propertyRegex[$newKey];
+                    $rString = $allowedSinglePrefixes[$key]["regex"];
                     if (ereg($rString, $value) == true)
                     {
                         //echo ("Match: $value for $newKey with $rString");
@@ -432,7 +430,10 @@ class Xodx_PersonController extends Xodx_ResourceController
                     else
                     {
                         //echo ("Wrong Format: $value for $newKey with $rString<br>");
-                        $wrong[$newKey] = $value;
+                        if (!empty ($value))
+                        {
+                            $wrong[$newKey] = $value;
+                        }
                     }
                 }
             }
@@ -472,9 +473,10 @@ class Xodx_PersonController extends Xodx_ResourceController
                     if (!$found)
                     {
                         //echo ("Not found: $prefix -> $value<br>");
-                        $rString = $propertyRegex[$prefix];
+                        $rString = $allowedMultiplePrefixes[$prefix]["regex"];
                         //echo ("$rString");
-                        if (ereg($rString, $value) == true)
+                        //var_dump($value);
+                        if (preg_match($rString, $value) == true)
                         {
                             //echo ("Match: $value for $newKey");
                             $temp = array();
@@ -484,17 +486,20 @@ class Xodx_PersonController extends Xodx_ResourceController
                         }
                         else
                         {
-                            //echo ("Wrong Format: $value for $prefix<br>");
-                            $temp = array();
-                            $temp['p'] = $prefix;
-                            $temp['o'] = $value;
-                            $wrong[] = $temp;
+                            //echo ("Wrong Format: $value for $prefix with $rString <br>");
+                            if (!empty ($value))
+                            {
+                                $temp = array();
+                                $temp['p'] = $prefix;
+                                $temp['o'] = $value;
+                                $wrong[] = $temp;
+                            }
                         }
                     }
                 }
             }
 
-//            var_dump($databaseValues);
+    //            var_dump($databaseValues);
 
             if (count($wrong) > 0 && !is_null($wrong))
             {
@@ -588,47 +593,85 @@ class Xodx_PersonController extends Xodx_ResourceController
         return $config[$regexString];
     }
 
-    public function loadPropertiesSingle()
+    public function loadProperties()
     {
-        $properties = array();
+        $propertiesPrepared = array();
         $config = $this->_app->getBootstrap()->getResource('Config');
-        $single = explode(",",$config["editor.single"]);
-        $skip = false;
-
-        foreach($single as $key => $element)
+        //$single = explode(",",$config["editor.single"]);
+        //var_dump($config["editor.single"]);
+        //var_dump($config);
+        foreach ($config as $key => $value)
         {
-            if (!$skip)
+            //editor.person.property.1.uri
+            $keySplit = explode(".",$key);
+            if ($keySplit[0] == "editor")
             {
-                $properties[] = $element;
-                $skip = true;
-            }
-            else
-            {
-                $skip = false;
+                if ($keySplit[1] == "person")
+                {
+                    if ($keySplit[2] == "property")
+                    {
+                        $propertiesPrepared[$keySplit[3]][$keySplit[4]] = $value;
+                        //var_dump($keySplit);
+                        //echo ("<br>");
+                    }
+                }
             }
         }
+        //echo ("<hr>");
+        //var_dump($propertiesPrepared);
+        $properties = array();
+        foreach ($propertiesPrepared as $key => $value)
+        {
+            $properties[$value["uri"]]["type"] = $value["type"];
+            $properties[$value["uri"]]["cardinality"] = $value["cardinality"];
+            $properties[$value["uri"]]["regex"] = $this -> propertyRegex($value["type"]);
+        }
+        //echo ("<hr>");
+        //var_dump($properties);
         return $properties;
     }
-
-        public function loadPropertiesMultiple()
+    public function loadPropertiesAction()
     {
-        $properties = array();
-        $config = $this->_app->getBootstrap()->getResource('Config');
-        $single = explode(",",$config["editor.multiple"]);
-        $skip = false;
+        return $this -> loadProperties();
+    }
 
-        foreach($single as $key => $element)
+    public function loadPropertiesSingleAction()
+    {
+        var_dump($this -> loadPropertiesSingle());
+    }
+
+    public function loadPropertiesMultipleAction()
+    {
+        var_dump($this -> loadPropertiesMultiple());
+    }
+
+    public function loadPropertiesSingle()
+    {
+        $properties = $this -> loadProperties();
+        $single = array();
+
+        foreach($properties as $key => $element)
         {
-            if (!$skip)
+            if ($element["cardinality"] == "single")
             {
-                $properties[] = $element;
-                $skip = true;
-            }
-            else
-            {
-                $skip = false;
+                $single[$key] = $element;
             }
         }
-        return $properties;
+        return $single;
+    }
+
+    public function loadPropertiesMultiple()
+    {
+        $properties = $this -> loadProperties();
+        $multiple = array();
+
+        foreach($properties as $key => $element)
+        {
+            if ($element["cardinality"] == "multiple")
+            {
+                $multiple[$key] = $element;
+            }
+        }
+        return $multiple;
     }
 }

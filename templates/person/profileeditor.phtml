@@ -14,13 +14,17 @@ if (isset($this->profile))
         //var_dump($this -> wrong);
     }
 
-    foreach ($this->allowedSinglePrefixes as $prefix)
+    foreach ($this->allowedSinglePrefixes as $prefixKey => $prefix)
     {
         $elementX = "";
         //HACK: Do we have LINQ or at least something to make this better?
+        //echo ("$prefix <br>");
+        //var_dump($prefixKey);
+        //echo ("<br>");
+
         foreach ($this->profile as $key => $element)
         {
-            if ($element["p"] == $prefix)
+            if ($element["p"] == $prefixKey)
             {
                 $elementX = $element["o"];
             }
@@ -32,7 +36,7 @@ if (isset($this->profile))
 
         foreach($this->wrong as $keyX => $array)
         {
-            if ($keyX == $prefix)
+            if ($array['p'] == $prefixKey)
             {
                 //echo ("Wrong: $prefix");
                 $thisIsWrong = true;
@@ -43,20 +47,20 @@ if (isset($this->profile))
         if ($thisIsWrong)
         {
             echo ("<div class=\"control-group\">
-            <label class=\"control-label\" for=\"$prefix\"><font color=\"#FF0000\">$prefix</font></label>
+            <label class=\"control-label\" for=\"$prefixKey\"><font color=\"#FF0000\">$prefixKey</font></label>
             <div class=\"controls\">
             <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
-            <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+            <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefixKey\"/>
             </div>
             </div>");
         }
         else
         {
             echo ("<div class=\"control-group\">
-            <label class=\"control-label\" for=\"$prefix\">$prefix</label>
+            <label class=\"control-label\" for=\"$prefixKey\">$prefixKey</label>
             <div class=\"controls\">
             <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
-            <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+            <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefixKey\"/>
             </div>
             </div>");
         }
@@ -64,7 +68,7 @@ if (isset($this->profile))
     }
 
     $counter = 0;
-    foreach ($this->allowedMultiplePrefixes as $prefix)
+    foreach ($this->allowedMultiplePrefixes as $prefix => $prefixValue)
     {
         $elementX = "";
         $i = 0;

@@ -9,8 +9,39 @@ push.hub = "http://pubsubhubbub.appspot.com"
 ;push.hub = "http://localhost/OntoWiki/pubsub/hubbub"
 
 ;Parameters for Profile Editor
-editor.single = http://xmlns.com/foaf/0.1/depiction,URL,http://xmlns.com/foaf/0.1/nick,Literal,http://xmlns.com/foaf/0.1/name,Literal
-editor.multiple = http://xmlns.com/foaf/0.1/schoolHomepage,URL,http://xmlns.com/foaf/0.1/jabberID,Email,http://www.w3.org/2000/01/rdf-schema#seeAlso,URL,http://xmlns.com/foaf/0.1/based_near,URL,http://xmlns.com/foaf/0.1/weblog,URL,http://xmlns.com/foaf/0.1/workplaceHomepage,URL
+;editor.single = http://xmlns.com/foaf/0.1/depiction,URL,http://xmlns.com/foaf/0.1/nick,Literal,http://xmlns.com/foaf/0.1/name,Literal
+;editor.multiple = http://xmlns.com/foaf/0.1/schoolHomepage,URL,http://xmlns.com/foaf/0.1/jabberID,Email,http://www.w3.org/2000/01/rdf-schema#seeAlso,URL,http://xmlns.com/foaf/0.1/based_near,URL,http://xmlns.com/foaf/0.1/weblog,URL,http://xmlns.com/foaf/0.1/workplaceHomepage,URL
+
+;editor.person.class = http://...foaf...Person
+
+editor.person.property.1.uri = http://xmlns.com/foaf/0.1/nick
+editor.person.property.1.type = Literal
+editor.person.property.1.cardinality = single
+editor.person.property.2.uri = http://xmlns.com/foaf/0.1/name
+editor.person.property.2.type = Literal
+editor.person.property.2.cardinality = single
+editor.person.property.3.uri = http://xmlns.com/foaf/0.1/depiction
+editor.person.property.3.type = URL
+editor.person.property.3.cardinality = single
+
+editor.person.property.4.uri = http://xmlns.com/foaf/0.1/schoolHomepage
+editor.person.property.4.type = URL
+editor.person.property.4.cardinality = multiple
+editor.person.property.5.uri = http://xmlns.com/foaf/0.1/jabberID
+editor.person.property.5.type = Email
+editor.person.property.5.cardinality = multiple
+editor.person.property.6.uri = http://www.w3.org/2000/01/rdf-schema#seeAlso
+editor.person.property.6.type = URL
+editor.person.property.6.cardinality = multiple
+editor.person.property.7.uri = http://xmlns.com/foaf/0.1/based_near
+editor.person.property.7.type = URL
+editor.person.property.7.cardinality = multiple
+editor.person.property.8.uri = http://xmlns.com/foaf/0.1/weblog
+editor.person.property.8.type = URL
+editor.person.property.8.cardinality = multiple
+editor.person.property.9.uri = http://xmlns.com/foaf/0.1/workplaceHomepage
+editor.person.property.9.type = URL
+editor.person.property.9.cardinality = multiple
 
 regex.URL = "_^(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)(?:\.(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)*(?:\.(?:[a-z\x{00a1}-\x{ffff}]{2,})))(?::\d{2,5})?(?:/[^\s]*)?$_iuS"
 ; by http://mathiasbynens.be/demo/url-regex
