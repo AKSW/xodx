@@ -315,7 +315,6 @@ class Xodx_PersonController extends Xodx_ResourceController
             $template->allowedSinglePrefixes = $allowedSinglePrefixes;
             $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
             $template->profile = $profiles;
-            $template->config = $config;
 
             $template->addContent('templates/profileeditor.phtml');
 
