@@ -328,12 +328,13 @@ class Xodx_PersonController extends Xodx_ResourceController
             //  b) Data from Database if everything was fine so the new data in the DB can be viewed.
 
             //This is real sourcecode!
+
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
             $stringArray = explode("id=", $userUri);
             $name = $stringArray[1];
-            $propertyRegex = $this -> loadPropertyRegex();
+            //$propertyRegex = $this -> loadPropertyRegex();
 
             $prefixesSinglePrepare = array();
             $valuesSinglePrepare = array();
