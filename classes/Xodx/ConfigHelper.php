@@ -95,6 +95,26 @@ class Xodx_ConfigHelper extends Saft_Helper
         }
         return $properties;
     }
+
+    public function getEditorClass($editorType)
+    {
+        $config = $this->_app->getBootstrap()->getResource('Config');
+        foreach ($config as $key => $value)
+        {
+            $keySplit = explode(".",$key);
+            if ($keySplit[0] == "editor")
+            {
+                if ($keySplit[1] == $editorType)
+                {
+                    if ($keySplit[2] == "class")
+                    {
+                            return $value;
+                    }
+                }
+            }
+        }
+
+    }
 }
 
 

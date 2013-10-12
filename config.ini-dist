@@ -12,7 +12,7 @@ push.hub = "http://pubsubhubbub.appspot.com"
 ;editor.single = http://xmlns.com/foaf/0.1/depiction,URL,http://xmlns.com/foaf/0.1/nick,Literal,http://xmlns.com/foaf/0.1/name,Literal
 ;editor.multiple = http://xmlns.com/foaf/0.1/schoolHomepage,URL,http://xmlns.com/foaf/0.1/jabberID,Email,http://www.w3.org/2000/01/rdf-schema#seeAlso,URL,http://xmlns.com/foaf/0.1/based_near,URL,http://xmlns.com/foaf/0.1/weblog,URL,http://xmlns.com/foaf/0.1/workplaceHomepage,URL
 
-;editor.person.class = http://...foaf...Person
+editor.person.class = http://xmlns.com/foaf/0.1/Person
 
 editor.person.property.1.uri = http://xmlns.com/foaf/0.1/nick
 editor.person.property.1.type = Literal
@@ -43,35 +43,37 @@ editor.person.property.9.uri = http://xmlns.com/foaf/0.1/workplaceHomepage
 editor.person.property.9.type = URL
 editor.person.property.9.cardinality = multiple
 
-editor.conference.property.1.uri = rdfs:label
+editor.conference.class = http://symbolicdata.org/Data/Model#Conference
+
+editor.conference.property.1.uri = http://www.w3.org/2000/01/rdf-schema#label
 editor.conference.property.1.type = String
 editor.conference.property.1.cardinality = single
-editor.conference.property.2.uri = ical:status
+editor.conference.property.2.uri = http://www.w3.org/2002/12/cal/ical#status
 editor.conference.property.2.type = String
 editor.conference.property.2.cardinality = single
-editor.conference.property.3.uri = ical:summary
+editor.conference.property.3.uri = http://www.w3.org/2002/12/cal/ical#summary
 editor.conference.property.3.type = String
 editor.conference.property.3.cardinality = single
-editor.conference.property.4.uri = ical:description
+editor.conference.property.4.uri = http://www.w3.org/2002/12/cal/ical#description
 editor.conference.property.4.type = Literal
 editor.conference.property.4.cardinality = single
-editor.conference.property.5.uri = ical:location
+editor.conference.property.5.uri = http://www.w3.org/2002/12/cal/ical#location
 editor.conference.property.5.type = String
 editor.conference.property.5.cardinality = single
 
-editor.conference.property.6.uri = ical:contact
+editor.conference.property.6.uri = http://www.w3.org/2002/12/cal/ical#contact
 editor.conference.property.6.type = String
 editor.conference.property.6.cardinality = single
-editor.conference.property.7.uri = ical:url
+editor.conference.property.7.uri = http://www.w3.org/2002/12/cal/ical#url
 editor.conference.property.7.type = URL
 editor.conference.property.7.cardinality = single
-editor.conference.property.8.uri = ical:dtstart
+editor.conference.property.8.uri = http://www.w3.org/2002/12/cal/ical#dtstart
 editor.conference.property.8.type = DateTime
 editor.conference.property.8.cardinality = single
-editor.conference.property.9.uri = ical:dtend
+editor.conference.property.9.uri = http://www.w3.org/2002/12/cal/ical#dtend
 editor.conference.property.9.type = DateTime
 editor.conference.property.9.cardinality = single
-editor.conference.property.10.uri = ical:created
+editor.conference.property.10.uri = http://www.w3.org/2002/12/cal/ical#created
 editor.conference.property.10.type = DateTime
 editor.conference.property.10.cardinality = single
 
@@ -124,4 +126,4 @@ foaf =     'http://xmlns.com/foaf/0.1/';
 dssn =     'http://purl.org/net/dssn/';
 ow =       'http://ns.ontowiki.net/SysOnt/';
 ov =       'http://open.vocab.org/docs/';
-rel =      'http://purl.org/vocab/relationship/'
+rel =      'http://purl.org/vocab/relationship/' 

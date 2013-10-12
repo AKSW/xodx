@@ -298,6 +298,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         $configHelper = new Xodx_ConfigHelper($this->_app);
         $allowedSinglePrefixes = $configHelper->loadPropertiesSingle("person");
         $allowedMultiplePrefixes = $configHelper->loadPropertiesMultiple("person");
+        $typeUri = $configHelper -> getEditorClass("person");
 
         if (count ($_POST) == 0)
         {
@@ -308,7 +309,7 @@ class Xodx_PersonController extends Xodx_ResourceController
             $stringArray = explode("id=", $userUri);
             $name = $stringArray[1];
 
-            $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { <" . $userUri . "> a foaf:Person. <" . $userUri . "> ?p ?o }";
+            $query = "SELECT ?p ?o WHERE { <" . $userUri . "> a <" . $typeUri . "> . <" . $userUri . "> ?p ?o }";
             //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";
 
             $profiles = $model->sparqlQuery( $query);
@@ -349,7 +350,7 @@ class Xodx_PersonController extends Xodx_ResourceController
             $changedDELETE = array();
             $wrong = array();
 
-            $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { <" . $userUri . "> a foaf:Person. <" . $userUri . "> ?p ?o }";
+            $query = "SELECT ?p ?o WHERE { <" . $userUri . "> a <" . $typeUri . "> . <" . $userUri . "> ?p ?o }";
             $databaseValues = $model->sparqlQuery($query);
             $notFoundMultipleKeys = $databaseValues;
 

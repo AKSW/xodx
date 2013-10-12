@@ -34,12 +34,15 @@ class Xodx_ConferenceController extends Xodx_ResourceController
             //Show editor with data from database
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
-            $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
+            //$userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
             $stringArray = explode("id=", $userUri);
             $name = $stringArray[1];
+            $eventUri = "http://symbolicdata.org/Data/Conference/s2am-2013";
 
-            $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { <" . $userUri . "> a foaf:Person. <" . $userUri . "> ?p ?o }";
-            //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";
+            $typeUri = $configHelper -> getEditorClass("conference");
+
+            $query = "PREFIX ns2: <http://symbolicdata.org/Data/Model#> SELECT ?p ?o WHERE { <" . $eventUri . "> a <" . $typeUri . "> . <" . $eventUri . "> ?p ?o }";
+            //$query = "PREFIX  ical: <http://www.w3.org/2002/12/cal/ical#> SELECT ?event ?p ?o WHERE { ?event a ical:Event . ?event ?p ?o }";
 
             $profiles = $model->sparqlQuery( $query);
             $template->allowedSinglePrefixes = $allowedSinglePrefixes;
