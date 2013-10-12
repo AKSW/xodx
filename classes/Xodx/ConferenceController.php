@@ -11,9 +11,10 @@
 class Xodx_ConferenceController extends Xodx_ResourceController
 {
 
-    public function testAction()
+    public function testAction($template)
     {
-        echo ("Conference");
+        $template->addContent('templates/test.phtml');
+        return $template;
     }
 
     public function PrefixesAction()
@@ -30,7 +31,7 @@ class Xodx_ConferenceController extends Xodx_ResourceController
 
         if (count ($_POST) == 0)
         {
-            // Show editor with data from database
+            //Show editor with data from database
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
@@ -42,15 +43,15 @@ class Xodx_ConferenceController extends Xodx_ResourceController
 
             $profiles = $model->sparqlQuery( $query);
             $template->allowedSinglePrefixes = $allowedSinglePrefixes;
-            $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
             $template->profile = $profiles;
-            $template->addContent('templates/conferenceeditor.phtml');
+            $template->addContent('templates/edit.phtml');
             //echo ("FOOO");
             return $template;
         }
         else
         {
             //Currently do nothing.
+            echo ("Nope.");
         }
     }
 }

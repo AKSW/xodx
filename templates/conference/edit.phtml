@@ -5,8 +5,7 @@
 
 <?php
 if (isset($this->profile))
-    {
-        /*
+{
     $counter = 0;
 
     //echo ("Database Values:<br>");
@@ -16,8 +15,10 @@ if (isset($this->profile))
     if (count($this -> wrong) > 0 && !is_null($this -> wrong))
     {
         echo ("Please correct the <font color=\"#FF0000\">red</font> Properties!<br><br>");
-        //var_dump($this -> wrong);
+        var_dump($this -> wrong);
     }
+
+    //var_dump($this -> allowedSinglePrefixes);
 
     foreach ($this->allowedSinglePrefixes as $prefixKey => $prefix)
     {
@@ -43,7 +44,7 @@ if (isset($this->profile))
         {
             if ($array['p'] == $prefixKey)
             {
-                //echo ("Wrong: $prefix");
+                echo ("Wrong: $prefix");
                 $thisIsWrong = true;
                 break;
             }
@@ -72,7 +73,9 @@ if (isset($this->profile))
         $counter = $counter + 1;
     }
 
+
     $counter = 0;
+
     foreach ($this->allowedMultiplePrefixes as $prefix => $prefixValue)
     {
         $elementX = "";
@@ -134,9 +137,9 @@ if (isset($this->profile))
         </div>");
 
         $counter = $counter + 1;
-        //echo ("Prefix: $prefix <br>");
-        */
+        echo ("Prefix: $prefix <br>");
     }
+
 }
 else
 {
@@ -150,6 +153,5 @@ else
 </div>
 
 </fieldset>
-
 
 </form>
