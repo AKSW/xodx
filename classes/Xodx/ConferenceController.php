@@ -37,7 +37,7 @@ class Xodx_ConferenceController extends Xodx_ResourceController
             //$userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
             $stringArray = explode("id=", $userUri);
             $name = $stringArray[1];
-            $eventUri = "http://symbolicdata.org/Data/Conference/s2am-2013";
+            $eventUri = "http://symbolicdata.org/Data/Conference/s2am-2013";    //TODO: dynamic
 
             $typeUri = $configHelper -> getEditorClass("conference");
 
@@ -56,5 +56,29 @@ class Xodx_ConferenceController extends Xodx_ResourceController
             //Currently do nothing.
             echo ("Nope.");
         }
+    }
+
+    public function listAction($template)
+    {
+        $model = $this->_app->getBootstrap()->getResource('Model');
+        $configHelper = new Xodx_ConfigHelper($this->_app);
+        $typeUri = $configHelper -> getEditorClass("conference");
+        $profiles = $model->sparqlQuery('SELECT DISTINCT ?event ?p ?o WHERE { ?event a <'. $typeUri .'> . ?event ?p ?o}');
+
+        foreach ($profiles as $key => $array)
+        {
+            //var_dump($array);
+            //echo ($array["p"]);
+            //echo ("<br>");
+            if ( strcmp($array["p"],"http://www.w3.org/2000/01/rdf-schema#label") !=0)
+            {
+                unset($profiles[$key]);
+            }
+        }
+
+        //var_dump($profiles);
+        $template->profiles = $profiles;
+        $template->addContent('templates/list.phtml');
+        return $template;
     }
 }
