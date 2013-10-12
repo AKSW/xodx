@@ -351,6 +351,10 @@ class Xodx_PersonController extends Xodx_ResourceController
 
             $query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { <" . $userUri . "> a foaf:Person. <" . $userUri . "> ?p ?o }";
             $databaseValues = $model->sparqlQuery($query);
+            $notFoundMultipleKeys = $databaseValues;
+
+            //var_dump($notFoundMultipleKeys);
+            //echo ("<hr>");
 
             //echo ("Database Values:<br>");
             //var_dump($databaseValues);
@@ -410,6 +414,7 @@ class Xodx_PersonController extends Xodx_ResourceController
                     if (strcmp ($element["p"],  $newKey) == 0)
                     {
                         $oldValue = $element["o"];
+                        unset($notFoundMultipleKeys[$dbkey]);
                     }
                 }
 
@@ -453,12 +458,14 @@ class Xodx_PersonController extends Xodx_ResourceController
                     }
                     $found = false;
                     //echo ("Looking for $prefix -> $value<br>");
+
+                    //echo ("<hr>");
                     foreach ($databaseValues as $key => $element)
                     {
                         //only for MultipleStatements
                         $p = $element["p"];
                         $o = $element["o"];
-                        if (in_array($p, $allowedMultiplePrefixes))
+                        if (in_array($p, array_keys($allowedMultiplePrefixes)))
                         {
                             if (strcmp ($p,  $prefix) == 0)
                             {
@@ -467,6 +474,10 @@ class Xodx_PersonController extends Xodx_ResourceController
                                     //1.2 Delete this pair from $oldValues
                                     //TODO: Implement this.
                                     $found = true;
+                                    //echo ("$key <br>");
+                                    //echo ("Found: $prefix -> $value<br>");
+                                    unset($notFoundMultipleKeys[$key]);
+                                    //var_dump($notFoundMultipleKeys);
                                 }
                             }
                         }
@@ -503,7 +514,6 @@ class Xodx_PersonController extends Xodx_ResourceController
             if (count($wrong) > 0 && !is_null($wrong))
             {
                 //Allow wrong Properties to be corrected
-                //TODO: Mark the wrong keys.
                 foreach ($wrong as $key => $value)
                 {
                     $databaseValues[] = $value;
@@ -519,6 +529,20 @@ class Xodx_PersonController extends Xodx_ResourceController
             }
             else
             {
+                //prepare $notFoundMultipleKeys
+                foreach ($notFoundMultipleKeys as $key => $element)
+                {
+                    $p = $element["p"];
+                    $o = $element["o"];
+
+                    if (in_array($p, array_keys($allowedMultiplePrefixes)))
+                    {
+                        $temp = array();
+                        $temp['p'] = $p;
+                        $temp['o'] = $o;
+                        $changedDELETE[] = $temp;
+                    }
+                }
                 //Write Properties to Database
                 foreach ($changedDELETE as $key => $value)
                 {
