@@ -25,19 +25,29 @@ class Xodx_ConferenceController extends Xodx_ResourceController
 
     public function editAction($template)
     {
-        $model = $this->_app->getBootstrap()->getResource('Model');
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
         $configHelper = new Xodx_ConfigHelper($this->_app);
         $allowedSinglePrefixes = $configHelper->loadPropertiesSingle("conference");
+        $request = $bootstrap->getResource('request');
 
         if (count ($_POST) == 0)
         {
+            $objectId = $request->getValue('id', 'get');
             //Show editor with data from database
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
             //$userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
             $stringArray = explode("id=", $userUri);
             $name = $stringArray[1];
-            $eventUri = "http://symbolicdata.org/Data/Conference/s2am-2013";    //TODO: dynamic
+            if (is_null($objectId))
+            {
+                $eventUri = "http://symbolicdata.org/Data/Conference/s2am-2013";    //TODO: dynamic
+            }
+            else
+            {
+                $eventUri = $objectId;
+            }
 
             $typeUri = $configHelper -> getEditorClass("conference");
 

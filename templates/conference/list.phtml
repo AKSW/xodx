@@ -5,7 +5,7 @@ foreach ($this->profiles as $key)
 {
     $event = $key["event"];
     $title = $key["o"];
-    echo ("<li>$event - $title</li>");
+    echo ("<li><a href = ?c=conference&a=edit&id=$event>$event - $title</a></li>");
 }
 
 ?>
