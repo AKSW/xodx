@@ -40,26 +40,28 @@ class Xodx_ConferenceController extends Xodx_ResourceController
             //$userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
             $stringArray = explode("id=", $userUri);
             $name = $stringArray[1];
-            if (is_null($objectId))
+            if (!is_null($objectId))
             {
-                $eventUri = "http://symbolicdata.org/Data/Conference/s2am-2013";    //TODO: dynamic
+                $eventUri = $objectId;
+
+
+                $typeUri = $configHelper -> getEditorClass("conference");
+
+                $query = "PREFIX ns2: <http://symbolicdata.org/Data/Model#> SELECT ?p ?o WHERE { <" . $eventUri . "> a <" . $typeUri . "> . <" . $eventUri . "> ?p ?o }";
+                //$query = "PREFIX  ical: <http://www.w3.org/2002/12/cal/ical#> SELECT ?event ?p ?o WHERE { ?event a ical:Event . ?event ?p ?o }";
+
+                $profiles = $model->sparqlQuery( $query);
+                $template->allowedSinglePrefixes = $allowedSinglePrefixes;
+                $template->profile = $profiles;
+                $template->addContent('templates/edit.phtml');
+                //echo ("FOOO");
+                return $template;
             }
             else
             {
-                $eventUri = $objectId;
+                //this will create a new conference
+                return $template;
             }
-
-            $typeUri = $configHelper -> getEditorClass("conference");
-
-            $query = "PREFIX ns2: <http://symbolicdata.org/Data/Model#> SELECT ?p ?o WHERE { <" . $eventUri . "> a <" . $typeUri . "> . <" . $eventUri . "> ?p ?o }";
-            //$query = "PREFIX  ical: <http://www.w3.org/2002/12/cal/ical#> SELECT ?event ?p ?o WHERE { ?event a ical:Event . ?event ?p ?o }";
-
-            $profiles = $model->sparqlQuery( $query);
-            $template->allowedSinglePrefixes = $allowedSinglePrefixes;
-            $template->profile = $profiles;
-            $template->addContent('templates/edit.phtml');
-            //echo ("FOOO");
-            return $template;
         }
         else
         {
