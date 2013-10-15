@@ -1,13 +1,16 @@
 # vim: set ai ts=4 sw=4 et!:
-TW_BOOTSTRAP_SRC='http://twitter.github.com/bootstrap/assets/bootstrap.zip'
+
+# Set Zend and bootstrap version
+ZENDVERSION=1.12.0
+TWBSVERSION=2.3.2
+
+TW_BOOTSTRAP_SRC='http://getbootstrap.com/${TWBSVERSION}/assets/bootstrap.zip'
 JQUERY_SRC='http://code.jquery.com/jquery.js'
 JQUERY_MIN_SRC='http://code.jquery.com/jquery.min.js'
 
 ERFURT_SRC='https://github.com/AKSW/Erfurt/archive/develop.tar.gz'
 DSSN_SRC='https://github.com/AKSW/lib-dssn-php/archive/master.tar.gz'
 SAFT_SRC='https://github.com/white-gecko/Saft/archive/master.tar.gz'
-
-ZENDVERSION=1.12.0
 
 default:
 	@echo "You might want to run:"
