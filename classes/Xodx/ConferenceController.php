@@ -43,8 +43,6 @@ class Xodx_ConferenceController extends Xodx_ResourceController
             if (!is_null($objectId))
             {
                 $eventUri = $objectId;
-
-
                 $typeUri = $configHelper -> getEditorClass("conference");
 
                 $query = "PREFIX ns2: <http://symbolicdata.org/Data/Model#> SELECT ?p ?o WHERE { <" . $eventUri . "> a <" . $typeUri . "> . <" . $eventUri . "> ?p ?o }";
