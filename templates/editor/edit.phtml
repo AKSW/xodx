@@ -5,7 +5,7 @@ if (isset($this->profile))
     $caption = $this->caption;
     echo ("<h2>$caption</h2>");
 
-    echo ("<form action=\"?c=person&amp;a=profileeditor\" method=\"post\" class=\"form-horizontal\"><fieldset>");
+    echo ("<form action=\"?c=editor&amp;a=edit&amp;class=$caption\" method=\"post\" class=\"form-horizontal\"><fieldset>");
 
     $counter = 0;
 

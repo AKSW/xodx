@@ -62,6 +62,7 @@ class Xodx_EditorController extends Xodx_ResourceController
 
             //This is real sourcecode!
 
+
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
@@ -86,6 +87,8 @@ class Xodx_EditorController extends Xodx_ResourceController
             $databaseValues = $model->sparqlQuery($query);
             $notFoundMultipleKeys = $databaseValues;
 
+            //echo ("Foo");
+
             //var_dump($notFoundMultipleKeys);
             //echo ("<hr>");
 
@@ -96,6 +99,7 @@ class Xodx_EditorController extends Xodx_ResourceController
             //prepare $_POST into prefix --> value
             foreach ($_POST as $key => $value)
             {
+                //echo ("$key - $value <br>");
                 $keyArray = explode("_", $key);
                 $number = (int)$keyArray[0];
 
@@ -299,7 +303,7 @@ class Xodx_EditorController extends Xodx_ResourceController
 
                 //Show Profileeditor with Values from Database.
                 $_POST = NULL;
-                $template = $this -> profileeditorAction($template);
+                $template = $this -> editAction($template);
                 return $template;
             }
         }
