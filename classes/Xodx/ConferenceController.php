@@ -35,7 +35,7 @@ class Xodx_ConferenceController extends Xodx_ResourceController
             //var_dump($array);
             //echo ($array["p"]);
             //echo ("<br>");
-            if ( strcmp($array["p"],"http://www.w3.org/2000/01/rdf-schema#label") !=0)
+            if (strcmp($array["p"],"http://www.w3.org/2000/01/rdf-schema#label") !=0)
             {
                 unset($profiles[$key]);
             }

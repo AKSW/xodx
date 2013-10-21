@@ -1,5 +1,13 @@
 <?php
+/**
+ * This file is part of the {@link http://aksw.org/Projects/Xodx Xodx} project.
+ *
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
 
+/**
+ * The EditorController is responsible for providing an Editor for configurable classes.
+ */
 class Xodx_EditorController extends Xodx_ResourceController
 {
     public function editAction ($template)
