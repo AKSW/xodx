@@ -5,9 +5,9 @@ foreach ($this->profiles as $key)
 {
     $event = $key["event"];
     $title = $key["o"];
-    echo ("<li><a href = ?c=conference&a=edit&id=$event>$event - $title</a></li>");
+    echo ("<li><a href = ?c=editor&a=edit&id=$event&class=conference>$event - $title</a></li>");
 }
-echo ("<li><a href = ?c=conference&a=edit>Create new Conference</a></li>");
+echo ("<li><a href = ?c=conference&a=edit&class=conference>Create new Conference</a></li>");
 ?>
 
 </ul>
