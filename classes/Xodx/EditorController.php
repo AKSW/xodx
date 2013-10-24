@@ -185,6 +185,7 @@ class Xodx_EditorController extends Xodx_ResourceController
                 if ($value != $oldValue )
                 {
                     $rString = $allowedSinglePrefixes[$key]["regex"];
+                    //echo ("$rString - $value - $key");
                     if (ereg($rString, $value) == true)
                     {
                         //echo ("Match: $value for $newKey with $rString");
@@ -202,7 +203,7 @@ class Xodx_EditorController extends Xodx_ResourceController
                         //echo ("Wrong Format: $value for $newKey with $rString<br>");
                         if (!empty ($value))
                         {
-                            $wrong[$newKey] = $value;
+                            $wrong[$key] = $value;
                         }
                     }
                 }
