@@ -22,14 +22,22 @@ class Xodx_EditorController extends Xodx_ResourceController
 
         if (strcmp($classId, "person") == 0)
         {
-            $userId = $applicationController->getUser();
-            $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
-            $objectUri = $userUri;
+            $objectUri = urldecode($request->getValue('id', 'get'));
+            //var_dump($objectId);
+            if (empty($objectUri))
+            {
+                $userId = $applicationController->getUser();
+                $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
+                $objectUri = $userUri;
+            }
         }
         else
         {
-            $objectUri = $request->getValue('id', 'get');
+            $objectUri = urldecode($request->getValue('id', 'get'));
         }
+
+        //var_dump($objectUri);
+        //echo (urlencode($objectUri));
 
         $rightsHelper = new Xodx_RightsHelper($this->_app);
         $hasRights = $rightsHelper -> HasRights('edit', $classId, $objectUri);
