@@ -317,8 +317,8 @@ class Xodx_EditorController extends Xodx_ResourceController
                     $valueArray = array('type' => 'literal', 'value' => $value['o']);
                     $keyToDelete = $value['p'];
                     $valueToDelete = $value['o'];
-                    //echo ("<br>Delete: $userUri, $keyToDelete, $valueToDelete");
-                    $model->deleteStatement($userUri, $keyToDelete, $valueArray);
+                    //echo ("<br>Delete: $objectUri, $keyToDelete, $valueToDelete");
+                    $model->deleteStatement($objectUri, $keyToDelete, $valueArray);
                 }
                 foreach ($changedADD as $key => $value)
                 {
@@ -327,8 +327,8 @@ class Xodx_EditorController extends Xodx_ResourceController
                     $valueArray = array('type' => 'literal', 'value' => $value['o']);
                     $keyToWrite = $value['p'];
                     $valueToWrite = $value['o'];
-                    //echo ("<br>Writing: $userUri, $keyToWrite, $valueToWrite");
-                    $model->addStatement($userUri, $keyToWrite, $valueArray);
+                    //echo ("<br>Writing: $objectUri, $keyToWrite, $valueToWrite");
+                    $model->addStatement($objectUri, $keyToWrite, $valueArray);
                 }
 
                 //Show Profileeditor with Values from Database.
