@@ -20,7 +20,7 @@ class Xodx_EditorController extends Xodx_ResourceController
         $typeUri = $configHelper -> getEditorClass($classId);
         $applicationController = $this->_app->getController('Xodx_ApplicationController');
 
-        if (strcmp($classId,"person") == 0)
+        if (strcmp($classId, "person") == 0)
         {
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
@@ -29,6 +29,17 @@ class Xodx_EditorController extends Xodx_ResourceController
         else
         {
             $objectUri = $request->getValue('id', 'get');
+        }
+
+        $rightsHelper = new Xodx_RightsHelper($this->_app);
+        $hasRights = $rightsHelper -> HasRights('edit', $classId, $objectUri);
+
+        //var_dump($hasRights);
+
+        if (!$hasRights)
+        {
+            echo ("You do not have the rights for this. Sorry.");
+            return;
         }
 
         $allowedSinglePrefixes = $configHelper->loadPropertiesSingle($classId);
