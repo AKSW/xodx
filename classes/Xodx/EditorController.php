@@ -54,6 +54,7 @@ class Xodx_EditorController extends Xodx_ResourceController
         $allowedMultiplePrefixes = $configHelper->loadPropertiesMultiple($classId);
 
         $template -> caption = $classId;
+        $template -> id = $objectUri;
 
         //echo ("<br>$objectUri");
         //echo ("<br>$typeUri");
@@ -89,7 +90,6 @@ class Xodx_EditorController extends Xodx_ResourceController
 
             //This is real sourcecode!
 
-
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
@@ -110,7 +110,7 @@ class Xodx_EditorController extends Xodx_ResourceController
             $changedDELETE = array();
             $wrong = array();
 
-            $query = "SELECT ?p ?o WHERE { <" . $userUri . "> a <" . $typeUri . "> . <" . $userUri . "> ?p ?o }";
+            $query = "SELECT ?p ?o WHERE { <" . $objectUri . "> a <" . $typeUri . "> . <" . $objectUri . "> ?p ?o }";
             $databaseValues = $model->sparqlQuery($query);
             $notFoundMultipleKeys = $databaseValues;
 
@@ -274,6 +274,8 @@ class Xodx_EditorController extends Xodx_ResourceController
                     }
                 }
             }
+
+            //var_dump($wrong);
 
             if (count($wrong) > 0 && !is_null($wrong))
             {

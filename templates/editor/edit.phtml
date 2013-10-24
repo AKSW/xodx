@@ -4,8 +4,8 @@ if (isset($this->profile))
     //echo ("Foo :");
     $caption = $this->caption;
     echo ("<h2>$caption</h2>");
-
-    echo ("<form action=\"?c=editor&amp;a=edit&amp;class=$caption\" method=\"post\" class=\"form-horizontal\"><fieldset>");
+    $idEncoded = urlencode($this -> id);
+    echo ("<form action=\"?c=editor&amp;a=edit&amp;class=$caption&amp;id=$idEncoded\" method=\"post\" class=\"form-horizontal\"><fieldset>");
 
     $counter = 0;
 
@@ -41,7 +41,9 @@ if (isset($this->profile))
 
         foreach($this->wrong as $keyX => $array)
         {
-            if ($array['p'] == $prefixKey)
+            //echo ($array['p']);
+            //if ($array['p'] == $prefixKey)
+            if ($keyX == $prefixKey)
             {
                 //echo ("Wrong: $prefix");
                 $thisIsWrong = true;
