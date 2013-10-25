@@ -46,4 +46,31 @@ class Xodx_ConferenceController extends Xodx_ResourceController
         $template->addContent('templates/list.phtml');
         return $template;
     }
+
+    public function newAction($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        $uid = uniqid();
+        $conferenceId = $this->_app->getBaseUri() . '?c=conference&id=' . $uid;
+        //var_dump($conferenceId);
+
+        //Create Conference
+        $valueToWrite = 'http://symbolicdata.org/Data/Model#Conference';
+        $valueArray = array('type' => 'uri', 'value' => $valueToWrite);
+        $keyToWrite = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+
+        echo ("<br>Writing: $conferenceId, $keyToWrite, $valueToWrite");
+        $model->addStatement($conferenceId, $keyToWrite, $valueArray);
+        //Add Temporary Title
+
+        $valueToWrite2 = $uid;
+        $valueArray2 = array('type' => 'literal', 'value' => $valueToWrite2);
+        $keyToWrite2 = 'http://www.w3.org/2000/01/rdf-schema#label';
+
+        echo ("<br>Writing: $conferenceId, $keyToWrite2, $valueToWrite2");
+        $model->addStatement($conferenceId, $keyToWrite2, $valueArray2);
+
+        return $template;
+    }
 }
