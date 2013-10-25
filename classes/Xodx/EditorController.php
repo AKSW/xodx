@@ -186,7 +186,7 @@ class Xodx_EditorController extends Xodx_ResourceController
                 {
                     $rString = $allowedSinglePrefixes[$key]["regex"];
                     //echo ("$rString - $value - $key");
-                    if (ereg($rString, $value) == true)
+                    if (preg_match($rString, $value))
                     {
                         //echo ("Match: $value for $newKey with $rString");
                         $temp = array();
@@ -253,7 +253,8 @@ class Xodx_EditorController extends Xodx_ResourceController
                         $rString = $allowedMultiplePrefixes[$prefix]["regex"];
                         //echo ("$rString");
                         //var_dump($value);
-                        if (preg_match($rString, $value) == true)
+                        if (preg_match($rString, $value))
+                        //if (preg_match($rString, $value) === true)
                         {
                             //echo ("Match: $value for $newKey");
                             $temp = array();
