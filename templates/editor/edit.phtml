@@ -17,7 +17,7 @@ if (isset($this->profile))
     if (count($this -> wrong) > 0 && !is_null($this -> wrong))
     {
         echo ("Please correct the <font color=\"#FF0000\">red</font> Properties!<br><br>");
-        //var_dump($this -> wrong);
+        var_dump($this -> wrong);
     }
 
     foreach ($this->allowedSinglePrefixes as $prefixKey => $prefix)
@@ -44,10 +44,11 @@ if (isset($this->profile))
         {
             //echo ($array['p']);
             //if ($array['p'] == $prefixKey)
-            if ($keyX == $prefixKey)
+            if (strcmp($keyX,$prefixKey) == 0)
             {
-                //echo ("Wrong: $prefix");
+                //echo ("Wrong: $elementX");
                 $thisIsWrong = true;
+                $elementX = $this->wrong[$keyX];
                 break;
             }
         }
