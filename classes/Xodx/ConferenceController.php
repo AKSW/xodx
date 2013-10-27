@@ -70,6 +70,8 @@ class Xodx_ConferenceController extends Xodx_ResourceController
         //echo ("<br>Writing: $conferenceId, $keyToWrite2, $valueToWrite2");
         $model->addStatement($conferenceId, $keyToWrite2, $valueArray2);
 
+        $template -> id = $conferenceId;
+        $template->addContent('templates/new.phtml');
         return $template;
     }
 }
