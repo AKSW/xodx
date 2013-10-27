@@ -15,15 +15,17 @@ class Xodx_EditorController extends Xodx_ResourceController
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         $configHelper = new Xodx_ConfigHelper($this->_app);
+        $rightsHelper = new Xodx_RightsHelper($this->_app);
         $request = $bootstrap->getResource('request');
         $classId = $request->getValue('class', 'get');
         $typeUri = $configHelper -> getEditorClass($classId);
         $applicationController = $this->_app->getController('Xodx_ApplicationController');
 
+        //Needed switch to get personUri without passing it via $_GET
         if (strcmp($classId, "person") == 0)
         {
             $objectUri = urldecode($request->getValue('id', 'get'));
-            //var_dump($objectId);
+            //Use current UserId if no personUri was passed
             if (empty($objectUri))
             {
                 $userId = $applicationController->getUser();
@@ -36,47 +38,32 @@ class Xodx_EditorController extends Xodx_ResourceController
             $objectUri = urldecode($request->getValue('id', 'get'));
         }
 
-        //var_dump($objectUri);
-        //echo (urlencode($objectUri));
-
-        $rightsHelper = new Xodx_RightsHelper($this->_app);
+        //RightsManagement. Ask rightsHelper if action is allowed.
         $hasRights = $rightsHelper -> HasRights('edit', $classId, $objectUri);
-
-        //var_dump($hasRights);
-
         if (!$hasRights)
         {
             echo ("You do not have the rights for this. Sorry.");
             return;
         }
 
+        //Get Prefixes to be shown in the Editor
         $allowedSinglePrefixes = $configHelper->loadPropertiesSingle($classId);
         $allowedMultiplePrefixes = $configHelper->loadPropertiesMultiple($classId);
 
         $template -> caption = $classId;
         $template -> id = $objectUri;
 
-        //echo ("<br>$objectUri");
-        //echo ("<br>$typeUri");
-
+        //Switch if this was called from a Form.
         if (count ($_POST) == 0)
         {
-            //$userId = $applicationController->getUser();
-
+            //Get Values from Database
             $query = "SELECT ?p ?o WHERE { <" . $objectUri . "> a <" . $typeUri . "> . <" . $objectUri . "> ?p ?o }";
-            //$query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?p ?o WHERE { ?person a foaf:Person. ?person foaf:person '$userUri'. ?person ?p ?o }";
+            $profiles = $model->sparqlQuery($query);
 
-            //echo ("$query");
-            //echo ("<br>$objectUri");
-            //echo ("<br>$typeUri");
-
-            $profiles = $model->sparqlQuery( $query);
+            //Add Values to $template
             $template->allowedSinglePrefixes = $allowedSinglePrefixes;
             $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
             $template->profile = $profiles;
-
-            //echo ("Foo");
-
             $template->addContent('templates/edit.phtml');
 
             return $template;
@@ -85,17 +72,13 @@ class Xodx_EditorController extends Xodx_ResourceController
         {
             //Process POSTed values an show ProfileEditor with
             //  a) Data from POST if it needs to be corrected
-            //     TODO: Indicated that data...
             //  b) Data from Database if everything was fine so the new data in the DB can be viewed.
-
-            //This is real sourcecode!
 
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
             $stringArray = explode("id=", $userUri);
             $name = $stringArray[1];
-            //$propertyRegex = $this -> loadPropertyRegex();
 
             $prefixesSinglePrepare = array();
             $valuesSinglePrepare = array();
@@ -114,23 +97,13 @@ class Xodx_EditorController extends Xodx_ResourceController
             $databaseValues = $model->sparqlQuery($query);
             $notFoundMultipleKeys = $databaseValues;
 
-            //echo ("Foo");
-
-            //var_dump($notFoundMultipleKeys);
-            //echo ("<hr>");
-
-            //echo ("Database Values:<br>");
-            //var_dump($databaseValues);
-            //echo ("<hr>");
-
             //prepare $_POST into prefix --> value
             foreach ($_POST as $key => $value)
             {
-                //echo ("$key - $value <br>");
                 $keyArray = explode("_", $key);
                 $number = (int)$keyArray[0];
 
-                //single
+                //single Properties
                 if ($keyArray[1] == "value")
                 {
                     $valuesSinglePrepare[$number] = $value;
@@ -141,7 +114,7 @@ class Xodx_EditorController extends Xodx_ResourceController
                     $prefixesSinglePrepare[$number] = $value;
                 }
 
-                //multiple
+                //multiple Properties
                 //$numberInKey is only needed if Property is multiple, so it is put inside the if statements.
                 if ($keyArray[1] == "Mvalue")
                 {
@@ -161,7 +134,7 @@ class Xodx_EditorController extends Xodx_ResourceController
                 $valuesSingleNew[$value] = $valuesSinglePrepare[(int)$key];
             }
 
-            //Single
+            //Single Properties
             foreach ($valuesSingleNew as $key => $value)
             {
                 //Reset old values
@@ -185,10 +158,10 @@ class Xodx_EditorController extends Xodx_ResourceController
                 if ($value != $oldValue )
                 {
                     $rString = $allowedSinglePrefixes[$key]["regex"];
-                    //echo ("$rString - $value - $key");
+                    //check Regex
                     if (preg_match($rString, $value))
                     {
-                        //echo ("Match: $value for $newKey with $rString");
+                        //If Value matches, add it to the Values that are written and deleted from the DB.
                         $temp = array();
                         $temp['p'] = $newKey;
                         $temp['o'] = $value;
@@ -200,16 +173,17 @@ class Xodx_EditorController extends Xodx_ResourceController
                     }
                     else
                     {
-                        //echo ("Wrong Format: $value for $newKey with $rString<br>");
+                        //If the Value is empty, it might not pass the Regex, but shall not be shown as wrong.
                         if (!empty ($value))
                         {
+                            //Add Value to array which will later be shown as wrong values.
                             $wrong[$key] = $value;
                         }
                     }
                 }
             }
 
-            //Multiple
+            //Multiple Properties
             foreach ($prefixesMultiplePrepare as $prefixKey => $prefix)
             {
                 $values = $valuesMultiplePrepare[$prefixKey];
@@ -222,12 +196,10 @@ class Xodx_EditorController extends Xodx_ResourceController
                         break;
                     }
                     $found = false;
-                    //echo ("Looking for $prefix -> $value<br>");
 
-                    //echo ("<hr>");
                     foreach ($databaseValues as $key => $element)
                     {
-                        //only for MultipleStatements
+                        //only for needed MultipleStatements
                         $p = $element["p"];
                         $o = $element["o"];
                         if (in_array($p, array_keys($allowedMultiplePrefixes)))
@@ -237,26 +209,21 @@ class Xodx_EditorController extends Xodx_ResourceController
                                 if (strcmp ($o,  $value) == 0)
                                 {
                                     //1.2 Delete this pair from $oldValues
-                                    //TODO: Implement this.
+                                    //These Values are deleted from an extra Array
+                                    //At the End, all Values from this Array are deleted.
                                     $found = true;
-                                    //echo ("$key <br>");
-                                    //echo ("Found: $prefix -> $value<br>");
                                     unset($notFoundMultipleKeys[$key]);
-                                    //var_dump($notFoundMultipleKeys);
                                 }
                             }
                         }
                     }
                     if (!$found)
                     {
-                        //echo ("Not found: $prefix -> $value<br>");
                         $rString = $allowedMultiplePrefixes[$prefix]["regex"];
-                        //echo ("$rString");
-                        //var_dump($value);
+                        //check Regex
                         if (preg_match($rString, $value))
-                        //if (preg_match($rString, $value) === true)
                         {
-                            //echo ("Match: $value for $newKey");
+                            //If Value matches, add it to the Values that are written to the DB.
                             $temp = array();
                             $temp['p'] = $prefix;
                             $temp['o'] = $value;
@@ -264,9 +231,10 @@ class Xodx_EditorController extends Xodx_ResourceController
                         }
                         else
                         {
-                            //echo ("Wrong Format: $value for $prefix with $rString <br>");
+                            //If the Value is empty, it might not pass the Regex, but shall not be shown as wrong.
                             if (!empty ($value))
                             {
+                                //Add Value to array which will later be shown as wrong values.
                                 $temp = array();
                                 $temp['p'] = $prefix;
                                 $temp['o'] = $value;
@@ -277,16 +245,16 @@ class Xodx_EditorController extends Xodx_ResourceController
                 }
             }
 
-            //var_dump($wrong);
-
+            //Check if there are any wrong Properties.
             if (count($wrong) > 0 && !is_null($wrong))
             {
                 //Allow wrong Properties to be corrected
+                //Therefore, change all the wrong values in the Values gotten from the database.
                 foreach ($wrong as $key => $value)
                 {
                     $databaseValues[] = $value;
                 }
-
+                //Add Values to $template
                 $template->allowedSinglePrefixes = $allowedSinglePrefixes;
                 $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
                 $template->profile = $databaseValues;
@@ -297,7 +265,7 @@ class Xodx_EditorController extends Xodx_ResourceController
             }
             else
             {
-                //prepare $notFoundMultipleKeys
+                //Prepare multiple Keys (deleted)
                 foreach ($notFoundMultipleKeys as $key => $element)
                 {
                     $p = $element["p"];
@@ -323,8 +291,6 @@ class Xodx_EditorController extends Xodx_ResourceController
                 }
                 foreach ($changedADD as $key => $value)
                 {
-                    //$keyArray = array('value' => );
-                    //array('type' => 'uri', 'value' => $newPersonUri)
                     $valueArray = array('type' => 'literal', 'value' => $value['o']);
                     $keyToWrite = $value['p'];
                     $valueToWrite = $value['o'];
@@ -332,7 +298,7 @@ class Xodx_EditorController extends Xodx_ResourceController
                     $model->addStatement($objectUri, $keyToWrite, $valueArray);
                 }
 
-                //Show Profileeditor with Values from Database.
+                //Show Editor with Values from Database.
                 $_POST = NULL;
                 $template = $this -> editAction($template);
                 return $template;
@@ -340,7 +306,8 @@ class Xodx_EditorController extends Xodx_ResourceController
         }
     }
 
-public function loadPropertiesAction()
+    //The following functions are only for debug purposes, but left here, in case anybody might need them.
+    public function loadPropertiesAction()
     {
         $configHelper = new Xodx_ConfigHelper($this->_app);
         return $configHelper -> loadProperties();
