@@ -10,6 +10,7 @@
  */
 class Xodx_RightsHelper extends Saft_Helper
 {
+    //Returns true if the User has the right to do a specified action.
     public function HasRights($action, $type, $id)
     {
         $bootstrap = $this->_app->getBootstrap();
