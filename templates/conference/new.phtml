@@ -4,5 +4,6 @@ Conference succesfully created.<br>
 
 <?php
     $id = $this -> id;
-    echo ("<a href = \"$id\">Edit this conference</a>");
+    $idCoded = urlencode($id);
+    echo ("<a href = \"?c=editor&a=edit&id=$idCoded&class=conference\">Edit this conference</a>");
 ?>
