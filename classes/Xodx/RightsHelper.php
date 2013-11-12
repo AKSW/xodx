@@ -10,7 +10,9 @@
  */
 class Xodx_RightsHelper extends Saft_Helper
 {
-    //Returns true if the User has the right to do a specified action.
+    /**
+     * Returns true if the User has the right to do a specified action.
+     */
     public function HasRights($action, $type, $id)
     {
         $bootstrap = $this->_app->getBootstrap();
@@ -18,7 +20,7 @@ class Xodx_RightsHelper extends Saft_Helper
         $applicationController = $this->_app->getController('Xodx_ApplicationController');
 
         //This obviously has to be expanded.
-        if (strcmp($type,"person") == 0)
+        if (strcmp($type, 'person') == 0)
         {
             $userId = $applicationController->getUser();
             $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
@@ -32,7 +34,7 @@ class Xodx_RightsHelper extends Saft_Helper
             }
         }
 
-        if (strcmp($type,"conference") == 0)
+        if (strcmp($type, 'conference') == 0)
         {
             return true;
         }

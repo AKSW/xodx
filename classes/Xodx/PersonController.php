@@ -8,7 +8,6 @@
 /**
  * The PersonController is responsible for all action concerning Persons.
  * This is showing the profile, befriending and maybe more in the future.
- * - editing Profile information
  */
 class Xodx_PersonController extends Xodx_ResourceController
 {

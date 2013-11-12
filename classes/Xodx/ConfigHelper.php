@@ -7,17 +7,19 @@
 
 class Xodx_ConfigHelper extends Saft_Helper
 {
-    //Returns all Single Properties for a given $editorType
+    /**
+     * Returns all Single Properties for a given $editorType
+     */
     public function loadPropertiesSingle($editorType)
     {
         //Load All Properties
-        $properties = $this -> loadProperties($editorType);
+        $properties = $this->loadProperties($editorType);
         $single = array();
 
         //Find those whose cardinality is single
         foreach($properties as $key => $element)
         {
-            if ($element["cardinality"] == "single")
+            if ($element['cardinality'] == 'single')
             {
                 $single[$key] = $element;
             }
@@ -25,17 +27,19 @@ class Xodx_ConfigHelper extends Saft_Helper
         return $single;
     }
 
-    //Returns all Multiple Properties for a given $editorType
+    /**
+     * Returns all Multiple Properties for a given $editorType
+     */
     public function loadPropertiesMultiple($editorType)
     {
         //Load All Properties
-        $properties = $this -> loadProperties($editorType);
+        $properties = $this->loadProperties($editorType);
         $multiple = array();
 
         //Find those whose cardinality is multiple
         foreach($properties as $key => $element)
         {
-            if ($element["cardinality"] == "multiple")
+            if ($element['cardinality'] == 'multiple')
             {
                 $multiple[$key] = $element;
             }
@@ -43,7 +47,9 @@ class Xodx_ConfigHelper extends Saft_Helper
         return $multiple;
     }
 
-    //Returns all Properties with the corresponding RegExes, ready for preg_match
+    /**
+     * Returns all Properties with the corresponding RegExes, ready for preg_match
+     */
     public function loadPropertyRegex()
     {
         $properties = array();
@@ -67,28 +73,33 @@ class Xodx_ConfigHelper extends Saft_Helper
         return $properties;
     }
 
-    //Returns the RegEx for a given $regexName
+    /**
+     * Returns the RegEx for a given $regexName
+     */
     public function propertyRegex($regexName)
     {
         //echo "propertyRegex: $regexName <br>";
         $config = $this->_app->getBootstrap()->getResource('Config');
-        $regexString = "regex.".$regexName;
+        $regexString = 'regex.'
+                     . $regexName;
         return $config[$regexString];
     }
 
-    //Returns all properties for a given $editorType
+    /**
+     * Returns all properties for a given $editorType
+     */
     public function loadProperties($editorType)
     {
         $propertiesPrepared = array();
         $config = $this->_app->getBootstrap()->getResource('Config');
         foreach ($config as $key => $value)
         {
-            $keySplit = explode(".",$key);
-            if ($keySplit[0] == "editor")
+            $keySplit = explode('.',$key);
+            if ($keySplit[0] == 'editor')
             {
                 if ($keySplit[1] == $editorType)
                 {
-                    if ($keySplit[2] == "property")
+                    if ($keySplit[2] == 'property')
                     {
                         $propertiesPrepared[$keySplit[3]][$keySplit[4]] = $value;
                     }
@@ -98,25 +109,27 @@ class Xodx_ConfigHelper extends Saft_Helper
         $properties = array();
         foreach ($propertiesPrepared as $key => $value)
         {
-            $properties[$value["uri"]]["type"] = $value["type"];
-            $properties[$value["uri"]]["cardinality"] = $value["cardinality"];
-            $properties[$value["uri"]]["regex"] = $this -> propertyRegex($value["type"]);
+            $properties[$value['uri']]['type'] = $value['type'];
+            $properties[$value['uri']]['cardinality'] = $value['cardinality'];
+            $properties[$value['uri']]['regex'] = $this->propertyRegex($value['type']);
         }
         return $properties;
     }
 
-    //Returns the class (e.g foaf:person)of an Editor with the given class as it is in the config
+    /**
+     * Returns the class (e.g foaf:person)of an Editor with the given class as it is in the config
+     */
     public function getEditorClass($editorType)
     {
         $config = $this->_app->getBootstrap()->getResource('Config');
         foreach ($config as $key => $value)
         {
-            $keySplit = explode(".",$key);
-            if ($keySplit[0] == "editor")
+            $keySplit = explode('.', $key);
+            if ($keySplit[0] == 'editor')
             {
                 if ($keySplit[1] == $editorType)
                 {
-                    if ($keySplit[2] == "class")
+                    if ($keySplit[2] == 'class')
                     {
                             return $value;
                     }
