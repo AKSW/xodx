@@ -13,16 +13,16 @@ If you want to read more about xodx take a look at the [wiki](https://github.com
 
 Installation
 ------------
-You need a webserver (tested with Apache and nginx but I hope it also runs with lighttd) and a database backend which is supported by Erfurt (Virtuoso and MySQL).
-Because this software is written in PHP your need php (>= 5.3.7) with the bindings for your webserver of fastcgi, php-support for your database (php-odbc or php-mysql) and php-curl.
+You need a webserver (tested with Apache and nginx but I hope it also runs with lighttd or any other webserver) and a database backend which is supported by Erfurt (Virtuoso and MySQL).
+Because this software is written in PHP you'll need php (>= 5.3.7) with the bindings for your webserver or fastcgi, PHP-support for your database (php-odbc or php-mysql) and php-curl.
 
 Take the prepared `config.ini-dist` file, copy it to `config.ini` and configure it according to your system setup.
 If you have an OntoWiki runnnig you can copy the database connection section (`store.*`) into the config.ini of xodx.
 
-### Erfurt and lib-dssn
+### Erfurt, lib-dssn and Saft
 Run `make submodules` to clone Erfurt, lib-dssn-php and Saft.
 
-If make failes you can try it manually with `git submodule init` and `git submodule update`.
+If `make` failes you can try it manually with `git submodule init` and `git submodule update`.
 
 ### Zend
 Zend is installed with `make zend` or alternatively you have to place a copy of the Zend framework library into `libraries/Zend/` you can do this by doing the following things (replace `${ZENDVERSION}` e.g. with `1.12.0`):
