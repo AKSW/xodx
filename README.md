@@ -16,8 +16,11 @@ Installation
 You need a webserver (tested with Apache and nginx but I hope it also runs with lighttd or any other webserver) and a database backend which is supported by Erfurt (Virtuoso and MySQL).
 Because this software is written in PHP you'll need php (>= 5.3.7) with the bindings for your webserver or fastcgi, PHP-support for your database (php-odbc or php-mysql) and php-curl.
 
+### Database Connection
 Take the prepared `config.ini-dist` file, copy it to `config.ini` and configure it according to your system setup.
-If you have an OntoWiki runnnig you can copy the database connection section (`store.*`) into the config.ini of xodx.
+If you have an OntoWiki runnnig you can copy the database connection section (`store.*`) into the `config.ini` of xodx.
+To import the initial base ontology for Erfurt you have to allow virtuoso to read the xodx directory.
+You can configure this by adding the directory to `DirsAllowed` in your `virtuoso.ini` (on debian systems you can find it at `/etc/virtuoso-opensource-6.1/virtuoso.ini`).
 
 ### Erfurt, lib-dssn and Saft
 Run `make submodules` to clone Erfurt, lib-dssn-php and Saft.
