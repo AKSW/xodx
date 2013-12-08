@@ -115,7 +115,7 @@ zend:
 	rm -rf ZendFramework-${ZENDVERSION}-minimal.tar.gz ZendFramework-${ZENDVERSION}-minimal
 
 dirs:
-	mkdir raw
+	mkdir -p raw
 
 copy:
 	mkdir ${copy}
