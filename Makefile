@@ -44,13 +44,13 @@ info:
 	less README.md
 
 # Default installation for external users
-install: libraries submodules dirs
+install: libraries submodules dirs log
 
 # Installation for developers with writer permission
-install-dev: libraries submodules-dev dirs
+install-dev: libraries submodules-dev dirs log
 
 # Installation without git remotes, just zip files
-install-fb: libraries submodules-zip dirs
+install-fb: libraries submodules-zip dirs log
 
 # shortcut for the non submodule dependencies
 libraries: zend resources
@@ -116,6 +116,10 @@ zend:
 
 dirs:
 	mkdir -p raw
+
+log:
+	touch xodx.log
+	chmod a+w xodx.log
 
 copy:
 	mkdir ${copy}
