@@ -1,0 +1,14 @@
+<h2>List of Conferences</h2>
+<ul>
+<?php
+foreach ($this->profiles as $key)
+{
+    $eventCoded = urlencode($key["event"]);
+    $event = $key["event"];
+    $title = $key["o"];
+    echo ("<li><a href = ?c=editor&a=edit&id=$eventCoded&class=conference>$event - $title</a></li>");
+}
+echo ("<li><a href = ?c=conference&a=new>Create new Conference</a></li>");
+?>
+
+</ul>

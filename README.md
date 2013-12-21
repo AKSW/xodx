@@ -42,6 +42,15 @@ In order to get the JavaScript dependencies [twitter bootstrap](http://twitter.g
 
 in the xodx root directory (should be the same directory where you found this file).
 
+Configuration
+-------------
+### Profile Editor
+Here is described the configuration of the Profile Editor
+
+There are single and multiple Properties. They are stored in editor.single and editor.multiple respectivly. For every configured Property a corresponding RegEx has to be given. The RegEx can be given any Name, they are afterwards configured via regex.NameOfTheRegEx. Property and Regex are seperated by a comma, without space after the comma. editor.single and editor.multiple are composed with as many Property-RegEx Literals as needed, also seperated with a comma, without spaces.
+Example:
+
+
 Code Conventions
 ----------------
 Currently, this project is developed using [OntoWiki's coding standard](https://github.com/AKSW/OntoWiki/wiki/Coding-Standards).
