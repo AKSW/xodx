@@ -15,289 +15,204 @@ class Xodx_EditorController extends Xodx_ResourceController
      */
     public function editAction ($template)
     {
+        $userController = $this->_app->getController('Xodx_UserController');
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
-        $configHelper = new Xodx_ConfigHelper($this->_app);
-        $rightsHelper = new Xodx_RightsHelper($this->_app);
         $request = $bootstrap->getResource('request');
+        $config = $bootstrap->getResource('config');
+
+        $configHelper = $this->_app->getHelper('Xodx_ConfigHelper');
+        $rightsHelper = $this->_app->getHelper('Xodx_RightsHelper');
+
         $classId = $request->getValue('class', 'get');
-        $typeUri = $configHelper->getEditorClass($classId);
-        $applicationController = $this->_app->getController('Xodx_ApplicationController');
+        $resourceUri = $request->getValue('id', 'get');
 
-        //Needed switch to get personUri without passing it via $_GET
-        if (strcmp($classId, "person") == 0) {
-            $objectUri = urldecode($request->getValue('id', 'get'));
-            //Use current UserId if no personUri was passed
-            if (empty($objectUri)) {
-                $userId = $applicationController->getUser();
-                $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
-                $objectUri = $userUri;
+        if ($classId == 'person' && empty($resourceUri)) {
+            // Use current users URI if no resourceUri was passed
+            $resourceUri = $userController->getUser()->getPerson();
+        } else if (empty($resourceUri)) {
+            throw new Exception('Resource to edit is unknownm, no resource URI given. Pleas specify parameter "id".');
+        }
+
+        // AC. Check if action is allowed.
+        if (!$rightsHelper->isAllowed('edit', $resourceUri)) {
+            throw new Exception('You don\'t have the right to edit "' . $resourceUri . '"');
+        }
+
+        $typeQuery = 'SELECT ?type' . PHP_EOL;
+        $typeQuery.= 'WHERE {' . PHP_EOL;
+        $typeQuery.= '  <' . $resourceUri . '> a ?type ' . PHP_EOL;
+        $typeQuery.= '}';
+
+        $resourceTypeResult = $model->sparqlQuery($typeQuery);
+
+        $types = array();
+        foreach ($resourceTypeResult as $typeRow) {
+            $types[] = $typeRow['type'];
+        }
+
+        // Get configured profile to determine predicates to be shown in editor
+        $profiles = $configHelper->getProfilesForTypes($types);
+
+        $numProfiles = count($profiles);
+        if ($numProfiles != 1) {
+            throw new Exception('Can\'t determine which application profile to use. Following profiles are available: ' . var_export($profiles, true));
+        }
+        $profile = $configHelper->loadProperties($profiles[0]);
+        $resourceDescription = $this->_getResourceDescription($resourceUri, $model, $profile);
+
+        $newValues = $request->getValue('newValues', 'post');
+        $originalValues = $request->getValue('originalValues', 'post');
+
+        $template->id = $resourceUri;
+        if ($newValues === null) {
+            //Add values to template
+            $template->profile = $resourceDescription;
+
+            return $template;
+        }
+
+        // Check if the posted values are based on the current data or if the resource was changed
+        // in between.
+        if (!$this->_equal($originalValues, $resourceDescription)) {
+            // TODO show the changes to the user to let him merge his edit
+            throw new Exception('The resoure was changed in between');
+        }
+
+        $diff = $this->_diff($newValues, $resourceDescription);
+
+        // Check validaty of added values
+        $wrong = array();
+        foreach ($diff['add'] as $resource => $properties) {
+            foreach ($properties as $predicate => $objects) {
+                if (!isset($profile[$predicate])) {
+                    continue;
+                }
+                foreach ($objects as $object) {
+                    $regexString = $profile[$predicate]['regex'];
+                    if (!empty($object['value']) && !preg_match($regexString, $object['value'])) {
+                        if (!isset($wrong[$predicate])) {
+                            $wrong[$predicate] = array();
+                        }
+                        $wrong[$predicate][] = $object['value'];
+                    }
+                }
             }
-        } else {
-            $objectUri = urldecode($request->getValue('id', 'get'));
         }
 
-        //RightsManagement. Ask rightsHelper if action is allowed.
-        $hasRights = $rightsHelper->HasRights('edit', $classId, $objectUri);
-        if (!$hasRights) {
-            echo ('You do not have the rights for this. Sorry.');
-            return;
-        }
-
-        //Get Prefixes to be shown in the Editor
-        $allowedSinglePrefixes = $configHelper->loadPropertiesSingle($classId);
-        $allowedMultiplePrefixes = $configHelper->loadPropertiesMultiple($classId);
-
-        $template->caption = $classId;
-        $template->id = $objectUri;
-
-        //Switch if this was called from a Form.
-        if (count ($_POST) == 0) {
-            //Get Values from Database
-            $query = "SELECT ?p ?o WHERE { <"
-                   . $objectUri
-                   . "> a <"
-                   . $typeUri
-                   . "> . <"
-                   . $objectUri
-                   . "> ?p ?o }";
-
-            $profiles = $model->sparqlQuery($query);
-
+        // Check if there are any wrong properties
+        if (count($wrong) > 0) {
             //Add Values to $template
-            $template->allowedSinglePrefixes = $allowedSinglePrefixes;
-            $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
-            $template->profile = $profiles;
-            $template->addContent('templates/edit.phtml');
+            $template->wrong = $wrong;
+            $template->profile = $newValues;
+            $template->diff = $diff;
+            $template->error = 'Please correct the red Properties!';
 
             return $template;
         } else {
-            //Process POSTed values and show ProfileEditor with
-            //  a) Data from POST if it needs to be corrected
-            //  b) Data from Database if everything was fine so the new data in the DB can be viewed.
+            // Write changes
+            // TODO start transaction
+            $model->deleteMultipleStatements($diff['delete']);
+            $model->addMultipleStatements($diff['add']);
+            // TODO end transaction
 
-            $applicationController = $this->_app->getController('Xodx_ApplicationController');
-            $userId = $applicationController->getUser();
-            $userUri = $this->_app->getBaseUri() . '?c=person&id=' . $userId;
-            $stringArray = explode("id=", $userUri);
-            $name = $stringArray[1];
+            // Show editor with values from database
+            $template->profile = $this->_getResourceDescription($resourceUri, $model, $profile);
+            $template->info = 'Wrote changes to database.';
+            return $template;
+        }
+    }
 
-            $prefixesSinglePrepare = array();
-            $valuesSinglePrepare = array();
-            $prefixesMultiplePrepare = array();
-            $valuesMultiplePrepare = array();
-            $valuesSingleNew = array();
-            $valuesMultipleNew = array();
-            $newKey;
-            $newValue;
-            $oldValue;
-            $changedAdd = array();
-            $changedDelete = array();
-            $wrong = array();
+    /**
+     * This method checks if a posted array is equal to the given result set.
+     *
+     * @param $postValues contains an array in array('predicate' => array('value1', 'value2', …)) format
+     * @param $resultSet contains an array in sparql result-set format with ?p ?o
+     * @return wether the properties are equal or not
+     */
+    private function _equal ($postValues, $resultSet)
+    {
+        $diff = $this->_diff($postValues, $resultSet);
 
-            $query = 'SELECT ?p ?o WHERE { <'
-                   . $objectUri
-                   . '> a <'
-                   . $typeUri
-                   . '> . <'
-                   . $objectUri
-                   . '> ?p ?o }';
-            $databaseValues = $model->sparqlQuery($query);
-            $notFoundMultipleKeys = $databaseValues;
+        if (count($diff['add']) == 0 && count($diff['delete']) == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-            //prepare $_POST into prefix --> value
-            foreach ($_POST as $key => $value) {
-                $keyArray = explode('_', $key);
-                $number = (int)$keyArray[0];
+    /**
+     * This method compares a posted array to the given result set.
+     *
+     * @param $newValues contains an array in array('predicate' => array('value1', 'value2', …)) format
+     * @param $originalData contains an array in sparql result-set format with ?p ?o
+     * @return array changeset with arra('add' => …, 'delete' => …)
+     */
+    private function _diff ($newValues, $originalData)
+    {
+        $add    = $this->_minus($newValues, $originalData);
+        $delete = $this->_minus($originalData, $newValues);
 
-                //single Properties
-                if ($keyArray[1] == 'value') {
-                    $valuesSinglePrepare[$number] = $value;
-                }
+        return array('add' => $add, 'delete' => $delete);
+    }
 
-                if ($keyArray[1] == 'prefix') {
-                    $prefixesSinglePrepare[$number] = $value;
-                }
-
-                //multiple Properties
-                //$numberInKey is only needed if Property is multiple,
-                //so it is put inside the if statements.
-                if ($keyArray[1] == 'Mvalue') {
-                    $numberInKey = (int)$keyArray[count($keyArray)-1];
-                    $valuesMultiplePrepare[$number][$numberInKey] = $value;
-                }
-
-                if ($keyArray[1] == 'Mprefix') {
-                    $numberInKey = (int)$keyArray[count($keyArray)-1];
-                    $prefixesMultiplePrepare[$number] = $value;
-                }
-            }
-
-            foreach ($prefixesSinglePrepare as $key => $value) {
-                $valuesSingleNew[$value] = $valuesSinglePrepare[(int)$key];
-            }
-
-            //Single Properties
-            foreach ($valuesSingleNew as $key => $value) {
-                //Reset old values
-                $oldValue = "";
-                $newKey = $key;
-
-                //find corresponding value in query
-                //Searches for equivalent of $newKey
-                foreach ($databaseValues as $dbkey => $element) {
-                    $p = $element['p'];
-                    $o = $element['o'];
-                    if (strcmp ($element['p'],  $newKey) == 0) {
-                        $oldValue = $element['o'];
-                        unset($notFoundMultipleKeys[$dbkey]);
-                    }
-                }
-
-                if ($value != $oldValue) {
-                    $rString = $allowedSinglePrefixes[$key]['regex'];
-                    //check Regex
-                    if (preg_match($rString, $value)) {
-                        //If Value matches, add it to the Values that are written and deleted from the DB.
-                        $temp = array();
-                        $temp['p'] = $newKey;
-                        $temp['o'] = $value;
-                        $changedAdd[] = $temp;
-                        $temp = array();
-                        $temp['p'] = $newKey;
-                        $temp['o'] = $oldValue;
-                        $changedDelete[] = $temp;
-                    } else {
-                        //If the Value is empty, it might not pass the Regex, but shall not be shown as wrong.
-                        if (!empty ($value)) {
-                            //Add Value to array which will later be shown as wrong values.
-                            $wrong[$key] = $value;
-                        }
-                    }
-                }
-            }
-
-            //Multiple Properties
-            foreach ($prefixesMultiplePrepare as $prefixKey => $prefix) {
-                $values = $valuesMultiplePrepare[$prefixKey];
-                foreach ($values as $valueKey => $value) {
-                    // 1. Forall key->value in newValues
-                    // 1.1 Find corresponding value.
-                    if ($value == '') {
-                        break;
-                    }
+    private function _minus ($aValues, $bValues)
+    {
+        $cValues = array();
+        foreach ($aValues as $resource => $properties) {
+            foreach ($properties as $predicate => $objects) {
+                foreach ($objects as $object) {
                     $found = false;
-
-                    foreach ($databaseValues as $key => $element) {
-                        //only for needed MultipleStatements
-                        $p = $element['p'];
-                        $o = $element['o'];
-                        if (in_array($p, array_keys($allowedMultiplePrefixes))) {
-                            if (strcmp ($p,  $prefix) == 0) {
-                                if (strcmp ($o,  $value) == 0) {
-                                    //1.2 Delete this pair from $oldValues
-                                    //These Values are deleted from an extra Array
-                                    //At the End, all Values from this Array are deleted.
-                                    $found = true;
-                                    unset($notFoundMultipleKeys[$key]);
-                                }
+                    if ($object['value'] === null) {
+                        continue;
+                    }
+                    if (isset($bValues[$resource][$predicate])) {
+                        foreach ($bValues[$resource][$predicate] as $foundObject) {
+                            if (
+                                $foundObject['value'] == $object['value'] &&
+                                $foundObject['type'] == $object['type']
+                            ) {
+                                $found = true;
+                                break;
                             }
                         }
                     }
                     if (!$found) {
-                        $rString = $allowedMultiplePrefixes[$prefix]['regex'];
-                        //check Regex
-                        if (preg_match($rString, $value)) {
-                            //If Value matches, add it to the Values that are written to the DB.
-                            $temp = array();
-                            $temp['p'] = $prefix;
-                            $temp['o'] = $value;
-                            $changedAdd[] = $temp;
-                        } else {
-                            //If the Value is empty, it might not pass the Regex, but shall not be shown as wrong.
-                            if (!empty ($value)) {
-                                //Add Value to array which will later be shown as wrong values.
-                                $temp = array();
-                                $temp['p'] = $prefix;
-                                $temp['o'] = $value;
-                                $wrong[] = $temp;
-                            }
+                        if (!isset($cValues[$resource])) {
+                            $cValues[$resource] = array();
                         }
+                        if (!isset($cValues[$resource][$predicate])) {
+                            $cValues[$resource][$predicate] = array();
+                        }
+                        $cValues[$resource][$predicate][] = $object;
                     }
                 }
-            }
-
-            //Check if there are any wrong Properties.
-            if (count($wrong) > 0 && !is_null($wrong)) {
-                //Allow wrong Properties to be corrected
-                //Therefore, change all the wrong values in the Values gotten from the database.
-                foreach ($wrong as $key => $value) {
-                    $databaseValues[] = $value;
-                }
-                //Add Values to $template
-                $template->allowedSinglePrefixes = $allowedSinglePrefixes;
-                $template->allowedMultiplePrefixes = $allowedMultiplePrefixes;
-                $template->profile = $databaseValues;
-                $template->config = $config;
-                $template->wrong = $wrong;
-                $template->addContent('templates/edit.phtml');
-                return $template;
-            } else {
-                //Prepare multiple Keys (deleted)
-                foreach ($notFoundMultipleKeys as $key => $element) {
-                    $p = $element['p'];
-                    $o = $element['o'];
-
-                    if (in_array($p, array_keys($allowedMultiplePrefixes))) {
-                        $temp = array();
-                        $temp['p'] = $p;
-                        $temp['o'] = $o;
-                        $changedDelete[] = $temp;
-                    }
-                }
-                //Write Properties to Database
-                foreach ($changedDelete as $key => $value) {
-                    $valueArray = array(
-                        'type'  => 'literal',
-                        'value' => $value['o']);
-                    $keyToDelete = $value['p'];
-                    $valueToDelete = $value['o'];
-                    $model->deleteStatement($objectUri, $keyToDelete, $valueArray);
-                }
-                foreach ($changedAdd as $key => $value) {
-                    $valueArray = array(
-                        'type'  => 'literal',
-                        'value' => $value['o']);
-                    $keyToWrite = $value['p'];
-                    $valueToWrite = $value['o'];
-                    $model->addStatement($objectUri, $keyToWrite, $valueArray);
-                }
-
-                //Show Editor with Values from Database.
-                $_POST = null;
-                $template = $this->editAction($template);
-                return $template;
             }
         }
+        return $cValues;
     }
 
-    //The following functions are only for debug purposes,
-    //but left here, in case anybody might need them.
-    public function loadPropertiesAction()
+    /**
+     * This method gets a description array for a given resource.
+     *
+     * @param $resourceUri the URI of the resource to describe
+     * @param $model the model from where to get the description
+     * @return an array of the format
+     * array('resource' => array('property' => array('type' => …, 'value' => …, …)))
+     */
+    private function _getResourceDescription ($resourceUri, $model, $profile)
     {
-        $configHelper = new Xodx_ConfigHelper($this->_app);
-        return $configHelper->loadProperties();
-    }
-
-    public function loadPropertiesSingleAction()
-    {
-        $configHelper = new Xodx_ConfigHelper($this->_app);
-        var_dump($configHelper->loadPropertiesSingle('conference'));
-    }
-
-    public function loadPropertiesMultipleAction()
-    {
-        $configHelper = new Xodx_ConfigHelper($this->_app);
-        var_dump($configHelper->loadPropertiesMultiple('person'));
+        $description = $model->getResource($resourceUri)->getDescription(1);
+        foreach ($profile as $predicate => $restrictions) {
+            if (!isset($description[$resourceUri][$predicate])) {
+                $description[$resourceUri][$predicate] = array(
+                    array (
+                        'type' => strtolower($restrictions['type']),
+                        'value' => null
+                    )
+                );
+            }
+        }
+        return $description;
     }
 }

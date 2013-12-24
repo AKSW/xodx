@@ -8,46 +8,6 @@
 class Xodx_ConfigHelper extends Saft_Helper
 {
     /**
-     * Returns all Single Properties for a given $editorType
-     */
-    public function loadPropertiesSingle($editorType)
-    {
-        //Load All Properties
-        $properties = $this->loadProperties($editorType);
-        $single = array();
-
-        //Find those whose cardinality is single
-        foreach($properties as $key => $element)
-        {
-            if ($element['cardinality'] == 'single')
-            {
-                $single[$key] = $element;
-            }
-        }
-        return $single;
-    }
-
-    /**
-     * Returns all Multiple Properties for a given $editorType
-     */
-    public function loadPropertiesMultiple($editorType)
-    {
-        //Load All Properties
-        $properties = $this->loadProperties($editorType);
-        $multiple = array();
-
-        //Find those whose cardinality is multiple
-        foreach($properties as $key => $element)
-        {
-            if ($element['cardinality'] == 'multiple')
-            {
-                $multiple[$key] = $element;
-            }
-        }
-        return $multiple;
-    }
-
-    /**
      * Returns all Properties with the corresponding RegExes, ready for preg_match
      */
     public function loadPropertyRegex()
@@ -119,25 +79,21 @@ class Xodx_ConfigHelper extends Saft_Helper
     /**
      * Returns the class (e.g foaf:person)of an Editor with the given class as it is in the config
      */
-    public function getEditorClass($editorType)
+    public function getProfilesForTypes ($types)
     {
         $config = $this->_app->getBootstrap()->getResource('Config');
-        foreach ($config as $key => $value)
-        {
+
+        $profiles = array();
+        foreach ($config as $key => $value) {
             $keySplit = explode('.', $key);
-            if ($keySplit[0] == 'editor')
-            {
-                if ($keySplit[1] == $editorType)
-                {
-                    if ($keySplit[2] == 'class')
-                    {
-                            return $value;
-                    }
+            if (isset($keySplit[0]) && isset($keySplit[1]) && $keySplit[0] == 'editor') {
+                $profileName = $keySplit[1];
+                if (isset($keySplit[2]) && $keySplit[2] == 'class' && in_array($value, $types)) {
+                    $profiles[] = $profileName;
                 }
             }
         }
 
+        return $profiles;
     }
 }
-
-

@@ -11,35 +11,29 @@
 class Xodx_ConferenceController extends Xodx_ResourceController
 {
 
-    public function testAction($template)
-    {
-        $template->addContent('templates/test.phtml');
-        return $template;
-    }
-
-    public function PrefixesAction()
+    public function PrefixesAction ()
     {
         $configHelper = new Xodx_ConfigHelper($this->_app);
-        var_dump($configHelper -> loadPropertiesSingle("conference"));
+        var_dump($configHelper->loadPropertiesSingle('conference'));
     }
 
-    public function listAction($template)
+    public function listAction ($template)
     {
         $model = $this->_app->getBootstrap()->getResource('Model');
         $configHelper = new Xodx_ConfigHelper($this->_app);
-        $typeUri = $configHelper -> getEditorClass("conference");
+        $typeUri = $configHelper->getEditorClass('conference');
 
         //Get all Conferences
         $profiles = $model->sparqlQuery('SELECT DISTINCT ?event ?p ?o WHERE { ?event a <'. $typeUri .'> . ?event ?p ?o}');
 
         //Reduce to Label
-        foreach ($profiles as $key => $array)
-        {
-            if (strcmp($array["p"],"http://www.w3.org/2000/01/rdf-schema#label") !=0)
-            {
+        foreach ($profiles as $key => $array) {
+            if (strcmp($array['p'], EF_RDFS_NS . 'label') !=0) {
                 unset($profiles[$key]);
             }
         }
+        // vielleicht tut es hier auch einfach ein
+        // $profiles = array('p' => …);
 
         //Add Values to $template
         $template->profiles = $profiles;
