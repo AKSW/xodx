@@ -20,11 +20,11 @@ class Xodx_ConferenceController extends Xodx_ResourceController
     public function listAction ($template)
     {
         $model = $this->_app->getBootstrap()->getResource('Model');
-        $configHelper = new Xodx_ConfigHelper($this->_app);
-        $typeUri = $configHelper->getEditorClass('conference');
+
+        $conferenceTypeUri = 'http://symbolicdata.org/Data/Model#Conference';
 
         //Get all Conferences
-        $profiles = $model->sparqlQuery('SELECT DISTINCT ?event ?p ?o WHERE { ?event a <'. $typeUri .'> . ?event ?p ?o}');
+        $profiles = $model->sparqlQuery('SELECT DISTINCT ?event ?p ?o WHERE { ?event a <'. $conferenceTypeUri .'> . ?event ?p ?o}');
 
         //Reduce to Label
         foreach ($profiles as $key => $array) {
