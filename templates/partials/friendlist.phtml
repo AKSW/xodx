@@ -21,6 +21,11 @@
         ?>
         <strong><?= $name ?></strong><br />
         <a href="?c=person&amp;uri=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
+        <form method="post" action="?c=person&amp;a=delFriend">
+            <input type="hidden" name="person" value="<?= htmlentities($this->personUri) ?>" />
+            <input type="hidden" name="friend" value="<?= $contact['contactUri'] ?>" />
+            <button class="btn btn-block btn-danger" type="submit">Unfriend</button>
+        </form>
     </address>
     <?php endforeach; ?>
 <?php endif; ?>

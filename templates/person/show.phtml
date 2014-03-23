@@ -15,14 +15,17 @@
         ?>
     </div>
     <div class="span3">
-        <form method="post" action="?c=person&amp;a=addfriend">
-            <?php if ($this->profileshowLoggedIn) : ?>
-            <input type="hidden" name="person" value="<?= htmlentities($this->profileshowLogInUri) ?>" />
-            <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
-            <button class="btn btn-block" type="submit">Add <?= $this->profileshowName ?> as Friend</button>
-            <?php else : ?>
-            <button class="btn btn-block disabled" disabled="disabled" type="submit">Add <?= $this->profileshowName ?> as Friend</button>
-            <?php endif; ?>
+        <?php if ($this->profileshowLoggedIn) : ?>
+            <form method="post" action="?c=person&amp;a=addfriend">  
+                <input type="hidden" name="person" value="<?= htmlentities($this->profileshowLogInUri) ?>" />
+                <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
+                <button class="btn btn-block" type="submit">Add <?= $this->profileshowName ?> as Friend</button>
+        <?php else : ?>
+            <form method="post" action="?c=person&amp;a=delFriend">
+                <input type="hidden" name="person" value="<?= htmlentities($this->profileshowLogInUri) ?>" />
+                <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
+                <button class="btn btn-block btn-danger" type="submit">Unfriend</button>
+        <?php endif; ?>
         </form>
         <a class="btn btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
         <hr />

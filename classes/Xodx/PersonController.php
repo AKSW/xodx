@@ -108,6 +108,10 @@ class Xodx_PersonController extends Xodx_ResourceController
             $model->sparqlQuery($knowsQuery)
         ) {
             $template->profileshowLoggedIn = false;
+            /* if someone is logged in and knows the Person, set personUri for unfriending */
+            if($model->sparqlQuery($knowsQuery)) {
+                $template->profileshowLogInUri = $user->getPerson();
+            }
         } else {
             $template->profileshowLogInUri = $user->getPerson();
             $template->profileshowLoggedIn = true;
@@ -203,6 +207,38 @@ class Xodx_PersonController extends Xodx_ResourceController
 
         return $template;
     }
+    
+        /**
+     * View action for deleting a new friend. (This action should be called from a form)
+     */
+    public function delfriendAction($template)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');
+        $logger = $bootstrap->getResource('logger');
+        
+        // get URI
+        $personUri = $request->getValue('person', 'post');
+        $friendUri = $request->getValue('friend', 'post');
+        //$logger->debug('breakpoint 1' . $personUri . '  ' . $friendUri);
+        if (Erfurt_Uri::check($personUri) && Erfurt_Uri::check($friendUri)) {
+            $personController = $this->_app->getController('Xodx_PersonController');
+            $personController->delFriend($personUri, $friendUri);
+
+            //Redirect
+            $location = new Saft_Url($this->_app->getBaseUri());
+
+            $location->setParameter('c', 'user');
+            $location->setParameter('a', 'home');
+            $template->redirect($location);
+        } else {
+            $template->addContent('templates/error.phtml');
+            $template->exception = 'At least one of the given URIs is not valid: personUri="' . $personUri . '", friendUri="' . $friendUri . '".';
+        }        
+        //$logger->debug('PersonUri:' . $personUri . ', FriendUri' . $friendUri);
+
+        return $template;
+    }
 
     /**
      * Get a DSSN_Foaf_Person object representing the specified person
@@ -290,6 +326,59 @@ class Xodx_PersonController extends Xodx_ResourceController
             $logger->error('PersonController/addfriend: Couldn\'t find feed for newly added friend ("' . $contactUri . '").');
         }
     }
+    
+        /**
+     * Delete a contact from the list of friends of a person
+     * This is a one-way connection, the contact doesn't has to approve it
+     *
+     * @param $personUri the URI of the person to whome the contact should be deleted
+     * @param $contactUri the URI of the person who sould be deleted
+     */
+    public function delFriend ($personUri, $contactUri)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $logger = $bootstrap->getResource('logger');
+        $logger->debug('delFriend method not implemented. PersonUri: ' .$personUri . ', ContactUri: ' . $contactUri);
+        /*
+        $model  = $bootstrap->getResource('model');
+        $userController = $this->_app->getController('Xodx_UserController');
+
+        $ldHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
+        if (!$ldHelper->resourceDescriptionExists($contactUri)) {
+            throw new Exception('The WebID of your friend does not exist.');
+        }
+
+        // Update WebID
+        $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
+
+        $nsAair = 'http://xmlns.notu.be/aair#';
+        $activityController = $this->_app->getController('Xodx_ActivityController');
+
+        // Add Activity to activity Stream
+        $object = array(
+            'type' => 'uri',
+            'content' => $contactUri,
+            'replyObject' => 'false'
+        );
+        $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
+
+        // Send Ping to new friend
+        $pingbackController = $this->_app->getController('Xodx_PingbackController');
+        $pingbackController->sendPing($personUri, $contactUri, 'Do you want to be my friend?');
+
+        // Subscribe to new friend
+        $userUri = $userController->getUserUri($personUri);
+        $feedUri = $this->getActivityFeedUri($contactUri);
+        if ($feedUri !== null) {
+            $logger->debug('PersonController/addfriend: Found feed for newly added friend ("' . $contactUri . '"): "' . $feedUri . '"');
+            $userController->subscribeToResource ($userUri, $contactUri, $feedUri);
+        } else {
+            $logger->error('PersonController/addfriend: Couldn\'t find feed for newly added friend ("' . $contactUri . '").');
+        }
+         * */
+         
+    }
+    
 
     /**
      * Returns the feed of the specified $type of the person
