@@ -116,6 +116,24 @@ class Xodx_PersonController extends Xodx_ResourceController
             $template->profileshowLogInUri = $user->getPerson();
             $template->profileshowLoggedIn = true;
         }
+        
+        
+        if($user->getName() == 'guest') {
+            $template->isGuest = true;
+            $template->profileshowLoggedIn = false;
+            $template->profileshowLogInUri = NULL;
+        } elseif($user->getPerson() == $personUri) {
+            $template->isGuest = false;
+            $template->isOwnProfile = true;
+            $template->profileshowLoggedIn = true;
+            $template->profileshowLogInUri = $user->getPerson();
+        } elseif($model->sparqlQuery($knowsQuery)) {
+            $template->knowsPerson = true;
+            $template->profileshowLogInUri = $user->getPerson();
+            $template->profileshowLoggedIn = true;
+        } else {
+            $template->knowsPerson = false;
+        }
 
         $template->profileshowPersonUri = $personUri;
         $template->profileshowDepiction = $profile[0]['depiction'];
