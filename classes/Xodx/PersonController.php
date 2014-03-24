@@ -229,7 +229,7 @@ class Xodx_PersonController extends Xodx_ResourceController
         /**
      * View action for deleting a new friend. (This action should be called from a form)
      */
-    public function deletefriendAction($template)
+    public function deleteFriendAction($template)
     {
         $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
@@ -352,34 +352,52 @@ class Xodx_PersonController extends Xodx_ResourceController
      */
     public function deleteFriend ($personUri, $contactUri)
     {
+        
+        // getResources
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
         $model  = $bootstrap->getResource('model');
         $userController = $this->_app->getController('Xodx_UserController');
 
+        // check friend's Uri
         $ldHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
         if (!$ldHelper->resourceDescriptionExists($contactUri)) {
             throw new Exception('The WebID of your friend does not exist.');
         }
-
-        // Update WebID
-        $model->deleteStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
-
-        //$nsAair = 'http://xmlns.notu.be/aair#';
+//        @todo Update WebID
+//        $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
+//
+//        $activityController = $this->_app->getController('Xodx_ActivityController');
+//
+        // delete Statement added by addFriend
+        $statementArray = array (
+            $personUri => array (                               // Subject
+                'http://xmlns.com/foaf/0.1/knows' => array(     // Predicate
+                    array (                                     // Object
+                        'type'  => 'uri',
+                        'value' => $contactUri
+                    )
+                )
+            )
+        );        
+        $model->deleteMultipleStatements($statementArray);
         
-       
-        // Send Ping to old friend
-        $pingbackController = $this->_app->getController('Xodx_PingbackController');
-        $pingbackController->sendPing($personUri, $contactUri, 'I do not want to be your friend?');
+//        // Send Ping to new friend
+//        $pingbackController = $this->_app->getController('Xodx_PingbackController');
+//        $pingbackController->sendPing($personUri, $contactUri, 'Do you want to be my friend?');
 
-        // Unsubscribe to old friend
+        // unsubscribe from friend        
         $userUri = $userController->getUserUri($personUri);
         $feedUri = $this->getActivityFeedUri($contactUri);
-        if ($feedUri !== null) {
-            $logger->debug('PersonController/deletefriend: Found feed of deleted friend ("' . $contactUri . '"): "' . $feedUri . '"');
+        if ($feedUri !== null) 
+        {
+            // Logging
+            $logger->debug('PersonController/deletefriend: Found feed for friend ("' . $contactUri . '"): "' . $feedUri . '"');
+            // unsubscription of friend's feed            
             $userController->unsubscribeFromResource ($userUri, $contactUri, $feedUri);
         } else {
-            $logger->error('PersonController/deletefriend: Couldn\'t find feed to delete friend ("' . $contactUri . '").');
+            // Logging
+            $logger->error('PersonController/deletefriend: Couldn\'t find feed for friend ("' . $contactUri . '").');
         }
     }
     

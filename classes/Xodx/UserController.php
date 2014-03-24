@@ -1,10 +1,10 @@
 <?php
+
 /**
  * This file is part of the {@link http://aksw.org/Projects/Xodx Xodx} project.
  *
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
-
 // include password hash functions for 5.3.7 <= PHP < 5.5
 require_once('password_compat/lib/password.php');
 
@@ -14,15 +14,15 @@ require_once('password_compat/lib/password.php');
  *  - subscribing to a feed
  *  - getting notifications
  */
-class Xodx_UserController extends Xodx_ResourceController
-{
+class Xodx_UserController extends Xodx_ResourceController {
+
+
     /**
      * A registry of already loaded Xodx_User objects
      */
     private $_users = array();
 
-    public function homeAction ($template)
-    {
+    public function homeAction($template) {
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         $request = $bootstrap->getResource('request');
@@ -73,8 +73,7 @@ class Xodx_UserController extends Xodx_ResourceController
         return $template;
     }
 
-    public function getPersonUriAction ($template)
-    {
+    public function getPersonUriAction($template) {
         $personUri = $this->getUser()->getPerson();
 
         $template->disableLayout();
@@ -83,8 +82,7 @@ class Xodx_UserController extends Xodx_ResourceController
         return $template;
     }
 
-    public function getActivityStreamAction ($template)
-    {
+    public function getActivityStreamAction($template) {
         $bootstrap = $this->_app->getBootstrap();
         $activities = $this->getActivityStream();
         $request = $bootstrap->getResource('request');
@@ -128,8 +126,7 @@ class Xodx_UserController extends Xodx_ResourceController
      * @param boolean $local specifies if the feed should not be subscribed at the hub
      *                       (this is meant for local resources)
      */
-    public function subscribeToResource ($subscriberUri, $resourceUri, $feedUri = null, $local = false)
-    {
+    public function subscribeToResource($subscriberUri, $resourceUri, $feedUri = null, $local = false) {
         $bootstrap = $this->_app->getBootstrap();
 
         $model = $bootstrap->getResource('model');
@@ -146,53 +143,15 @@ class Xodx_UserController extends Xodx_ResourceController
         $nsDssn = 'http://purl.org/net/dssn/';
         $model->addStatement($resourceUri, $nsDssn . 'activityFeed', $feedObject);
 
-        $this->_subscribeToFeed($subscriberUri, $feedUri, $local);
-
+        $this->_subscribeToFeed($subscriberUri, $feedUri, $local);       
     }
-    
-    /**
-     *
-     * Enter description here ...
-     * @param URI $subscriberUri
-     * @param URI $resourceUri
-     * @param URI $feedUri
-     * @param boolean $local specifies if the feed should not be subscribed at the hub
-     *                       (this is meant for local resources)
-     */
-    public function unsubscribeFromResource ($subscriberUri, $resourceUri, $feedUri = null, $local = false)
-    {
-        $bootstrap = $this->_app->getBootstrap();
-        $logger = $bootstrap->getResource('logger');
-        
-        $logger->debug("unsuscribe from resource not implemented");
-        
-        /*
-        $model = $bootstrap->getResource('model');
-
-        if ($feedUri === null) {
-            $feedUri = $this->getActivityFeedUri($resourceUri);
-        }
-
-        $feedObject = array(
-            'type' => 'uri',
-            'value' => $feedUri
-        );
-
-        $nsDssn = 'http://purl.org/net/dssn/';
-        $model->addStatement($resourceUri, $nsDssn . 'activityFeed', $feedObject);
-
-        $this->_subscribeToFeed($subscriberUri, $feedUri, $local);*/
-
-    }
-    
 
     /**
      * This method subscribes a user to a feed
      * @param $userUri the uri of the user who wants to be subscribed
      * @param $feedUri the uri of the feed where she wants to subscribe
      */
-    private function _subscribeToFeed ($subscriberUri, $feedUri, $local = false)
-    {
+    private function _subscribeToFeed($subscriberUri, $feedUri, $local = false) {
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
         $resourceController = $this->_app->getController('Xodx_ResourceController');
@@ -209,14 +168,13 @@ class Xodx_UserController extends Xodx_ResourceController
         if (!$this->_isSubscribed($subscriberUri, $feedUri)) {
             $pushController = $this->_app->getController('Xodx_PushController');
             if ($local || $pushController->subscribe($feedUri)) {
-
-                $model    = $bootstrap->getResource('model');
+                $model = $bootstrap->getResource('model');
 
                 $nsDssn = 'http://purl.org/net/dssn/';
                 $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 
                 $subUri = $this->_app->getBaseUri() . '&c=ressource&id=' . md5(rand());
-                $cbUri  = $this->_app->getBaseUri() . '?c=push&a=callback';
+                $cbUri = $this->_app->getBaseUri() . '?c=push&a=callback';
 
                 $subscription = array(
                     $subUri => array(
@@ -231,7 +189,6 @@ class Xodx_UserController extends Xodx_ResourceController
                         )
                     )
                 );
-
                 if (!$local) {
                     $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);
 
@@ -259,8 +216,7 @@ class Xodx_UserController extends Xodx_ResourceController
      * @param $userUri a string which contains the URI of the required user
      * @return Xodx_User instance with the specified URI
      */
-    public function getUser ($userUri = null)
-    {
+    public function getUser($userUri = null) {
         if ($userUri === null) {
             $applicationController = $this->_app->getController('Xodx_ApplicationController');
             $userId = $applicationController->getUser();
@@ -307,8 +263,7 @@ class Xodx_UserController extends Xodx_ResourceController
      * @param string $personUri the uri of the person
      * @return Xodx_User for the given person
      */
-    public function getUserForPerson ($personUri)
-    {
+    public function getUserForPerson($personUri) {
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
 
@@ -321,7 +276,7 @@ class Xodx_UserController extends Xodx_ResourceController
 
         $userResult = $model->sparqlQuery($query);
 
-        if (count($userResult[0])>0) {
+        if (count($userResult[0]) > 0) {
             return $this->getUser($userResult[0]['userUri']);
         } else {
             return null;
@@ -332,8 +287,7 @@ class Xodx_UserController extends Xodx_ResourceController
      * Returns the user uri of a user which is accosiated to the given person
      * @deprecated use getUserForPerson
      */
-    public function getUserUri ($personUri)
-    {
+    public function getUserUri($personUri) {
         $user = $this->getUserForPerson($personUri);
         if ($user !== null) {
             return $user->getUri();
@@ -347,23 +301,22 @@ class Xodx_UserController extends Xodx_ResourceController
      * @param $userName a string with the username of the user
      * @param $password a string containing the password of the given user
      */
-    public function verifyPasswordCredentials ($userName, $password)
-    {
+    public function verifyPasswordCredentials($userName, $password) {
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
 
         // TODO prevent sparql injection
 
         $query = '' .
-            'PREFIX ow: <http://ns.ontowiki.net/SysOnt/> ' .
-            'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
-            'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
-            'SELECT ?userUri ?passwordHash ' .
-            'WHERE { ' .
-            '   ?userUri a sioc:UserAccount ; ' .
-            '       foaf:accountName "' . $userName . '" ; ' .
-            '       ow:userPassword ?passwordHash . ' .
-            '}';
+                'PREFIX ow: <http://ns.ontowiki.net/SysOnt/> ' .
+                'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' .
+                'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' .
+                'SELECT ?userUri ?passwordHash ' .
+                'WHERE { ' .
+                '   ?userUri a sioc:UserAccount ; ' .
+                '       foaf:accountName "' . $userName . '" ; ' .
+                '       ow:userPassword ?passwordHash . ' .
+                '}';
         $passwordQueryResult = $model->sparqlQuery($query);
 
         if (count($passwordQueryResult) > 0) {
@@ -379,8 +332,7 @@ class Xodx_UserController extends Xodx_ResourceController
      * @param $userUri the uri of the user in question
      * @param $feedUri the uri of the feed in question
      */
-    private function _isSubscribed ($userUri, $feedUri)
-    {
+    private function _isSubscribed($userUri, $feedUri) {
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
 
@@ -388,7 +340,7 @@ class Xodx_UserController extends Xodx_ResourceController
         $query.= 'ASK  ' . PHP_EOL;
         $query.= 'WHERE { ' . PHP_EOL;
         $query.= '   <' . $userUri . '> dssn:subscribedTo      ?subUri. ' . PHP_EOL;
-        $query.= '        ?subUri       dssn:subscriptionTopic <' . $feedUri. '> . ' . PHP_EOL;
+        $query.= '        ?subUri       dssn:subscriptionTopic <' . $feedUri . '> . ' . PHP_EOL;
         $query.= '}' . PHP_EOL;
         $subscribedResult = $model->sparqlQuery($query);
 
@@ -414,8 +366,7 @@ class Xodx_UserController extends Xodx_ResourceController
      * @param Xodx_User $user
      * @return array of activities
      */
-    public function getActivityStream (Xodx_User $user = null)
-    {
+    public function getActivityStream(Xodx_User $user = null) {
         if ($user === null) {
             $user = $this->getUser();
         }
@@ -430,7 +381,7 @@ class Xodx_UserController extends Xodx_ResourceController
             $activities = array_merge($activities, $act);
         }
         $tmp = Array();
-        foreach($activities as &$act) {
+        foreach ($activities as &$act) {
             $tmp[] = &$act["pubDate"];
         }
         array_multisort($tmp, SORT_DESC, $activities);
@@ -443,8 +394,7 @@ class Xodx_UserController extends Xodx_ResourceController
      * @param $userUri the uri of the user in question
      * @return array $subscribedResources all resource a user is subscribed to
      */
-    public function getSubscribedResources (Xodx_User $user)
-    {
+    public function getSubscribedResources(Xodx_User $user) {
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         $userUri = $user->getUri();
@@ -471,4 +421,154 @@ class Xodx_UserController extends Xodx_ResourceController
 
         return $subscribedResources;
     }
+
+    /**
+     * Unsubscriebes a user from a resource
+     * @param type $unsubscriberUri Uri of the person who wants to unsubscribe from a resource
+     * @param type $contactUri Uri of the resource that ist to be unsubscribed
+     * @param type $feedUri feed of the given resource (null by default)
+     * @param type $local ??
+     */
+    public function unsubscribeFromResource($unsubscriberUri, $resourceUri, $feedUri = null, $local = false) 
+    {           
+        
+        // getResources
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        $store = $bootstrap->getResource('store');
+        $graphUri = $model->getModelIri();
+
+        // Get Uri of friend's feed (if not given)
+        if ($feedUri === null) {
+            $feedUri = $this->getActivityFeedUri($resourceUri);
+        }
+//      @todo deleteStatement
+        $nsDssn = 'http://purl.org/net/dssn/';      
+//      $feedObject = array(
+//          'type' => 'uri',
+//          'value' => $feedUri
+//      );
+//      
+//      @todo why $model->addStatement instead of $store->addStatement ??
+//              notice that $model->addStatement calls $store->addStatement...
+//      $model->addStatement($resourceUri, $nsDssn . 'activityFeed', $feedObject);
+        // delete Statement
+        $statementArray = array(
+            $resourceUri => array(                      // Subject
+                $nsDssn . 'activityFeed' => array(      // Predicate
+                    array(                              // Object
+                        'type'  => 'uri',
+                        'value' => $feedUri
+                    )
+                )
+            )
+        );
+        
+        $model->deleteMultipleStatements($statementArray);
+        
+        $this->_unsubscribeFromFeed($unsubscriberUri, $feedUri, $local);
+    }
+    
+    // @todo check use of $local -> what's it used for in $this->subscribeToFeed ??
+    /**
+     * Unsubscribes a user from a feed (he is subscribed to)
+     * @param type $unsubscriberUri Uri of the person who wants to unsubscribe from a feed
+     * @param type $feedUri Uri of the feed that ist to be unsubscribed
+     * @param type $local ??
+     */
+    private function _unsubscribeFromFeed($unsubscriberUri, $feedUri, $local = false) 
+    {
+        
+        // getResources
+        $bootstrap = $this->_app->getBootstrap();
+        $logger = $bootstrap->getResource('logger');
+        $resourceController = $this->_app->getController('Xodx_ResourceController');        
+        
+        // getUserUri of unsubscriber (if not already given)
+        $type = $resourceController->getType($unsubscriberUri);
+        $nsFoaf = 'http://xmlns.com/foaf/0.1/';        
+        if ($type === $nsFoaf . 'Person') {
+            $unsubscriberUri = $this->getUserUri($unsubscriberUri);
+        }
+
+        // Logging
+        $logger->info('unsubscribeFromFeed: user: ' . $unsubscriberUri . ', feed: ' . $feedUri);
+
+        // unsubscribe from feed given by $feedUri
+        
+        // @todo reimplement _isSubscribed (seems to be buggy)
+        if (true){ //$this->_isSubscribed($unsubscriberUri, $feedUri)) {
+            
+            // getResources
+            $pushController = $this->_app->getController('Xodx_PushController');
+                        
+            // $pushController->unsubscribe() called by default since $local = false
+            if ($local || $pushController->unsubscribe($feedUri)) {
+//              // @todo deleteStatement               
+//                
+                // getResources
+                $model = $bootstrap->getResource('model');
+                $store = $bootstrap->getResource('store');
+                $graphUri = $model->getModelIri();
+                
+                $nsDssn = 'http://purl.org/net/dssn/';
+                $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+                
+                
+                // delete Statements
+                
+                // get $subUri from DB
+                $subUriQuery  = 'PREFIX dssn: <' . $nsDssn . '>' . PHP_EOL;
+                $subUriQuery .= 'SELECT ?subUri' . PHP_EOL;
+                $subUriQuery .= 'WHERE {' . PHP_EOL;
+                $subUriQuery .= '?subUri dssn:subscriptionTopic <' . $feedUri . '> .' . PHP_EOL;
+                $subUriQuery .= '}';
+                // execute Query and extract $subUri
+                $result = $model->sparqlQuery($subUriQuery);
+                if (count($result) > 0) {
+                    $subUri = $result[0]['subUri'];
+                } else {
+                    // @todo throw exception
+                    die("UserController ~568");
+                }                
+                $cbUri = $this->_app->getBaseUri() . 'c=push&a=callback';
+                
+                $subscriptionStatementsArray = array(
+                    $subUri => array(
+                        $nsRdf . 'type' => array(
+                            array('type' => 'uri', 'value' => $nsDssn . 'Subscription')
+                        ),
+                        $nsDssn . 'subscriptionCallback' => array(
+                            array('type' => 'uri', 'value' => $cbUri)
+                        ),
+                        $nsDssn . 'subscriptionTopic' => array(
+                            array('type' => 'uri', 'value' => $feedUri)
+                        )
+                    )                    
+                );
+                
+                if (!local) { // TRUE by default, compare to subscribeToFeed
+                   
+                    $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);                     
+                    $subscriptionStatementsArray[$subUri][$nsDssn . 'subscriptionHub'][] = array(
+                        'type'  => 'uri', 
+                        'value' => $feed->getLinkHub()                        
+                    );
+                    $subscribeStatementArray = array(
+                        $unsubscriberUri => array (                 // Subject
+                            $nsDssn . 'subscribedTo' => array (     // Predicate
+                                array(                              // Object
+                                    'type' => 'uri',
+                                    'value' => $subUri
+                                )
+                            )
+                        )
+                    );
+                }
+                    $model->deleteMultipleStatements($subscriptionStatementsArray);
+                    $model->deleteMultipleStatements($subscribeStatementArray);                
+            }
+        }
+    }
+
 }
