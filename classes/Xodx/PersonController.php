@@ -211,23 +211,22 @@ class Xodx_PersonController extends Xodx_ResourceController
         /**
      * View action for deleting a new friend. (This action should be called from a form)
      */
-    public function delfriendAction($template)
+    public function deletefriendAction($template)
     {
         $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');
-        $logger = $bootstrap->getResource('logger');
         
         // get URI
         $personUri = $request->getValue('person', 'post');
         $friendUri = $request->getValue('friend', 'post');
-        //$logger->debug('breakpoint 1' . $personUri . '  ' . $friendUri);
+
         if (Erfurt_Uri::check($personUri) && Erfurt_Uri::check($friendUri)) {
             $personController = $this->_app->getController('Xodx_PersonController');
-            $personController->delFriend($personUri, $friendUri);
+            $personController->deleteFriend($personUri, $friendUri);
 
             //Redirect
             $location = new Saft_Url($this->_app->getBaseUri());
-
+            
             $location->setParameter('c', 'user');
             $location->setParameter('a', 'home');
             $template->redirect($location);
@@ -235,7 +234,6 @@ class Xodx_PersonController extends Xodx_ResourceController
             $template->addContent('templates/error.phtml');
             $template->exception = 'At least one of the given URIs is not valid: personUri="' . $personUri . '", friendUri="' . $friendUri . '".';
         }        
-        //$logger->debug('PersonUri:' . $personUri . ', FriendUri' . $friendUri);
 
         return $template;
     }
@@ -327,19 +325,17 @@ class Xodx_PersonController extends Xodx_ResourceController
         }
     }
     
-        /**
-     * Delete a contact from the list of friends of a person
+     /**
+     * Delete an old contact out of the list of freinds of a person
      * This is a one-way connection, the contact doesn't has to approve it
      *
-     * @param $personUri the URI of the person to whome the contact should be deleted
-     * @param $contactUri the URI of the person who sould be deleted
+     * @param $personUri the URI of the person from whome the contact should be removed
+     * @param $contactUri the URI of the person who sould be removed as friend
      */
-    public function delFriend ($personUri, $contactUri)
+    public function deleteFriend ($personUri, $contactUri)
     {
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
-        $logger->debug('delFriend method not implemented. PersonUri: ' .$personUri . ', ContactUri: ' . $contactUri);
-        /*
         $model  = $bootstrap->getResource('model');
         $userController = $this->_app->getController('Xodx_UserController');
 
@@ -349,34 +345,24 @@ class Xodx_PersonController extends Xodx_ResourceController
         }
 
         // Update WebID
-        $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
+        $model->deleteStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
 
-        $nsAair = 'http://xmlns.notu.be/aair#';
-        $activityController = $this->_app->getController('Xodx_ActivityController');
-
-        // Add Activity to activity Stream
-        $object = array(
-            'type' => 'uri',
-            'content' => $contactUri,
-            'replyObject' => 'false'
-        );
-        $activityController->addActivity($personUri, $nsAair . 'MakeFriend', $object);
-
-        // Send Ping to new friend
+        //$nsAair = 'http://xmlns.notu.be/aair#';
+        
+       
+        // Send Ping to old friend
         $pingbackController = $this->_app->getController('Xodx_PingbackController');
-        $pingbackController->sendPing($personUri, $contactUri, 'Do you want to be my friend?');
+        $pingbackController->sendPing($personUri, $contactUri, 'I do not want to be your friend?');
 
-        // Subscribe to new friend
+        // Unsubscribe to old friend
         $userUri = $userController->getUserUri($personUri);
         $feedUri = $this->getActivityFeedUri($contactUri);
         if ($feedUri !== null) {
-            $logger->debug('PersonController/addfriend: Found feed for newly added friend ("' . $contactUri . '"): "' . $feedUri . '"');
-            $userController->subscribeToResource ($userUri, $contactUri, $feedUri);
+            $logger->debug('PersonController/deletefriend: Found feed of deleted friend ("' . $contactUri . '"): "' . $feedUri . '"');
+            $userController->unsubscribeFromResource ($userUri, $contactUri, $feedUri);
         } else {
-            $logger->error('PersonController/addfriend: Couldn\'t find feed for newly added friend ("' . $contactUri . '").');
+            $logger->error('PersonController/deletefriend: Couldn\'t find feed to delete friend ("' . $contactUri . '").');
         }
-         * */
-         
     }
     
 

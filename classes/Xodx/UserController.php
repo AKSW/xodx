@@ -149,6 +149,42 @@ class Xodx_UserController extends Xodx_ResourceController
         $this->_subscribeToFeed($subscriberUri, $feedUri, $local);
 
     }
+    
+    /**
+     *
+     * Enter description here ...
+     * @param URI $subscriberUri
+     * @param URI $resourceUri
+     * @param URI $feedUri
+     * @param boolean $local specifies if the feed should not be subscribed at the hub
+     *                       (this is meant for local resources)
+     */
+    public function unsubscribeFromResource ($subscriberUri, $resourceUri, $feedUri = null, $local = false)
+    {
+        $bootstrap = $this->_app->getBootstrap();
+        $logger = $bootstrap->getResource('logger');
+        
+        $logger->debug("unsuscribe from resource not implemented");
+        
+        /*
+        $model = $bootstrap->getResource('model');
+
+        if ($feedUri === null) {
+            $feedUri = $this->getActivityFeedUri($resourceUri);
+        }
+
+        $feedObject = array(
+            'type' => 'uri',
+            'value' => $feedUri
+        );
+
+        $nsDssn = 'http://purl.org/net/dssn/';
+        $model->addStatement($resourceUri, $nsDssn . 'activityFeed', $feedObject);
+
+        $this->_subscribeToFeed($subscriberUri, $feedUri, $local);*/
+
+    }
+    
 
     /**
      * This method subscribes a user to a feed

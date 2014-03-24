@@ -21,7 +21,7 @@
                 <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
                 <button class="btn btn-block" type="submit">Add <?= $this->profileshowName ?> as Friend</button>
         <?php else : ?>
-            <form method="post" action="?c=person&amp;a=delFriend">
+            <form method="post" action="?c=person&amp;a=deleteFriend">
                 <input type="hidden" name="person" value="<?= htmlentities($this->profileshowLogInUri) ?>" />
                 <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
                 <button class="btn btn-block btn-danger" type="submit">Unfriend</button>
