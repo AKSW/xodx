@@ -547,7 +547,7 @@ class Xodx_UserController extends Xodx_ResourceController {
                     )                    
                 );
                 
-                if (!local) { // TRUE by default, compare to subscribeToFeed
+                if (!$local) { // TRUE by default, compare to subscribeToFeed
                    
                     $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);                     
                     $subscriptionStatementsArray[$subUri][$nsDssn . 'subscriptionHub'][] = array(
