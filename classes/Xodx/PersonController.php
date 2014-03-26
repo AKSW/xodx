@@ -364,16 +364,11 @@ class Xodx_PersonController extends Xodx_ResourceController
         if (!$ldHelper->resourceDescriptionExists($contactUri)) {
             throw new Exception('The WebID of your friend does not exist.');
         }
-//        @todo Update WebID
-//        $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
-//
-//        $activityController = $this->_app->getController('Xodx_ActivityController');
-//
-        // delete Statement added by addFriend
+        // delete Statement added by addFriend ($personUri, knows, $contactUri)
         $statementArray = array (
-            $personUri => array (                               // Subject
-                'http://xmlns.com/foaf/0.1/knows' => array(     // Predicate
-                    array (                                     // Object
+            $personUri => array (                               
+                'http://xmlns.com/foaf/0.1/knows' => array(     
+                    array (                                     
                         'type'  => 'uri',
                         'value' => $contactUri
                     )

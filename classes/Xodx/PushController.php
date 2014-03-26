@@ -281,18 +281,16 @@ class Xodx_PushController extends Saft_Controller
      *  http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.3.html#anchor5     
      * @param $feedUri Uri of the feed that is to be unsubscribed
      * @return boolean TRUE if unsubscription was successful, otherwise FALSE
-     * @throws Exception ...
+     * @throws Exception
      */
     public function unsubscribe ($feedUri)
     {
         
         // getResources
         $bootstrap = $this->_app->getBootstrap();
-        $logger = $bootstrap->getResource('logger');
-        $store = $bootstrap->getResource('store');
+        $logger = $bootstrap->getResource('logger');        
         $model = $bootstrap->getResource('model');
         $config = $bootstrap->getResource('config');
-        $graphUri = $model->getModelIri();
         
         // TODO implement events
         // TODO check if we are already subscribed to this feed

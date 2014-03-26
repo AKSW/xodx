@@ -16,6 +16,8 @@
      * 
      * @author Natanael Arndt
      * @author Jan Buchholz
+     * 
+     * @todo Bug: having deleted a friend results in inability to friend anyone
      */
     class Xodx_UserController extends Xodx_ResourceController {
 
@@ -443,20 +445,8 @@
         // Get Uri of friend's feed (if not given)
         if ($feedUri === null) {
             $feedUri = $this->getActivityFeedUri($resourceUri);
-        }              
-//        // delete Statement ($resourceUri, activityFeed, $feedUri)
-//        $statementArray = array(
-//            $resourceUri => array(                      // Subject
-//                $nsDssn . 'activityFeed' => array(      // Predicate
-//                    array(                              // Object
-//                        'type'  => 'uri',
-//                        'value' => $feedUri
-//                    )
-//                )
-//            )
-//        );        
-//        $model->deleteMultipleStatements($statementArray);
-//        
+        }
+        
         $this->_unsubscribeFromFeed($unsubscriberUri, $feedUri, $local);
     }
     
@@ -488,7 +478,7 @@
         // unsubscribe from feed given by $feedUri
         
         // @todo reimplement _isSubscribed (seems to be buggy)
-        if (true){ //$this->_isSubscribed($unsubscriberUri, $feedUri)) {
+        if ($this->_isSubscribed($unsubscriberUri, $feedUri)) {
             
             // getResources
             $pushController = $this->_app->getController('Xodx_PushController');
@@ -511,8 +501,6 @@
                 $subUriQuery .= '}';
                 // execute Query and extract $subUri
                 $result = $model->sparqlQuery($subUriQuery);
-                // @todo debugging
-                $logger->test(count($result));
                 if (count($result) > 0) {
                     $subUri = $result[0]['subUri'];
                 } else {
@@ -520,6 +508,12 @@
                 }                
                 $cbUri = $this->_app->getBaseUri() . 'c=push&a=callback';
                 
+                /*
+                 * Add the following tripels:
+                 * ($subUri, type, Subscription)
+                 * ($subUri, subscriptionCallback, $cbUri)
+                 * ($subUri, subscriptionTopic, $feedUri)
+                 */
                 $subscriptionStatementsArray = array(
                     $subUri => array(
                         $nsRdf . 'type' => array(
@@ -534,17 +528,20 @@
                     )                    
                 );
                 
-                if (!$local) { // TRUE by default, compare to subscribeToFeed
-                   
-                    $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);                     
+                if (!$local) {                   
+                    $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);       
+                    /* Add the following tripels:
+                     * ($subUri, subscriptionHub, $feed->getLinkHub() )
+                     * ($unsubscriberUri, subscribedTo, $subUri)
+                     */
                     $subscriptionStatementsArray[$subUri][$nsDssn . 'subscriptionHub'][] = array(
                         'type'  => 'uri', 
                         'value' => $feed->getLinkHub()                        
                     );
                     $subscribeStatementArray = array(
-                        $unsubscriberUri => array (                 // Subject
-                            $nsDssn . 'subscribedTo' => array (     // Predicate
-                                array(                              // Object
+                        $unsubscriberUri => array (                 
+                            $nsDssn . 'subscribedTo' => array (     
+                                array(                              
                                     'type' => 'uri',
                                     'value' => $subUri
                                 )
