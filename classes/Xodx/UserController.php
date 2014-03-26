@@ -345,6 +345,9 @@
             $query.= '        ?subUri       dssn:subscriptionTopic <' . $feedUri . '> . ' . PHP_EOL;
             $query.= '}' . PHP_EOL;
             $subscribedResult = $model->sparqlQuery($query);
+
+            return count($subscribedResult);
+            // @todo ask Natanael about this 
                        
             if (count($subscribedResult) > 0) {
                 if (is_array($subscribedResult)) {
