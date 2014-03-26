@@ -19,13 +19,22 @@
                 $name = "unknown name";
             }
         ?>
+        <?php  ?>
         <strong><?= $name ?></strong><br />
         <a href="?c=person&amp;uri=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
-        <form method="post" action="?c=person&amp;a=delFriend">
+        <?php if($this->personUri == $this->logInUri): ?>
+        <form method="post" action="?c=person&amp;a=deleteFriend">
             <input type="hidden" name="person" value="<?= htmlentities($this->personUri) ?>" />
             <input type="hidden" name="friend" value="<?= $contact['contactUri'] ?>" />
             <button class="btn btn-block btn-danger" type="submit">Unfriend</button>
         </form>
+        <?php elseif($this->isHome): ?>
+        <form method="post" action="?c=person&amp;a=deleteFriend">
+            <input type="hidden" name="person" value="<?= htmlentities($this->personUri) ?>" />
+            <input type="hidden" name="friend" value="<?= $contact['contactUri'] ?>" />
+            <button class="btn btn-block btn-danger" type="submit">Unfriend</button>
+        </form>
+        <?php endif; ?>
     </address>
     <?php endforeach; ?>
 <?php endif; ?>

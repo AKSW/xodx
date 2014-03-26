@@ -15,24 +15,32 @@
         ?>
     </div>
     <div class="span3">
-        <?php if ($this->profileshowLoggedIn) : ?>
+        <?php if($this->isGuest || $this->isOwnProfile): ?>
+            <form method="post" action="?c=person&amp;a=addfriend">  
+                <input type="hidden" name="person" value="<?= htmlentities($this->profileshowLogInUri) ?>" />
+                <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
+                <button class="btn btn-block disabled" disabled="disabled" type="submit">Add <?= $this->profileshowName ?> as Friend</button>
+        <?php elseif ($this->knowsPerson) : ?>
+            <form method="post" action="?c=person&amp;a=deleteFriend">
+                <input type="hidden" name="person" value="<?= htmlentities($this->profileshowLogInUri) ?>" />
+                <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
+                <button class="btn btn-block btn-danger" type="submit">Unfriend</button>
+        <?php else : ?>       
             <form method="post" action="?c=person&amp;a=addfriend">  
                 <input type="hidden" name="person" value="<?= htmlentities($this->profileshowLogInUri) ?>" />
                 <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
                 <button class="btn btn-block" type="submit">Add <?= $this->profileshowName ?> as Friend</button>
-        <?php else : ?>
-            <form method="post" action="?c=person&amp;a=delFriend">
-                <input type="hidden" name="person" value="<?= htmlentities($this->profileshowLogInUri) ?>" />
-                <input type="hidden" name="friend" value="<?= htmlentities($this->profileshowPersonUri) ?>" />
-                <button class="btn btn-block btn-danger" type="submit">Unfriend</button>
         <?php endif; ?>
         </form>
         <a class="btn btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
         <hr />
+        
         <?php
             $this->partial(
                 'friendlist.phtml',
-                array('personUri' => $this->profileshowPersonUri, 'knows' => $this->profileshowKnows, 'addFriend' => false)
+                array('personUri' => $this->profileshowPersonUri, 
+                    'knows' => $this->profileshowKnows, 'addFriend' => false,
+                    'logInUri' => $this->profileshowLogInUri)
             );
         ?>
     </div>
