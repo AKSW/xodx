@@ -16,8 +16,6 @@
      * 
      * @author Natanael Arndt
      * @author Jan Buchholz
-     * 
-     * @todo Bug: having deleted a friend results in inability to friend anyone
      */
     class Xodx_UserController extends Xodx_ResourceController {
 
@@ -133,8 +131,8 @@
         public function subscribeToResource($subscriberUri, $resourceUri, $feedUri = null, $local = false) {
             $bootstrap = $this->_app->getBootstrap();
 
-            $model = $bootstrap->getResource('model');
-
+            $model = $bootstrap->getResource('model');           
+            
             if ($feedUri === null) {
                 $feedUri = $this->getActivityFeedUri($resourceUri);
             }
@@ -208,7 +206,7 @@
                             )
                         )
                     );
-
+                    $logger->test('subscribedTo');
                     $model->addMultipleStatements($subscription);
                     $model->addMultipleStatements($subscribeStatement);
                 }
@@ -347,7 +345,7 @@
             $query.= '        ?subUri       dssn:subscriptionTopic <' . $feedUri . '> . ' . PHP_EOL;
             $query.= '}' . PHP_EOL;
             $subscribedResult = $model->sparqlQuery($query);
-
+                       
             if (count($subscribedResult) > 0) {
                 if (is_array($subscribedResult)) {
                     // Erfurt problem
@@ -438,10 +436,8 @@
     {           
         
         // getResources & set namespaces
-        $bootstrap = $this->_app->getBootstrap();
-        $model = $bootstrap->getResource('model');
-        $nsDssn = 'http://purl.org/net/dssn/';
-
+        $bootstrap = $this->_app->getBootstrap();      
+        
         // Get Uri of friend's feed (if not given)
         if ($feedUri === null) {
             $feedUri = $this->getActivityFeedUri($resourceUri);
@@ -477,9 +473,7 @@
 
         // unsubscribe from feed given by $feedUri
         
-        // @todo reimplement _isSubscribed (seems to be buggy)
-        if ($this->_isSubscribed($unsubscriberUri, $feedUri)) {
-            
+        if ($this->_isSubscribed($unsubscriberUri, $feedUri)) {            
             // getResources
             $pushController = $this->_app->getController('Xodx_PushController');
                         
@@ -509,7 +503,7 @@
                 $cbUri = $this->_app->getBaseUri() . 'c=push&a=callback';
                 
                 /*
-                 * Add the following tripels:
+                 * delete the following tripels:
                  * ($subUri, type, Subscription)
                  * ($subUri, subscriptionCallback, $cbUri)
                  * ($subUri, subscriptionTopic, $feedUri)
@@ -528,9 +522,9 @@
                     )                    
                 );
                 
-                if (!$local) {                   
+                if (!$local) {
                     $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);       
-                    /* Add the following tripels:
+                    /* delete the following tripels:
                      * ($subUri, subscriptionHub, $feed->getLinkHub() )
                      * ($unsubscriberUri, subscribedTo, $subUri)
                      */
