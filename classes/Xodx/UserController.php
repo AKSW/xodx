@@ -535,17 +535,17 @@
                         'type'  => 'uri', 
                         'value' => $feed->getLinkHub()                        
                     );
-                    $subscribeStatementArray = array(
-                        $unsubscriberUri => array (                 
-                            $nsDssn . 'subscribedTo' => array (     
-                                array(                              
-                                    'type' => 'uri',
-                                    'value' => $subUri
-                                )
+                }
+                $subscribeStatementArray = array(
+                    $unsubscriberUri => array (                 
+                        $nsDssn . 'subscribedTo' => array (     
+                            array(                              
+                                'type' => 'uri',
+                                'value' => $subUri
                             )
                         )
-                    );
-                }
+                    )
+                );
                     $model->deleteMultipleStatements($subscriptionStatementsArray);
                     $model->deleteMultipleStatements($subscribeStatementArray);                
             }
