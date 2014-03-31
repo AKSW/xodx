@@ -303,11 +303,11 @@ class Xodx_PersonController extends Xodx_ResourceController
      * @param $contactUri the URI of the person who sould be added as friend
      */
     public function addFriend ($personUri, $contactUri)
-    {
+    {        
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
         $model  = $bootstrap->getResource('model');
-        $userController = $this->_app->getController('Xodx_UserController');
+        $userController = $this->_app->getController('Xodx_UserController');       
 
         $ldHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
         if (!$ldHelper->resourceDescriptionExists($contactUri)) {
@@ -364,16 +364,11 @@ class Xodx_PersonController extends Xodx_ResourceController
         if (!$ldHelper->resourceDescriptionExists($contactUri)) {
             throw new Exception('The WebID of your friend does not exist.');
         }
-//        @todo Update WebID
-//        $model->addStatement($personUri, 'http://xmlns.com/foaf/0.1/knows', array('type' => 'uri', 'value' => $contactUri));
-//
-//        $activityController = $this->_app->getController('Xodx_ActivityController');
-//
-        // delete Statement added by addFriend
+        // delete Statement added by addFriend ($personUri, knows, $contactUri)
         $statementArray = array (
-            $personUri => array (                               // Subject
-                'http://xmlns.com/foaf/0.1/knows' => array(     // Predicate
-                    array (                                     // Object
+            $personUri => array (                               
+                'http://xmlns.com/foaf/0.1/knows' => array(     
+                    array (                                     
                         'type'  => 'uri',
                         'value' => $contactUri
                     )

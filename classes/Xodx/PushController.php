@@ -1,4 +1,3 @@
-<?php
 /**
  * This file is part of the {@link http://aksw.org/Projects/Xodx Xodx} project.
  *
@@ -7,6 +6,9 @@
 
 /**
  * This class implements a pubsubhubbub publisher and subscriber
+ * 
+ * @author Natanael Arndt
+ * @author Jan Buchholz
  */
 class Xodx_PushController extends Saft_Controller
 {
@@ -281,58 +283,44 @@ class Xodx_PushController extends Saft_Controller
      *  http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.3.html#anchor5     
      * @param $feedUri Uri of the feed that is to be unsubscribed
      * @return boolean TRUE if unsubscription was successful, otherwise FALSE
-     * @throws Exception ...
+     * @throws Exception
      */
     public function unsubscribe ($feedUri)
     {
         
         // getResources
         $bootstrap = $this->_app->getBootstrap();
-        $logger = $bootstrap->getResource('logger');
-        $store = $bootstrap->getResource('store');
+        $logger = $bootstrap->getResource('logger');        
         $model = $bootstrap->getResource('model');
         $config = $bootstrap->getResource('config');
-        $graphUri = $model->getModelIri();
         
-        // TODO implement events
-        // TODO check if we are already subscribed to this feed
-        // ensure that user is actually subscribed to given feed
-//        @todo reimplement _isSubscribed (seems to be buggy)
-//        if ($this->_isSubscribed($feedUri) && $config['push.enable']) {            
+        if ($this->_isSubscribed($feedUri) && $config['push.enable']) {            
             // fetch feed, get hub url, unsubscribe from hub
                         
             // open cURL
             $curlHandler = curl_init();
-
             // set url
             curl_setopt($curlHandler, CURLOPT_URL, $feedUri);
-            // @todo check what's done here
             curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
-
             // execute request
             $feedResult = curl_exec($curlHandler);
             // fetch HTTP status code (2xx ideal)
             $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
-            
-            // TODO check if we should better use the feedUri and ignorre the effective url
-            // @todo check what's done here
+            // get effective url
             $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
-
+            // close cURL
+            curl_close($curlHandler);
+            
             // Logging
             $logger->info('push unsubscribe: return code from feed: ' . $httpCode);
 
-            // close cURL
-            curl_close($curlHandler);
-
             // fetch errors
             if ($httpCode-($httpCode%100) == 200) {
-                // @todo check what's done here
                 $xml = simplexml_load_string($feedResult);
 
                 // fetch Url of hub
                 $hubUrl = null;
-
                 if (count($xml) < 1) {
                     throw new Exception('Feed is empty');
                 } else {
@@ -341,9 +329,6 @@ class Xodx_PushController extends Saft_Controller
                         $attributes = $link->attributes();
                         if ($attributes['rel'] == 'hub') {
                             $hubUrl = (string) $attributes['href'];
-                            // @todo ?? $debugArray never called
-                            $debugArray[] = 'hub found at: ' . $hubUrl;
-                            // TODO: maybe we could use multiple hubs if more than one is specified
                             break;
                         }
                     }
@@ -351,12 +336,12 @@ class Xodx_PushController extends Saft_Controller
                 
                 // Logging
                 $logger->info('push unsubscribe: hub: ' . $hubUrl . ', callbackUrl: ' . $this->_callbackUrl);
-
+                
                 if ($hubUrl !== null) {                   
                     // unsubscribe from hub
                     $postData = array(
                         'hub.callback' => urlencode($this->_callbackUrl),
-                        'hub.mode' => 'unsubscribe', // only difference from subscribe
+                        'hub.mode' => 'unsubscribe',
                         'hub.topic' => urlencode($topicUri),
                         'hub.verify' => 'async'
                     );                    
@@ -369,21 +354,17 @@ class Xodx_PushController extends Saft_Controller
 
                     // create cURL
                     $curlHandler = curl_init();
-
                     // set url
                     curl_setopt($curlHandler, CURLOPT_URL, $hubUrl);
                     // send HTTP-POST-request along
                     curl_setopt($curlHandler, CURLOPT_POST, true);
-                    curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $postString);
-                    // @todo check what's done here
+                    curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $postString);                    
                     curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
                     curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
-
                     // execute request
                     $unsubscriptionResult = curl_exec($curlHandler);
                     // fetch HTTP status code (2xx ideal)
                     $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
-
                     // close cURL
                     curl_close($curlHandler);
 
@@ -392,24 +373,17 @@ class Xodx_PushController extends Saft_Controller
                         'push unsubscribe: return code from hub: ' . $httpCode .
                         ', result: ' . $unsubscriptionResult
                     );
+                    
                     // fetch errors
                     if (($httpCode - ($httpCode % 100)) != 200) {
                         throw new Exception('Unsubscription from hub failed');
                     } else {
-                        $nsDssn = 'http://purl.org/net/dssn/';                        
-//                      @todo deleteStatement                        
-//                        // hub that should be deleted by deleteStatement
-//                        $hubObj = array(
-//                            'type' => 'uri',
-//                            'value' => $hubUrl
-//                        );
-//
-//                        $store->addStatement($graphUri, $feedUri, $nsDssn . 'subscribedAt', $hubObj);
-                        // delete Statement
+                        $nsDssn = 'http://purl.org/net/dssn/';
+                        // delete Statement ($feedUri, subscribedAt, $hubUrl)
                         $statementArray = array(
-                            $feedUri => array(                          // Subject
-                                $nsDssn . 'subscribedAt' => array (     // Predicate
-                                    array(                              // Object
+                            $feedUri => array(                          
+                                $nsDssn . 'subscribedAt' => array (
+                                    array(                              
                                     'type'  => 'uri',
                                     'value' => $hubUrl
                                     )
@@ -426,7 +400,7 @@ class Xodx_PushController extends Saft_Controller
                 $logger->info('push unsubscribe: unsubscription error: ' . $feedResult);
                 throw new Exception('Error when requesting feed');
             }
-//        }
+        }
         // Logging
         $logger->info('push unsubscribe: unsubscription successful');
 
