@@ -1,3 +1,4 @@
+<?php
 /**
  * This file is part of the {@link http://aksw.org/Projects/Xodx Xodx} project.
  *
