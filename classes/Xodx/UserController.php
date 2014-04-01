@@ -206,7 +206,6 @@
                             )
                         )
                     );
-                    $logger->test('subscribedTo');
                     $model->addMultipleStatements($subscription);
                     $model->addMultipleStatements($subscribeStatement);
                 }
