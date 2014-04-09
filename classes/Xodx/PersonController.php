@@ -303,11 +303,11 @@ class Xodx_PersonController extends Xodx_ResourceController
      * @param $contactUri the URI of the person who sould be added as friend
      */
     public function addFriend ($personUri, $contactUri)
-    {        
+    {
         $bootstrap = $this->_app->getBootstrap();
         $logger = $bootstrap->getResource('logger');
         $model  = $bootstrap->getResource('model');
-        $userController = $this->_app->getController('Xodx_UserController');       
+        $userController = $this->_app->getController('Xodx_UserController');
 
         $ldHelper = $this->_app->getHelper('Saft_Helper_LinkeddataHelper');
         if (!$ldHelper->resourceDescriptionExists($contactUri)) {

@@ -15,7 +15,7 @@ class Xodx_PushController extends Saft_Controller
 {
 
     private $_callbackUrl;
-    private $_defaultHubUrl;   
+    private $_defaultHubUrl;
 
     public function __construct ($app)
     {
@@ -46,6 +46,7 @@ class Xodx_PushController extends Saft_Controller
         // TODO implement events
         // TODO check if we are already subscribed to this feed
         if (!$this->_isSubscribed($feedUri) && $config['push.enable']) {
+
             // else fetch feed, get hub url, subscribe to the hub
             $curlHandler = curl_init();
 

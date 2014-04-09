@@ -61,11 +61,12 @@
     <div class="span3">
         <a class="btn btn-block" href="?c=feed&amp;a=getFeed&amp;uri=<?= urlencode($this->profileshowPersonUri) ?>">Show Activity Feed</a>
         <hr />
-
         <?php
             $this->partial(
                 'friendlist.phtml',
-                array('personUri' => $this->profileshowPersonUri, 'knows' => $this->profileshowKnows, 'addFriend' => true, 'logInUri' => $this->profileshowLogInUri, 'isHome' => true)
+                array('personUri' => $this->profileshowPersonUri, 
+                    'knows' => $this->profileshowKnows, 'addFriend' => true, 
+                    'logInUri' => $this->profileshowLogInUri, 'isHome' => true)
             );
         ?>
     </div>

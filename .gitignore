@@ -4,3 +4,4 @@ resources/bootstrap/
 resources/jquery/
 xodx.log
 config.ini
+.odbc.ini
