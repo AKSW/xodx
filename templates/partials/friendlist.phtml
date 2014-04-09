@@ -19,7 +19,6 @@
                 $name = "unknown name";
             }
         ?>
-        <?php  ?>
         <strong><?= $name ?></strong><br />
         <a href="?c=person&amp;uri=<?= urlencode($contact['contactUri']) ?>"><?= $contact['contactUri'] ?></a>
         <?php if($this->personUri == $this->logInUri): ?>

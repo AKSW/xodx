@@ -203,7 +203,6 @@ class Xodx_UserController extends Xodx_ResourceController
                 if (!$local) {
                     $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);
 
-                    $logger->debug('feed,' . var_dump($feed));
                     $subscription[$subUri][$nsDssn . 'subscriptionHub'][] = array(
                         'type' => 'uri', 'value' => $feed->getLinkHub()
                     );
@@ -219,7 +218,6 @@ class Xodx_UserController extends Xodx_ResourceController
 
                 $model->addMultipleStatements($subscription);
                 $model->addMultipleStatements($subscribeStatement);
-                $logger->debug('statements: ' . var_dump($subscription) . '     ' . var_dump($subscribeStatement));
             }
         }
     }
