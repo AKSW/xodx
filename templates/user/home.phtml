@@ -64,7 +64,9 @@
         <?php
             $this->partial(
                 'friendlist.phtml',
-                array('personUri' => $this->profileshowPersonUri, 'knows' => $this->profileshowKnows, 'addFriend' => true)
+                array('personUri' => $this->profileshowPersonUri, 
+                    'knows' => $this->profileshowKnows, 'addFriend' => true, 
+                    'logInUri' => $this->profileshowLogInUri, 'isHome' => true)
             );
         ?>
     </div>

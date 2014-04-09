@@ -12,7 +12,11 @@ require_once('password_compat/lib/password.php');
  * This class manages instances of Xodx_User.
  * this includes:
  *  - subscribing to a feed
+ *  - unsubscribing from a feed
  *  - getting notifications
+ * 
+ * @author Natanael Arndt
+ * @author Jan Buchholz
  */
 class Xodx_UserController extends Xodx_ResourceController
 {
@@ -356,6 +360,9 @@ class Xodx_UserController extends Xodx_ResourceController
         $query.= '}' . PHP_EOL;
         $subscribedResult = $model->sparqlQuery($query);
 
+        return count($subscribedResult);
+        // @todo ask Natanael about this 
+
         if (count($subscribedResult) > 0) {
             if (is_array($subscribedResult)) {
                 // Erfurt problem
@@ -435,4 +442,130 @@ class Xodx_UserController extends Xodx_ResourceController
 
         return $subscribedResources;
     }
+
+/**
+ * Unsubscribes a user from a resource
+ * 
+ * @param type $unsubscriberUri Uri of the person who wants to unsubscribe from a resource
+ * @param type $resourceUri Uri of the resource that ist to be unsubscribed
+ * @param type $feedUri Feed of the given resource
+ * @param type $local Indicates whether the resource is stored locally
+ */
+public function unsubscribeFromResource ($unsubscriberUri, $resourceUri, $feedUri = null, $local = false) 
+{           
+
+    // getResources & set namespaces
+    $bootstrap = $this->_app->getBootstrap();      
+
+    // Get Uri of friend's feed (if not given)
+    if ($feedUri === null) {
+        $feedUri = $this->getActivityFeedUri($resourceUri);
+    }
+
+    $this->_unsubscribeFromFeed($unsubscriberUri, $feedUri, $local);
+}
+
+/**
+ * Unsubscribes a user from a feed (he is subscribed to)
+ * 
+ * @param type $unsubscriberUri Uri of the person who wants to unsubscribe from a feed
+ * @param type $feedUri Uri of the feed that ist to be unsubscribed
+ * @param type $local $local Indicates whether the feed is stored locally
+ */
+private function _unsubscribeFromFeed ($unsubscriberUri, $feedUri, $local = false) 
+{       
+
+    // getResources & set namespaces
+    $bootstrap = $this->_app->getBootstrap();
+    $logger = $bootstrap->getResource('logger');
+    $resourceController = $this->_app->getController('Xodx_ResourceController');        
+    $nsFoaf = 'http://xmlns.com/foaf/0.1/';
+
+    // getUserUri of unsubscriber (if not already given)
+    $type = $resourceController->getType($unsubscriberUri);                
+    if ($type === $nsFoaf . 'Person') {
+        $unsubscriberUri = $this->getUserUri($unsubscriberUri);
+    }
+
+    // Logging
+    $logger->info('unsubscribeFromFeed: user: ' . $unsubscriberUri . ', feed: ' . $feedUri);
+
+    // unsubscribe from feed given by $feedUri
+
+    if ($this->_isSubscribed($unsubscriberUri, $feedUri)) {            
+        // getResources
+        $pushController = $this->_app->getController('Xodx_PushController');
+
+        if ($local || $pushController->unsubscribe($feedUri)) { // this unsubscribes the user from the feed                               
+
+            // getResources & set namespaces
+            $model = $bootstrap->getResource('model');              
+            $nsDssn = 'http://purl.org/net/dssn/';
+            $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+
+            /*
+             * get $subUri from DB
+             * $subUri is a randomly created Uri used to identify the connection to the feed (see _subscribeToFeed)
+             */
+            $subUriQuery  = 'PREFIX dssn: <' . $nsDssn . '>' . PHP_EOL;
+            $subUriQuery .= 'SELECT ?subUri' . PHP_EOL;
+            $subUriQuery .= 'WHERE {' . PHP_EOL;
+            $subUriQuery .= '?subUri dssn:subscriptionTopic <' . $feedUri . '> .' . PHP_EOL;
+            $subUriQuery .= '}';
+            // execute Query and extract $subUri
+            $result = $model->sparqlQuery($subUriQuery);
+            if (count($result) > 0) {
+                $subUri = $result[0]['subUri'];
+            } else {
+                throw Exception('Could not find subUri');
+            }                
+            $cbUri = $this->_app->getBaseUri() . 'c=push&a=callback';
+
+            /*
+             * delete the following tripels:
+             * ($subUri, type, Subscription)
+             * ($subUri, subscriptionCallback, $cbUri)
+             * ($subUri, subscriptionTopic, $feedUri)
+             */
+            $subscriptionStatementsArray = array(
+                $subUri => array(
+                    $nsRdf . 'type' => array(
+                        array('type' => 'uri', 'value' => $nsDssn . 'Subscription')
+                    ),
+                    $nsDssn . 'subscriptionCallback' => array(
+                        array('type' => 'uri', 'value' => $cbUri)
+                    ),
+                    $nsDssn . 'subscriptionTopic' => array(
+                        array('type' => 'uri', 'value' => $feedUri)
+                    )
+                )                    
+            );
+
+            if (!$local) {
+                $feed = DSSN_Activity_Feed_Factory::newFromUrl($feedUri);       
+                /* delete the following tripels:
+                 * ($subUri, subscriptionHub, $feed->getLinkHub() )
+                 * ($unsubscriberUri, subscribedTo, $subUri)
+                 */
+                $subscriptionStatementsArray[$subUri][$nsDssn . 'subscriptionHub'][] = array(
+                    'type'  => 'uri', 
+                    'value' => $feed->getLinkHub()                        
+                );
+            }
+            $subscribeStatementArray = array(
+                $unsubscriberUri => array (                 
+                    $nsDssn . 'subscribedTo' => array (     
+                        array(                              
+                            'type' => 'uri',
+                            'value' => $subUri
+                        )
+                    )
+                )
+            );
+                $model->deleteMultipleStatements($subscriptionStatementsArray);
+                $model->deleteMultipleStatements($subscribeStatementArray);                
+        }
+    }
+}
+
 }

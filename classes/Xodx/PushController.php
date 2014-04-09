@@ -7,6 +7,9 @@
 
 /**
  * This class implements a pubsubhubbub publisher and subscriber
+ * 
+ * @author Natanael Arndt
+ * @author Jan Buchholz
  */
 class Xodx_PushController extends Saft_Controller
 {
@@ -274,4 +277,136 @@ class Xodx_PushController extends Saft_Controller
         //return $feedURI;
         return false;
     }
+    
+    /**
+     * Unsubscription method. This is called when a component does no longer want to be
+     * notified on updates of a feed
+     * This method implements section 6.1 of the pubsubhubbub spec:
+     *  http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.3.html#anchor5     
+     * @param $feedUri Uri of the feed that is to be unsubscribed
+     * @return boolean TRUE if unsubscription was successful, otherwise FALSE
+     * @throws Exception
+     */
+    public function unsubscribe ($feedUri)
+    {
+        
+        // getResources
+        $bootstrap = $this->_app->getBootstrap();
+        $logger = $bootstrap->getResource('logger');        
+        $model = $bootstrap->getResource('model');
+        $config = $bootstrap->getResource('config');
+        
+        if ($this->_isSubscribed($feedUri) && $config['push.enable']) {            
+            // fetch feed, get hub url, unsubscribe from hub
+                        
+            // open cURL
+            $curlHandler = curl_init();
+            // set url
+            curl_setopt($curlHandler, CURLOPT_URL, $feedUri);
+            curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
+            // execute request
+            $feedResult = curl_exec($curlHandler);
+            // fetch HTTP status code (2xx ideal)
+            $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
+            // get effective url
+            $topicUri = curl_getinfo($curlHandler, CURLINFO_EFFECTIVE_URL);
+            // close cURL
+            curl_close($curlHandler);
+            
+            // Logging
+            $logger->info('push unsubscribe: return code from feed: ' . $httpCode);
+
+            // fetch errors
+            if ($httpCode-($httpCode%100) == 200) {
+                $xml = simplexml_load_string($feedResult);
+
+                // fetch Url of hub
+                $hubUrl = null;
+                if (count($xml) < 1) {
+                    throw new Exception('Feed is empty');
+                } else {
+                    // search $feedUri for hubUrl
+                    foreach ($xml->link as $link) {
+                        $attributes = $link->attributes();
+                        if ($attributes['rel'] == 'hub') {
+                            $hubUrl = (string) $attributes['href'];
+                            break;
+                        }
+                    }
+                }
+                
+                // Logging
+                $logger->info('push unsubscribe: hub: ' . $hubUrl . ', callbackUrl: ' . $this->_callbackUrl);
+                
+                if ($hubUrl !== null) {                   
+                    // unsubscribe from hub
+                    $postData = array(
+                        'hub.callback' => urlencode($this->_callbackUrl),
+                        'hub.mode' => 'unsubscribe',
+                        'hub.topic' => urlencode($topicUri),
+                        'hub.verify' => 'async'
+                    );                    
+                    // create $postString: HTTP-POST-request asking the hub to unsubscribe me
+                    $postString = '';
+                    foreach ($postData as $key => $value) {
+                        $postString .= $key . '=' . $value . '&';
+                    }
+                    rtrim($postString, '&');
+
+                    // create cURL
+                    $curlHandler = curl_init();
+                    // set url
+                    curl_setopt($curlHandler, CURLOPT_URL, $hubUrl);
+                    // send HTTP-POST-request along
+                    curl_setopt($curlHandler, CURLOPT_POST, true);
+                    curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $postString);                    
+                    curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, true);
+                    curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
+                    // execute request
+                    $unsubscriptionResult = curl_exec($curlHandler);
+                    // fetch HTTP status code (2xx ideal)
+                    $httpCode = curl_getinfo($curlHandler, CURLINFO_HTTP_CODE);
+                    // close cURL
+                    curl_close($curlHandler);
+
+                    // Logging
+                    $logger->info(
+                        'push unsubscribe: return code from hub: ' . $httpCode .
+                        ', result: ' . $unsubscriptionResult
+                    );
+                    
+                    // fetch errors
+                    if (($httpCode - ($httpCode % 100)) != 200) {
+                        throw new Exception('Unsubscription from hub failed');
+                    } else {
+                        $nsDssn = 'http://purl.org/net/dssn/';
+                        // delete Statement ($feedUri, subscribedAt, $hubUrl)
+                        $statementArray = array(
+                            $feedUri => array(                          
+                                $nsDssn . 'subscribedAt' => array (
+                                    array(                              
+                                    'type'  => 'uri',
+                                    'value' => $hubUrl
+                                    )
+                                )
+                            )
+                        );
+                        $model->deleteMultipleStatements($statementArray);
+                    }
+                } else {
+                    throw new Exception('No hub found in feed');
+                }
+            } else {
+                // Logging
+                $logger->info('push unsubscribe: unsubscription error: ' . $feedResult);
+                throw new Exception('Error when requesting feed');
+            }
+        }
+        // Logging
+        $logger->info('push unsubscribe: unsubscription successful');
+
+        return true;
+    }    
+    
 }
