@@ -224,11 +224,15 @@ class Xodx_ApplicationController extends Saft_Controller
     {
         $this->login('guest');
 
+		//delete the tokens of this session
+		$oauthController = $this->_app->getController('Xodx_Oauth2Controller');
+		$oauthController->deleteTokens();
+
         $template->disableLayout();
         $template->setRawContent('');
 
         $location = new Saft_Url($this->_app->getBaseUri());
-        $location->setParameter('c', 'application');
+        $location->setParameter('c', 'oauth2'); //changed from $location->setParameter('c', 'application');
         $location->setParameter('a', 'login');
 
         $template->redirect($location);
@@ -290,6 +294,7 @@ class Xodx_ApplicationController extends Saft_Controller
             $userController = $this->_app->getController('Xodx_UserController');
 
             if ($username == 'guest') {
+
                 $_SESSION['username'] = $username;
                 $_SESSION['logedin'] = false;
 

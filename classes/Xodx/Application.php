@@ -15,7 +15,7 @@ class Xodx_Application extends Saft_Application
 
             $appController = $this->getController('Xodx_ApplicationController');
             $appController->authenticate();
-
+			
             /**
              * Prepare Template
              */
@@ -35,11 +35,16 @@ class Xodx_Application extends Saft_Application
             } else {
                 $requestAction = 'index';
             }
-
+				
             $controllerName = $this->_appNamespace . $requestController . 'Controller';
 
             $actionName = $requestAction . 'Action';
             $controller = $this->getController($controllerName);
+			
+			//check for token
+			$oauthController = $this->getController('Xodx_Oauth2Controller');
+			$oauthController->validate($controller);
+
             $this->_layout = $controller->$actionName($this->_layout);
 
             $userController = $this->getController('Xodx_UserController');

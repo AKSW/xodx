@@ -17,7 +17,7 @@ class Xodx_IndexController extends Saft_Controller
         $location = new Saft_Url($this->_app->getBaseUri());
 
         if ($user->getName() == 'guest') {
-            $location->setParameter('c', 'application');
+            $location->setParameter('c', 'oauth2');
             $location->setParameter('a', 'login');
         } else {
             $location->setParameter('c', 'user');
