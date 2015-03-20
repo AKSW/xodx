@@ -237,6 +237,7 @@ class Xodx_UserController extends Xodx_ResourceController
             $model = $bootstrap->getResource('model');
 
             $query = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> ' . PHP_EOL;
+            $query = 'PREFIX sioc: <http://rdfs.org/sioc/ns#> ' . PHP_EOL;
             $query.= 'SELECT ?name ?person' . PHP_EOL;
             $query.= 'WHERE {' . PHP_EOL;
             $query.= '  <' . $userUri . '> foaf:accountName ?name ;' . PHP_EOL;
