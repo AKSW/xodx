@@ -12,74 +12,90 @@
  */
 class Xodx_StatController extends Saft_Controller
 {
-    /**
-     * This is the username of the currently logedin user
-     */
-    private $_user;
 
-
-    private function getObsId($user){
-        return $user.'observation-'.md5(rand());
-    }
-    /*
-     * function to generate turtle code for the observation part of the datacube
-     * TODO finish
-    */
-    private function buildObservationTTL($id,$dataset,$value){
-        return "";
-    }
     /**
      * Function to request a turtle representation of all currently available Observations
      * @return string
      */
     public function getStatsAction ($template){
 //TODO nach User fragen.
-        $user = "?user";
-
         //setting up user and userUri
 //        $applicationController = $this->_app->getController('Xodx_ApplicationController');
 //        $userId = $applicationController->getUser();
 //        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;   
 //        echo $userId;
+        $user = "http://localhost/workspace/dssn/xodx/?c=person&id=Franz";      
+        $time = "1";
 
-        echo "Observation : ".$this->getObsId($user);
+        //initiate observationString
+        $observationString = "";
+
         // - followers
         $dataset = "xo:dataset-xoFollower";
-        $followers = $this->getFollowers($user);
-        echo "Followers = ".$followers."\n";
-
-//TODO        
+        $measureProperty = "xo:follower";
+        $value = $this->getFollowers($user);
+        $observationString .= $this->buildObservation(
+                                            $this->getObsId($time),
+                                            $dataset,
+                                            $user,
+                                            $measureProperty,
+                                            $time,
+                                            $value); 
     // get messages sent
-
         $dataset = "xo:dataset-xoOUT";
-
+        $measureProperty = "xo:outgoingMessages";
+        $value = $this->getSentMessages($user);
+        $observationString .= $this->buildObservation(
+                                            $this->getObsId($time),
+                                            $dataset,
+                                            $user,
+                                            $measureProperty,
+                                            $time,
+                                            $value);
     // get messages received
         $dataset = "xo:dataset-xoIN";
+        $measureProperty = "xo:receivedMessages";
+        $value = $this->getReceivedMessages($user);
+        $observationString .= $this->buildObservation(
+                                            $this->getObsId($time),
+                                            $dataset,
+                                            $user,
+                                            $measureProperty,
+                                            $time,
+                                            $value);
 
     // get stored triples
         $dataset = "xo:dataset-xoTriples";
-        $triples = $this->getTriples();
-        echo "Triples = ".$triples."\n";
+        $measureProperty = "xo:triples";
+        $value = $this->getTriples();
+        $observationString .= $this->buildObservation(
+                                            $this->getObsId($time),
+                                            $dataset,
+                                            $user,
+                                            $measureProperty,
+                                            $time,
+                                            $value);
     // - size in kb? - no
     // - Access Time in microseconds?
 //TODO END
 
-//        $template->disableLayout();
-//        $template->setRawContent($output);
+        $template->disableLayout();
+        $template->setRawContent($observationString);
 
-//        return $template;
+        return $template;
     }
     
     private function getFollowers($user){
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         // SPARQL-Query
-        $query = 'SELECT COUNT(*) WHERE {'.$user.' <http://purl.org/net/dssn/subscribedTo> ?feed}';
+        // maybe use <http://purl.org/net/dssn/subscribedTo> ?
+        $query = 'SELECT COUNT(*) WHERE {<'.$user.'> <http://xmlns.com/foaf/0.1/knows> ?x}';
 
         $resultset = $model->sparqlQuery($query);
         $countResult = $resultset[0]['callret-0'];
         
-        return $countResult;
+        return ($countResult?$countResult:0);
 
     }
 
@@ -87,18 +103,34 @@ class Xodx_StatController extends Saft_Controller
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         // SPARQL-Query
-        //http://xmlns.notu.be/aair#activityVerb	http://xmlns.notu.be/aair#Post
-        //http://xmlns.notu.be/aair#activityVerb	http://xmlns.notu.be/aair#Share
-        // http://xmlns.notu.be/aair#activityActor ?user
-        $query = 'SELECT COUNT(*) WHERE {'.$user.' <http://purl.org/net/dssn/subscribedTo> ?feed}';
+        $query = 'SELECT COUNT(*) WHERE {';
+        $query .= '         ?x a <http://xmlns.notu.be/aair#Activity>.';
+        $query .= '         ?x <http://xmlns.notu.be/aair#activityVerb> <http://xmlns.notu.be/aair#Post>.';
+        $query .= '         ?x <http://xmlns.notu.be/aair#activityActor> <'.$user.'>';
+        $query .= '}';
+
+        $resultset = $model->sparqlQuery($query);
         $countResult = $resultset[0]['callret-0'];
         
-        return $countResult;
+        return ($countResult?$countResult:0);
 
     }
-    private function getReceivedMessages(){
+    private function getReceivedMessages($user){
 
-    return 0;
+        $bootstrap = $this->_app->getBootstrap();
+        $model = $bootstrap->getResource('model');
+        // SPARQL-Query
+        $query = 'SELECT COUNT(*) WHERE {';
+        $query .= '         ?x a <http://xmlns.notu.be/aair#Activity>.';
+        $query .= '         ?x <http://xmlns.notu.be/aair#activityVerb> <http://xmlns.notu.be/aair#Post>.';
+        $query .= '         ?x <http://xmlns.notu.be/aair#activityActor> ?u.';
+        $query .= '       <'.$user.'> <http://xmlns.com/foaf/0.1/knows> ?u';
+        $query .= '}';
+
+        $resultset = $model->sparqlQuery($query);
+        $countResult = $resultset[0]['callret-0'];
+        
+        return ($countResult?$countResult:0);
     }
     private function getTriples(){
         $bootstrap = $this->_app->getBootstrap();
@@ -116,7 +148,6 @@ class Xodx_StatController extends Saft_Controller
         $model = $bootstrap->getResource('model');        
         $query = 'SELECT * WHERE {?s ?p ?o}';
         $resultset = $model->sparqlQuery($query);
-        
 
         echo "<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>";
         foreach($resultset as $line){
@@ -127,9 +158,24 @@ class Xodx_StatController extends Saft_Controller
             echo "<tr>";
         }
         echo "</table>";
+    }
 
+    private function getObsId($x){
+        return 'xo:observation-'.$x.'-'.md5(rand());
+    }
 
-
+    /**
+     * function to generate turtle code for the observation part of the datacube
+     */
+    private function buildObservation($id,$dataset,$user,$measureProperty,$time,$value){
+        $observationString = "";
+        $observationString .= $id." a qb:Observation;".PHP_EOL;
+        $observationString .= "qb:dataSet ".$dataset.";".PHP_EOL;
+        $observationString .= "xo:refAgent <".$user.">;".PHP_EOL;
+        $observationString .= "xo:refTime ".$time.";".PHP_EOL;
+        $observationString .= $measureProperty." ".$value.";".PHP_EOL;
+        $observationString .= ".".PHP_EOL;
+        return $observationString;
     }
 
 }
