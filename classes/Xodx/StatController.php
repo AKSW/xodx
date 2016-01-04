@@ -18,7 +18,6 @@ class Xodx_StatController extends Saft_Controller
      * @return string
      */
     public function getStatsAction ($template){
-//TODO nach User fragen.
         //setting up user and userUri
 //        $applicationController = $this->_app->getController('Xodx_ApplicationController');
 //        $userId = $applicationController->getUser();
@@ -75,10 +74,21 @@ class Xodx_StatController extends Saft_Controller
                                             $measureProperty,
                                             $time,
                                             $value);
-    // - size in kb? - no
-    // - Access Time in microseconds?
-//TODO END
-
+    // - Access Time in microseconds
+        $starttime = microtime(true);
+        //TODO
+        usleep(100);
+        $endtime = microtime(true);
+        $dataset = "xo:dataset-xoAccess";
+        $measureProperty = "xo:Access";
+        $value = $endtime - $starttime;
+        $observationString .= $this->buildObservation(
+                                            $this->getObsId($time),
+                                            $dataset,
+                                            $user,
+                                            $measureProperty,
+                                            $time,
+                                            $value);
         $template->disableLayout();
         $template->setRawContent($observationString);
 
@@ -177,5 +187,4 @@ class Xodx_StatController extends Saft_Controller
         $observationString .= ".".PHP_EOL;
         return $observationString;
     }
-
 }
