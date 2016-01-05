@@ -17,15 +17,14 @@ class Xodx_StatController extends Saft_Controller
      * Function to request a turtle representation of all currently available Observations
      * @return string
      */
-    public function getStatsAction ($template){
-        //setting up user and userUri
-//        $applicationController = $this->_app->getController('Xodx_ApplicationController');
-//        $userId = $applicationController->getUser();
-//        $userUri = $this->_app->getBaseUri() . '?c=user&id=' . $userId;   
-//        echo $userId;
-        $user = "http://localhost/workspace/dssn/xodx/?c=person&id=Franz";      
-        $time = "1";
+    public function getStatsAction ($template, $user = null, $time = null){
 
+        //setting up time and user
+        $bootstrap = $this->_app->getBootstrap();
+        $request = $bootstrap->getResource('request');    
+        $time = $request->getValue('time');
+        $user = urldecode($request->getValue('user'));
+ 
         //initiate observationString
         $observationString = "";
 
@@ -40,7 +39,7 @@ class Xodx_StatController extends Saft_Controller
                                             $measureProperty,
                                             $time,
                                             $value); 
-    // get messages sent
+        // get messages sent
         $dataset = "xo:dataset-xoOUT";
         $measureProperty = "xo:outgoingMessages";
         $value = $this->getSentMessages($user);
@@ -51,7 +50,7 @@ class Xodx_StatController extends Saft_Controller
                                             $measureProperty,
                                             $time,
                                             $value);
-    // get messages received
+        // get messages received
         $dataset = "xo:dataset-xoIN";
         $measureProperty = "xo:receivedMessages";
         $value = $this->getReceivedMessages($user);
@@ -62,8 +61,7 @@ class Xodx_StatController extends Saft_Controller
                                             $measureProperty,
                                             $time,
                                             $value);
-
-    // get stored triples
+        // get stored triples
         $dataset = "xo:dataset-xoTriples";
         $measureProperty = "xo:triples";
         $value = $this->getTriples();
@@ -74,14 +72,10 @@ class Xodx_StatController extends Saft_Controller
                                             $measureProperty,
                                             $time,
                                             $value);
-    // - Access Time in microseconds
-        $starttime = microtime(true);
-        //TODO
-        usleep(100);
-        $endtime = microtime(true);
+        // get Access Time in microseconds
         $dataset = "xo:dataset-xoAccess";
         $measureProperty = "xo:Access";
-        $value = $endtime - $starttime;
+        $value = $this->getAccessTime($user);
         $observationString .= $this->buildObservation(
                                             $this->getObsId($time),
                                             $dataset,
@@ -89,6 +83,7 @@ class Xodx_StatController extends Saft_Controller
                                             $measureProperty,
                                             $time,
                                             $value);
+
         $template->disableLayout();
         $template->setRawContent($observationString);
 
@@ -174,6 +169,23 @@ class Xodx_StatController extends Saft_Controller
         return 'xo:observation-'.$x.'-'.md5(rand());
     }
 
+    private function getAccessTime($user){
+        $starttime = microtime(true);
+
+        $client = new Zend_Http_Client();
+        $client->setUri($this->_app->getBaseUri());
+        $client->setParameterGet(array(
+            'c'  => 'feed',
+            'a' => 'getFeed',
+            'uri' => $user,
+        ));
+        $response = $client->request();
+        $feed = $response->getBody();
+
+        $endtime = microtime(true);
+        return $endtime - $starttime;
+    }
+
     /**
      * function to generate turtle code for the observation part of the datacube
      */
@@ -187,4 +199,5 @@ class Xodx_StatController extends Saft_Controller
         $observationString .= ".".PHP_EOL;
         return $observationString;
     }
+
 }
