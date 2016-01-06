@@ -131,9 +131,16 @@ class Xodx_PersonController extends Xodx_ResourceController
         $model = $bootstrap->getResource('model');
         $request = $bootstrap->getResource('request');
 
-        $objectId = $request->getValue('id', 'get');
+
+        $personUri  = $request->getValue('uri', 'get');
+        $id         = $request->getValue('id', 'get');
         $controller = $request->getValue('c', 'get');
-        $personUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $objectId;
+
+        // get URI
+        if ($id !== null) {
+            $personUri = $this->_app->getBaseUri() . '?c=' . $controller . '&id=' . $id;
+        }
+
         $documentUri = new Saft_Url($request);
 
         $mimetypeHelper = $this->_app->getHelper('Saft_Helper_MimetypeHelper');
