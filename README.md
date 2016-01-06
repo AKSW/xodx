@@ -20,7 +20,7 @@ Because this software is written in PHP you'll need php (>= 5.3.7) with the bind
 Take the prepared `config.ini-dist` file, copy it to `config.ini` and configure it according to your system setup.
 If you have an OntoWiki runnnig you can copy the database connection section (`store.*`) into the `config.ini` of xodx.
 To import the initial base ontology for Erfurt you have to allow virtuoso to read the xodx directory.
-You can configure this by adding the directory to `DirsAllowed` in your `virtuoso.ini` (on debian systems you can find it at `/etc/virtuoso-opensource-6.1/virtuoso.ini`).
+You can configure this by adding the directory to `DirsAllowed` in your `virtuoso.ini` (on debian systems you can find it at `/etc/virtuoso-opensource-6.1/virtuoso.ini`, if you are using the debian packages; or `/var/lib/virtuoso/db/virtuoso.ini`, if you are using the lod2 package or if you have build virtuoso from the source).
 
 ### Erfurt, lib-dssn and Saft
 Run `make submodules` to clone Erfurt, lib-dssn-php and Saft.
