@@ -1,7 +1,7 @@
 # vim: set ai ts=4 sw=4 et!:
 
 # Set Zend and bootstrap version
-ZENDVERSION=1.12.0
+ZENDVERSION=1.12.17
 TWBSVERSION=2.3.2
 
 TW_BOOTSTRAP_SRC='http://getbootstrap.com/${TWBSVERSION}/assets/bootstrap.zip'
