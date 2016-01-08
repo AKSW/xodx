@@ -164,8 +164,8 @@ class Xodx_ResourceController extends Saft_Controller
 
     /**
      *
-     * get the type of a ressource
-     * @param $resourceUri a URI of a ressource
+     * get the type of a resource
+     * @param $resourceUri a URI of a resource
      */
     public function getType ($resourceUri)
     {
@@ -191,9 +191,9 @@ class Xodx_ResourceController extends Saft_Controller
 
     /**
      *
-     * methods looks up a ressource to get the Uri of the activity feed
+     * methods looks up a resource to get the Uri of the activity feed
      * and returns it if succesfull
-     * @param $resourceUri - the URI of the ressource to be looked up
+     * @param $resourceUri - the URI of the resource to be looked up
      */
     public function getActivityFeedUri($resourceUri)
     {

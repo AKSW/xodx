@@ -247,7 +247,7 @@ class Xodx_ActivityController extends Xodx_ResourceController
         $subscribeFeeds[$activityUri] = $activityFeedUri;
 
         // II. general statements of object resource
-        // if $type == 'Uri' the ressource of aair:activityObject statement allready exists
+        // if $type == 'Uri' the resource of aair:activityObject statement allready exists
         // e.g. 'Sharing a Bookmark (URI)' and 'Friending'
         if ($type != 'Uri') {
             $objectFeedUri = $baseUri . '?c=feed&a=getFeed&uri=' . urlencode($objectUri);
@@ -458,7 +458,7 @@ class Xodx_ActivityController extends Xodx_ResourceController
             return null;
         }
 
-        // get Type of Ressource and go on
+        // get Type of resource and go on
         $resourceController = $this->_app->getController('Xodx_ResourceController');
         $type = $resourceController->getType($resourceUri);
 

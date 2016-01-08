@@ -17,13 +17,16 @@ class Xodx_StatController extends Saft_Controller
      * Function to request a turtle representation of all currently available Observations
      * @return string
      */
-    public function getStatsAction ($template, $user = null, $time = null){
-
+    public function getStatsAction ($template, $id = null, $time = null){
+        //TODO: Where to use Person, where to use user
+        //- delete model
+        //re-download xodx, add statcontroller
         //setting up time and user
         $bootstrap = $this->_app->getBootstrap();
         $request = $bootstrap->getResource('request');    
         $time = $request->getValue('time');
-        $user = urldecode($request->getValue('user'));
+        $user = $this->_app->getBaseUri().'?c=user&id='.urldecode($request->getValue('id'));
+        $person = $this->_app->getBaseUri().'?c=person&id='.urldecode($request->getValue('id'));
  
         //initiate observationString
         $observationString = "";
@@ -42,7 +45,7 @@ class Xodx_StatController extends Saft_Controller
         // get messages sent
         $dataset = "xo:dataset-xoOUT";
         $measureProperty = "xo:outgoingMessages";
-        $value = $this->getSentMessages($user);
+        $value = $this->getSentMessages($person);
         $observationString .= $this->buildObservation(
                                             $this->getObsId($time),
                                             $dataset,
@@ -94,7 +97,7 @@ class Xodx_StatController extends Saft_Controller
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         // SPARQL-Query
-        // maybe use <http://purl.org/net/dssn/subscribedTo> ?
+        // maybe use ?c=user&uri= <http://purl.org/net/dssn/subscribedTo> ?
         $query = 'SELECT COUNT(*) WHERE {<'.$user.'> <http://xmlns.com/foaf/0.1/knows> ?x}';
 
         $resultset = $model->sparqlQuery($query);
@@ -125,6 +128,7 @@ class Xodx_StatController extends Saft_Controller
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         // SPARQL-Query
+        //subscribed to
         $query = 'SELECT COUNT(*) WHERE {';
         $query .= '         ?x a <http://xmlns.notu.be/aair#Activity>.';
         $query .= '         ?x <http://xmlns.notu.be/aair#activityVerb> <http://xmlns.notu.be/aair#Post>.';

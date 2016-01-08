@@ -179,7 +179,7 @@ class Xodx_UserController extends Xodx_ResourceController
                 $nsDssn = 'http://purl.org/net/dssn/';
                 $nsRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 
-                $subUri = $this->_app->getBaseUri() . '&c=ressource&id=' . md5(rand());
+                $subUri = $this->_app->getBaseUri() . '&c=resource&id=' . md5(rand());
                 $cbUri  = $this->_app->getBaseUri() . '?c=push&a=callback';
 
                 $subscription = array(
