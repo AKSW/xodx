@@ -106,7 +106,6 @@ class Xodx_StatController extends Saft_Controller
 
         $resultset = $model->sparqlQuery($query);
         $countResult = $resultset[0]['callret-0'];
-        var_dump ($resultset);
         return ($countResult?$countResult:0);
 
     }
