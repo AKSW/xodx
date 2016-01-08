@@ -32,9 +32,10 @@ class Xodx_StatController extends Saft_Controller
         $observationString = "";
 
         // - followers
-        $dataset = "xo:dataset-xoFollower";
-        $measureProperty = "xo:follower";
-        $value = $this->getFollowers($user);
+        $dataset = "xo:dataset-xofollowedFeeds";
+        $measureProperty = "xo:followedFeeds";
+        $value = $this->getFollowedfeeds($user,$person);
+        $observationString = $value;
         $observationString .= $this->buildObservation(
                                             $this->getObsId($time),
                                             $dataset,
@@ -56,7 +57,7 @@ class Xodx_StatController extends Saft_Controller
         // get messages received
         $dataset = "xo:dataset-xoIN";
         $measureProperty = "xo:receivedMessages";
-        $value = $this->getReceivedMessages($user);
+        $value = $this->getReceivedMessages($person);
         $observationString .= $this->buildObservation(
                                             $this->getObsId($time),
                                             $dataset,
@@ -86,35 +87,37 @@ class Xodx_StatController extends Saft_Controller
                                             $measureProperty,
                                             $time,
                                             $value);
-
         $template->disableLayout();
         $template->setRawContent($observationString);
 
         return $template;
     }
     
-    private function getFollowers($user){
+    private function getFollowedfeeds($user,$person){
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         // SPARQL-Query
-        // maybe use ?c=user&uri= <http://purl.org/net/dssn/subscribedTo> ?
-        $query = 'SELECT COUNT(*) WHERE {<'.$user.'> <http://xmlns.com/foaf/0.1/knows> ?x}';
+        $query = 'SELECT COUNT(?friendperson) WHERE {';
+        $query .= '         <'.$user.'> <http://purl.org/net/dssn/subscribedTo> ?resource.';
+        $query .= '         ?resource <http://purl.org/net/dssn/subscriptionTopic> ?feed.';
+        $query .= '         ?friendperson <http://purl.org/net/dssn/activityFeed> ?feed.';
+        $query .= '         <'.$person.'> <http://xmlns.com/foaf/0.1/knows> ?friendperson';
+        $query .= '} GROUP BY ?friendperson';
 
         $resultset = $model->sparqlQuery($query);
         $countResult = $resultset[0]['callret-0'];
-        
+        var_dump ($resultset);
         return ($countResult?$countResult:0);
 
     }
 
-    private function getSentMessages($user){
+    private function getSentMessages($person){
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         // SPARQL-Query
         $query = 'SELECT COUNT(*) WHERE {';
-        $query .= '         ?x a <http://xmlns.notu.be/aair#Activity>.';
-        $query .= '         ?x <http://xmlns.notu.be/aair#activityVerb> <http://xmlns.notu.be/aair#Post>.';
-        $query .= '         ?x <http://xmlns.notu.be/aair#activityActor> <'.$user.'>';
+        $query .= '         ?x a <http://rdfs.org/sioc/ns#Post>.';
+        $query .= '         ?x <http://xmlns.com/foaf/0.1/maker> <'.$person.'>';
         $query .= '}';
 
         $resultset = $model->sparqlQuery($query);
@@ -123,17 +126,15 @@ class Xodx_StatController extends Saft_Controller
         return ($countResult?$countResult:0);
 
     }
-    private function getReceivedMessages($user){
+    private function getReceivedMessages($person){
 
         $bootstrap = $this->_app->getBootstrap();
         $model = $bootstrap->getResource('model');
         // SPARQL-Query
-        //subscribed to
         $query = 'SELECT COUNT(*) WHERE {';
-        $query .= '         ?x a <http://xmlns.notu.be/aair#Activity>.';
-        $query .= '         ?x <http://xmlns.notu.be/aair#activityVerb> <http://xmlns.notu.be/aair#Post>.';
-        $query .= '         ?x <http://xmlns.notu.be/aair#activityActor> ?u.';
-        $query .= '       <'.$user.'> <http://xmlns.com/foaf/0.1/knows> ?u';
+        $query .= '         ?x a <http://rdfs.org/sioc/ns#Post>.';
+        $query .= '         ?x <http://xmlns.com/foaf/0.1/maker> ?maker.';
+        $query .= '       <'.$person.'> <http://xmlns.com/foaf/0.1/knows> ?maker';
         $query .= '}';
 
         $resultset = $model->sparqlQuery($query);
