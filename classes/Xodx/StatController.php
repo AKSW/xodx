@@ -18,8 +18,6 @@ class Xodx_StatController extends Saft_Controller
      * @return string
      */
     public function getStatsAction ($template, $id = null, $time = null){
-        //TODO: Where to use Person, where to use user
-        //- delete model
         //re-download xodx, add statcontroller
         //setting up time and user
         $bootstrap = $this->_app->getBootstrap();
@@ -32,10 +30,13 @@ class Xodx_StatController extends Saft_Controller
         $observationString = "";
 
         // - followers
-        $dataset = "xo:dataset-xofollowedFeeds";
-        $measureProperty = "xo:followedFeeds";
+        $dataset = "xo:dataset-xofollowers";
+        $measureProperty = "xo:followers";
+        
+        //!!!!!
+        //IMPORTANT! Assuming: FOLLOWED FEEDS OF PERSONS = PERSONS THAT FOLLOW THE USER!
+        //!!!!!
         $value = $this->getFollowedfeeds($user,$person);
-        $observationString = $value;
         $observationString .= $this->buildObservation(
                                             $this->getObsId($time),
                                             $dataset,
