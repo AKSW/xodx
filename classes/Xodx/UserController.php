@@ -13,6 +13,7 @@ require_once('password_compat/lib/password.php');
  * this includes:
  *  - subscribing to a feed
  *  - getting notifications
+ *
  */
 class Xodx_UserController extends Xodx_ResourceController
 {

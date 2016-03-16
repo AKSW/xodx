@@ -17,7 +17,19 @@
     <li><a href="?c=profile&amp;a=list">List All Profiles</a></li>
 </ul>
 <ul class="nav pull-right">
-    <li><a href="?c=application&amp;a=login">Login</a></li>
-    <li><a href="?c=application&amp;a=logout">Logout</a></li>
+    <?php
+    if ($this->username != "guest")
+    {
+        echo ("<li><a href=\"?c=conference&amp;a=list\">Show All Conferences</a></li>");
+        //echo ("<li><a href=\"?c=conference&amp;a=edit\">Conference Editor</a></li>");
+        echo ("<li><a href=\"?c=editor&amp;a=edit&amp;class=person\">Profile Editor</a></li>");
+        echo ("<li><a href=\"?c=application&amp;a=logout\">Logout</a></li>");
+    }
+    else
+    {
+        echo ("<li><a href=\"?c=application&amp;a=login\">Login</a></li>");
+    }
+    ?>
 </ul>
-</div><!--/.nav-collapse -->
+</div>
+<!--/.nav-collapse -->

@@ -1,0 +1,152 @@
+﻿<h2>Profil Editor</h2>
+
+<form action="?c=person&amp;a=profileeditor" method="post" class="form-horizontal">
+<fieldset>
+
+<?php
+if (isset($this->profile))
+{
+    $counter = 0;
+
+    //echo ("Database Values:<br>");
+    //var_dump($this->profile);
+    //echo ("<hr>");
+
+    if (count($this -> wrong) > 0 && !is_null($this -> wrong))
+    {
+        echo ("Please correct the <font color=\"#FF0000\">red</font> Properties!<br><br>");
+        //var_dump($this -> wrong);
+    }
+
+    foreach ($this->allowedSinglePrefixes as $prefixKey => $prefix)
+    {
+        $elementX = "";
+        //HACK: Do we have LINQ or at least something to make this better?
+        //echo ("$prefix <br>");
+        //var_dump($prefixKey);
+        //echo ("<br>");
+
+        foreach ($this->profile as $key => $element)
+        {
+            if ($element["p"] == $prefixKey)
+            {
+                $elementX = $element["o"];
+            }
+        }
+        $counterText = (string)$counter;
+        $prefixText = $counterText ."_prefix";
+        $valueText = $counterText . "_value";
+        $thisIsWrong = false;
+
+        foreach($this->wrong as $keyX => $array)
+        {
+            if ($array['p'] == $prefixKey)
+            {
+                //echo ("Wrong: $prefix");
+                $thisIsWrong = true;
+                break;
+            }
+        }
+
+        if ($thisIsWrong)
+        {
+            echo ("<div class=\"control-group\">
+            <label class=\"control-label\" for=\"$prefixKey\"><font color=\"#FF0000\">$prefixKey</font></label>
+            <div class=\"controls\">
+            <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+            <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefixKey\"/>
+            </div>
+            </div>");
+        }
+        else
+        {
+            echo ("<div class=\"control-group\">
+            <label class=\"control-label\" for=\"$prefixKey\">$prefixKey</label>
+            <div class=\"controls\">
+            <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+            <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefixKey\"/>
+            </div>
+            </div>");
+        }
+        $counter = $counter + 1;
+    }
+
+    $counter = 0;
+    foreach ($this->allowedMultiplePrefixes as $prefix => $prefixValue)
+    {
+        $elementX = "";
+        $i = 0;
+        $counterText = (string)$counter;
+        //HACK: Do we have LINQ or at least something to make this better?
+        foreach ($this->profile as $key => $element)
+        {
+            if ($element["p"] == $prefix)
+            {
+                $elementX = $element["o"];
+
+                $prefixText = $counterText ."_Mprefix";
+                $valueText = $counterText . "_Mvalue_$i";
+
+                $thisIsWrong = false;
+
+                foreach($this->wrong as $key => $array)
+                {
+                    if ($array['p'] == $prefix && $array['o'] == $elementX)
+                    {
+                        $thisIsWrong = true;
+                        break;
+                    }
+                }
+
+                if ($thisIsWrong)
+                {
+                    echo ("<div class=\"control-group\">
+                    <label class=\"control-label\" for=\"$prefix\"><font color=\"#FF0000\">$prefix</font></label>
+                    <div class=\"controls\">
+                    <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+                    <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+                    </div>
+                    </div>");
+                }
+                else
+                {
+                    echo ("<div class=\"control-group\">
+                    <label class=\"control-label\" for=\"$prefix\">$prefix</label>
+                    <div class=\"controls\">
+                    <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"$elementX\"/>
+                    <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+                    </div>
+                    </div>");
+                }
+                $i=$i+1;
+            }
+        }
+
+        $prefixText = $counterText ."_Mprefix";
+        $valueText = $counterText . "_Mvalue_$i";
+        echo ("<div class=\"control-group\">
+        <label class=\"control-label\" for=\"$prefix\">$prefix</label>
+        <div class=\"controls\">
+        <input type=\"text\" class=\"input-xlarge\" name=\"$valueText\" id=\"$valueText\" value=\"\"/>
+        <input type=\"hidden\" class=\"input-xlarge\" name=\"$prefixText\" id=\"$prefixText\" value=\"$prefix\"/>
+        </div>
+        </div>");
+
+        $counter = $counter + 1;
+        //echo ("Prefix: $prefix <br>");
+    }
+}
+else
+{
+    echo ("Damn, profile not set...");
+}
+
+?>
+
+<div class="form-actions">
+    <button class="btn btn-primary" type="submit">Save</button>
+</div>
+
+</fieldset>
+
+</form>

@@ -4,3 +4,5 @@ resources/bootstrap/
 resources/jquery/
 xodx.log
 config.ini
+/xodx.geany
+/gitcommit.bat

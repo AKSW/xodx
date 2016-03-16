@@ -251,7 +251,7 @@ class Xodx_PersonController extends Xodx_ResourceController
     }
 
     /**
-     * Add a new contact to the list of freinds of a person
+     * Add a new contact to the list of friends of a person
      * This is a one-way connection, the contact doesn't has to approve it
      *
      * @param $personUri the URI of the person to whome the contact should be added
